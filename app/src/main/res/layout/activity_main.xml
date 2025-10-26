@@ -71,26 +71,25 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.861" />
 
-    <Button
+    <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button"
-        android:layout_width="409dp"
+        android:layout_width="410dp"
         android:layout_height="92dp"
         android:background="@drawable/button_m"
         android:backgroundTint="@color/button_mc"
-        android:text="Rozpocznij wędrówkę"
-        android:textSize="36sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.333"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0"
-        android:textColor="#000"
         android:shadowColor="#fff"
         android:shadowDx="2"
         android:shadowDy="2"
         android:shadowRadius="1"
+        android:text="Rozpocznij wędrówkę"
+        android:textColor="#000"
+        android:textSize="34sp"
         android:textStyle="bold"
-        />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
