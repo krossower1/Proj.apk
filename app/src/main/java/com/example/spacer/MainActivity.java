@@ -1,0 +1,52 @@
+package com.example.spacer;
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import org.osmdroid.config.Configuration;
+import org.osmdroid.util.GeoPoint;
+import org.osmdroid.views.MapView;
+import org.osmdroid.views.overlay.Marker;
+
+import android.preference.PreferenceManager;
+
+public class MainActivity extends AppCompatActivity {
+
+    private MapView map;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // Konfiguracja OSMDroid
+        Configuration.getInstance().load(getApplicationContext(),
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+
+        setContentView(R.layout.activity_main);
+
+        map = findViewById(R.id.map);
+        map.setMultiTouchControls(true); // umożliwia pinch-zoom
+
+        // Ustawienie punktu startowego
+        GeoPoint startPoint = new GeoPoint(52.2297, 21.0122); // Warszawa
+        map.getController().setZoom(12.0);
+        map.getController().setCenter(startPoint);
+
+        // Dodanie markera
+        Marker marker = new Marker(map);
+        marker.setPosition(startPoint);
+        marker.setTitle("Warszawa");
+        map.getOverlays().add(marker);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        map.onResume(); // ważne dla OSMDroid
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        map.onPause(); // ważne dla OSMDroid
+    }
+}
