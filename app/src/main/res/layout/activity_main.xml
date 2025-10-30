@@ -9,22 +9,22 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="315dp"
-        android:layout_height="62dp"
-        android:text="Wędrówka dnia xxx"
-        android:textSize="36sp"
+        android:id="@+id/date"
+        android:layout_width="318dp"
+        android:layout_height="46dp"
+        android:text="@string/dzien"
+        android:textSize="32sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.166"
+        app:layout_constraintHorizontal_bias="0.172"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.023" />
 
     <org.osmdroid.views.MapView
         android:id="@+id/map"
-        android:layout_width="402dp"
-        android:layout_height="261dp"
+        android:layout_width="399dp"
+        android:layout_height="291dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.444"
@@ -36,54 +36,54 @@
         android:id="@+id/textView2"
         android:layout_width="384dp"
         android:layout_height="36dp"
-        android:text="Spalone kalorie: xxx"
+        android:text="@string/kalorie"
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.592"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.758" />
-
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="384dp"
-        android:layout_height="36dp"
-        android:text="Ilość kroków: xxx"
-        android:textSize="26sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.592"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.81" />
+        app:layout_constraintVertical_bias="0.71" />
 
     <TextView
         android:id="@+id/textView4"
         android:layout_width="384dp"
         android:layout_height="36dp"
-        android:text="Średnia prędkość: xxx"
+        android:text="@string/preskosc"
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.592"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.861" />
+        app:layout_constraintVertical_bias="0.812" />
+
+    <TextView
+        android:id="@+id/textView3"
+        android:layout_width="384dp"
+        android:layout_height="36dp"
+        android:text="@string/kroki"
+        android:textSize="26sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.592"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.762" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button"
-        android:layout_width="410dp"
-        android:layout_height="92dp"
+        android:layout_width="411dp"
+        android:layout_height="127dp"
         android:background="@drawable/button_m"
         android:backgroundTint="@color/button_mc"
         android:shadowColor="#fff"
         android:shadowDx="2"
         android:shadowDy="2"
         android:shadowRadius="1"
-        android:text="Rozpocznij wędrówkę"
+        android:text="@string/przycisk"
         android:textColor="#000"
-        android:textSize="34sp"
+        android:textSize="44sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -91,5 +91,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
+
+    <ImageButton
+        android:id="@+id/imageButton"
+        android:layout_width="56dp"
+        android:layout_height="58dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.969"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.02"
+        app:srcCompat="@drawable/hamburger" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
