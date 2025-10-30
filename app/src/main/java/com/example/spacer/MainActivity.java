@@ -1,7 +1,13 @@
 package com.example.spacer;
 
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import android.os.Bundle;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
@@ -23,10 +29,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
         // Konfiguracja OSMDroid
         Configuration.getInstance().load(getApplicationContext(),
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
-        setContentView(R.layout.activity_main);
 
         date = findViewById(R.id.date);
 
@@ -63,4 +72,11 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         map.onPause(); // ważne dla OSMDroid
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.home_menu,menu);
+        return true;
+    }
+
 }

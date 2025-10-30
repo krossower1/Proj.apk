@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <item
+        android:title="Alerty o niestabilnym chodzie"
+        android:id="@+id/alerty"
+        />
+
+    <item
+        android:title="Cotygodniowe raporty"
+        android:id="@+id/raporty"
+        />
+
+    <item
+        android:title="Pokazuj znaczniki na mapie"
+        android:id="@+id/pznaczniki"
+        />
+
+    <item
+        android:title="Usuń znacznik"
+        android:id="@+id/uznacznik"
+        />
+
+    <item
+        android:title="Porównaj ten dzień"
+        android:id="@+id/pdzien"
+        />
+
+    <item
+        android:title="Eksport danych"
+        android:id="@+id/edane"
+        />
+
+    <item
+        android:title="Usuń dane"
+        android:id="@+id/udane"
+        />
+
+    <item
+        android:title=" "
+        android:id="@+id/bla"
+        />
+
+    <item
+        android:title="Nazwa użytkownika"
+        android:id="@+id/nazwau"
+        />
+
+    <item
+        android:title="Wyloguj"
+        android:id="@+id/wyloguj"
+        />
+
+
+
+</menu>

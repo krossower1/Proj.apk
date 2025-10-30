@@ -19,12 +19,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.Spacer">
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        >
         <meta-data
             android:usesCleartextTraffic="true"
             android:name="@string/title_activity_spacer"
             android:value="Spacer"
-            android:exported= "true" />
+            android:exported="true" />
         <activity
             android:name=".Spacer"
             android:exported="true"
