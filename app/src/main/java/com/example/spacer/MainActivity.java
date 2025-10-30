@@ -21,6 +21,7 @@ public class MainActivity extends AppCompatActivity {
         Configuration.getInstance().load(getApplicationContext(),
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
 
+
         setContentView(R.layout.activity_main);
 
         map = findViewById(R.id.map);
