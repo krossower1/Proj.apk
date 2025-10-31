@@ -3,11 +3,9 @@ package com.example.spacer;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-
 import android.os.Bundle;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.util.GeoPoint;
@@ -17,6 +15,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import android.content.DialogInterface;
+import androidx.appcompat.app.AlertDialog;
+import android.view.View;
+import android.widget.Toast;
 
 
 import android.preference.PreferenceManager;
@@ -50,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         map.setMultiTouchControls(true); // umożliwia pinch-zoom
 
         // Ustawienie punktu startowego
-        GeoPoint startPoint = new GeoPoint(52.2297, 21.0122); // Warszawa
+        GeoPoint startPoint = new GeoPoint(52, 21.0122); // Warszawa
         map.getController().setZoom(12.0);
         map.getController().setCenter(startPoint);
 
@@ -79,4 +81,26 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.alerty) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setMessage("Czy chcesz otrzymywać alerty o niestabilnym chodzie?");
+            builder.setTitle("Alert");
+            builder.setCancelable(false);
+            builder.setPositiveButton("Tak", (DialogInterface.OnClickListener) (dialog, which) -> {
+                dialog.cancel();
+            });
+            builder.setNegativeButton("Nie", (DialogInterface.OnClickListener) (dialog, which) -> {
+                dialog.cancel();
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+            return true;
+
+            // Toast.makeText(this, "Menu Item is Pressed", Toast.LENGTH_SHORT).show();
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }
