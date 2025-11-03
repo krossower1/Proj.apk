@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Spacer</string>
+    <string name="app_name">StepTracker</string>
     <string name="title_activity_spacer">Spacer</string>
     <string name="dzien">Wędrówka dnia </string>
     <string name="kalorie">Spalone kalorie: xxx</string>

@@ -19,6 +19,9 @@ import android.content.DialogInterface;
 import androidx.appcompat.app.AlertDialog;
 import android.view.View;
 import android.widget.Toast;
+import android.content.Intent;
+import android.view.LayoutInflater;
+
 
 
 import android.preference.PreferenceManager;
@@ -101,6 +104,58 @@ public class MainActivity extends AppCompatActivity {
 
             // Toast.makeText(this, "Menu Item is Pressed", Toast.LENGTH_SHORT).show();
         }
+
+        // ------------------------------------------
+        // Usuwanie danych użytkownika z SQLite | CUSTOM TOAST
+        // ------------------------------------------
+        if (id == R.id.udane) {
+            DatabaseHelper dbHelper = new DatabaseHelper(this);
+            dbHelper.clearUsers();
+
+            LayoutInflater inflater = getLayoutInflater();
+            View layout = inflater.inflate(R.layout.custom_toast, null);
+
+            TextView text = layout.findViewById(R.id.text_toast);
+            text.setText("Wszystkie dane zostały usunięte!");
+
+            Toast toast = new Toast(getApplicationContext());
+            toast.setDuration(Toast.LENGTH_SHORT);
+            toast.setView(layout);
+            toast.show();
+            // ----------------------------
+
+            return true;
+        }
+
+
+
+
+
+
+        if (id == R.id.wyloguj) {
+
+            // ----------------------------
+            // CUSTOM TOAST
+            // ----------------------------
+            LayoutInflater inflater = getLayoutInflater();
+            View layout = inflater.inflate(R.layout.custom_toast, null);
+
+            TextView text = layout.findViewById(R.id.text_toast);
+            text.setText("Wylogowano pomyślnie!");
+
+            Toast toast = new Toast(getApplicationContext());
+            toast.setDuration(Toast.LENGTH_SHORT);
+            toast.setView(layout);
+            toast.show();
+            // ----------------------------
+
+            // Wylogowanie i przejście do ekranu logowania
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
+            finish(); // kończymy MainActivity, by nie wrócić po cofnięciu
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
 }

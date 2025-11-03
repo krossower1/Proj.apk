@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/tlo">
+
+    <!-- Nagłówek -->
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="32dp"
+        android:text="Logowanie"
+        android:textColor="#4CAF50"
+        android:textSize="28sp"
+        android:textStyle="bold" />
+
+    <!-- Pole: Login -->
+    <EditText
+        android:id="@+id/etLogin"
+        android:hint="Login"
+        android:inputType="textPersonName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="#648a3a" />
+
+    <!-- Pole: Hasło -->
+    <EditText
+        android:id="@+id/etPassword"
+        android:hint="Hasło"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        android:background="@android:drawable/edit_text"
+        android:layout_marginBottom="24dp"
+        android:backgroundTint="#648a3a" />
+
+    <!-- Przycisk: Zaloguj -->
+    <Button
+        android:id="@+id/btnLogin"
+        android:text="Zaloguj"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#4CAF50"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Przycisk: Przejdź do rejestracji -->
+    <Button
+        android:id="@+id/btnGoToRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:backgroundTint="#8BC34A"
+        android:text="Przejdź do rejestracji"
+        android:textColor="#FFFFFF" />
+
+    <!-- Przycisk: Zamknij aplikację -->
+    <Button
+        android:id="@+id/btnExit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#F44336"
+        android:text="Zamknij aplikację"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>

@@ -4,40 +4,64 @@
     package="com.example.spacer"
     android:versionCode="1"
     android:versionName="1.0">
+
+    <!-- Uprawnienia -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.MediaStore.createWriteRequest" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.android:resource" />
+
+    <!-- UWAGA: to uprawnienie było błędne i usunięte -->
+    <!-- <uses-permission android:name="android.permission.android:resource" /> -->
+    <!-- <uses-permission android:name="android.permission.MediaStore.createWriteRequest" /> -->
+    <!-- te dwie linie nie są potrzebne i powodowały błędy -->
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/icons8boots50"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-        >
-        <meta-data
-            android:usesCleartextTraffic="true"
-            android:name="@string/title_activity_spacer"
-            android:value="Spacer"
-            android:exported="true" />
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
+        <!-- Niepotrzebne meta-data – usunięto niepoprawny atrybut -->
+        <!-- <meta-data ... /> -->
+
+        <!-- Główna aktywność uruchamiana przy starcie -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:label="Logowanie">
+        </activity>
+
+
+        <!-- Ekran Spacer (jeśli istnieje w projekcie) -->
         <activity
             android:name=".Spacer"
             android:exported="true"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:label="@string/title_activity_spacer" />
+
+        <!-- ✅ Nowo dodane ekrany -->
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name=".RegisterActivity"
+            android:exported="true"
+            android:label="StepTracker">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="Główna" />
+
+
+
     </application>
 </manifest>
