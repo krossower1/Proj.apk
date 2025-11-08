@@ -78,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
                             Log.d("GPS", "Lat: " + lat + ", Lon: " + lon);
                         }
                         // Ustawienie punktu startowego
-                        GeoPoint startPoint = new GeoPoint(lat, 21.0122); // Warszawa
+                        GeoPoint startPoint = new GeoPoint(lat, lon); // Warszawa
                         map.getController().setZoom(12.0);
                         map.getController().setCenter(startPoint);
 
