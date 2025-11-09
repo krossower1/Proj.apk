@@ -37,8 +37,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private MapView map;
-    private TextView date = findViewById(R.id.date);;
-    private TextView predkosc = findViewById(R.id.textView4);
+    private TextView date;
+    private TextView predkosc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
 
         String currentDateString = dateFormat.format(new Date());
+
+        date = findViewById(R.id.date);
 
         date.setText(getString(R.string.dzien) + " " + currentDateString);
 
@@ -151,11 +153,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return true;
         }
 
-
-
-
-
-
         if (id == R.id.wyloguj) {
 
             // ----------------------------
@@ -184,11 +181,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+        predkosc = findViewById(R.id.textView4);
+
         float x = event.values[0];
         float y = event.values[1];
-        float z = event.values[2];
+        // float z = event.values[2];
 
-        predkosc.setText(Math.abs(x) + Math.abs(y) + "");
+        predkosc.setText(getString(R.string.preskosc) + " " + Math.ceil(Math.abs(x) + Math.abs(y)) + " m");
     }
 
     @Override

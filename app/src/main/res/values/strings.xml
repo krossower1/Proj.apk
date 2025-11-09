@@ -2,8 +2,8 @@
     <string name="app_name">StepTracker</string>
     <string name="title_activity_spacer">Spacer</string>
     <string name="dzien">Wędrówka dnia </string>
-    <string name="kalorie">Spalone kalorie: xxx</string>
-    <string name="kroki">Ilość kroków: xxx</string>
-    <string name="preskosc">Średnia prędkość: xxx</string>
+    <string name="kalorie">Spalone kalorie:</string>
+    <string name="kroki">Ilość kroków:</string>
+    <string name="preskosc">Średnia prędkość:</string>
     <string name="przycisk">Rozpocznij wędrówkę</string>
 </resources>
