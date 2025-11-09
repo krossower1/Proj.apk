@@ -21,13 +21,21 @@ import android.view.View;
 import android.widget.Toast;
 import android.content.Intent;
 import android.view.LayoutInflater;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
 
 
 
 import android.preference.PreferenceManager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
     private MapView map;
     private TextView date;
 
@@ -37,6 +45,17 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Inicjalizacja sensor managera
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        // Pobranie akcelerometru
+        if (sensorManager != null) {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        }
+        if (accelerometer == null) {
+            Toast.makeText(this, "Brak akcelerometru w tym urządzeniu!", Toast.LENGTH_LONG).show();
+        }
 
         // Konfiguracja OSMDroid
         Configuration.getInstance().load(getApplicationContext(),
@@ -70,12 +89,18 @@ public class MainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
         map.onResume(); // ważne dla OSMDroid
+        // Rejestracja nasłuchiwania sensora
+        if (accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
         map.onPause(); // ważne dla OSMDroid
+        // Wyrejestrowanie nasłuchiwania (oszczędzanie baterii)
+        sensorManager.unregisterListener(this);
     }
 
     @Override
@@ -157,5 +182,15 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        //
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        //
     }
 }
