@@ -40,6 +40,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView date;
     private TextView predkosc;
 
+    double vel = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -187,7 +189,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         float y = event.values[1];
         // float z = event.values[2];
 
-        predkosc.setText(getString(R.string.preskosc) + " " + Math.ceil(Math.abs(x) + Math.abs(y)) + " m");
+        vel = vel + Math.floor(Math.abs(x) + Math.abs(y));
+
+        predkosc.setText(getString(R.string.preskosc) + " " + vel + " m");
     }
 
     @Override
