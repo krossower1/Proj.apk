@@ -37,7 +37,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private MapView map;
-    private TextView date;
+    private TextView date = findViewById(R.id.date);;
+    private TextView predkosc = findViewById(R.id.textView4);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +61,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // Konfiguracja OSMDroid
         Configuration.getInstance().load(getApplicationContext(),
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
-
-        date = findViewById(R.id.date);
 
         // Create date and time formatters with locale
         DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
@@ -180,13 +179,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             finish(); // kończymy MainActivity, by nie wrócić po cofnięciu
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        //
+        float x = event.values[0];
+        float y = event.values[1];
+        float z = event.values[2];
+
+        predkosc.setText(Math.abs(x) + Math.abs(y) + "");
     }
 
     @Override
