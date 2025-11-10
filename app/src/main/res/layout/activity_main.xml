@@ -7,6 +7,17 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     android:orientation="vertical">
+    <!--
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/graph"
+        android:layout_width="395dp"
+        android:layout_height="178dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.635" />
+        -->
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -39,26 +50,26 @@
     <org.osmdroid.views.MapView
         android:id="@+id/map"
         android:layout_width="395dp"
-        android:layout_height="351dp"
+        android:layout_height="395dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.131" />
+        app:layout_constraintVertical_bias="0.127" />
 
     <TextView
         android:id="@+id/textView2"
         android:layout_width="384dp"
         android:layout_height="36dp"
-        android:text="@string/kalorie"
+        android:text="@string/preskosc"
+        android:textColor="#000"
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.592"
+        app:layout_constraintHorizontal_bias="0.481"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.71"
-        android:textColor="#000"  />
+        app:layout_constraintVertical_bias="0.846" />
 
     <TextView
         android:id="@+id/textView3"
@@ -66,9 +77,10 @@
         android:layout_height="36dp"
         android:text="@string/kroki"
         android:textSize="26sp"
+        android:textColor="#000"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.592"
+        app:layout_constraintHorizontal_bias="0.481"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.762"
@@ -79,10 +91,11 @@
         android:layout_width="384dp"
         android:layout_height="36dp"
         android:text="@string/preskosc"
+        android:textColor="#000"
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.592"
+        app:layout_constraintHorizontal_bias="0.481"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.812"

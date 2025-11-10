@@ -1,5 +1,6 @@
 package com.example.spacer;
 
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
@@ -27,6 +28,17 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.tasks.OnSuccessListener;
+import android.location.Location;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationResult;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 
 
@@ -41,6 +53,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView predkosc;
 
     double vel = 0;
+    private FusedLocationProviderClient fusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +61,46 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setContentView(R.layout.activity_main);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    100);
+        }
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 100);
+            return;
+        }
+
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        double lat = 0;
+                        double lon = 0;
+                        if (location != null) {
+                            lat = location.getLatitude();
+                            lon = location.getLongitude();
+                            Log.d("GPS", "Lat: " + lat + ", Lon: " + lon);
+                        }
+                        // Ustawienie punktu startowego
+                        GeoPoint startPoint = new GeoPoint(lat, lon); // Warszawa
+                        map.getController().setZoom(12.0);
+                        map.getController().setCenter(startPoint);
+
+                        // Dodanie markera
+                        Marker marker = new Marker(map);
+                        marker.setPosition(startPoint);
+                        marker.setTitle("START");
+                        map.getOverlays().add(marker);
+                    }
+                });
+
 
         // Inicjalizacja sensor managera
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
@@ -75,18 +128,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         map = findViewById(R.id.map);
         map.setMultiTouchControls(true); // umożliwia pinch-zoom
-
-        // Ustawienie punktu startowego
-        GeoPoint startPoint = new GeoPoint(52, 21.0122); // Warszawa
-        map.getController().setZoom(12.0);
-        map.getController().setCenter(startPoint);
-
-        // Dodanie markera
-        Marker marker = new Marker(map);
-        marker.setPosition(startPoint);
-        marker.setTitle("Warszawa");
-        map.getOverlays().add(marker);
     }
+
+    LocationRequest locationRequest = new LocationRequest.Builder(
+            LocationRequest.PRIORITY_HIGH_ACCURACY, 5000) // co 5 sekund
+            .build();
+
+    LocationCallback locationCallback = new LocationCallback() {
+        @Override
+        public void onLocationResult(LocationResult locationResult) {
+            if (locationResult == null) return;
+            for (Location location : locationResult.getLocations()) {
+                Log.d("GPS", "Lat: " + location.getLatitude() + ", Lon: " + location.getLongitude());
+            }
+        }
+    };
 
     @Override
     public void onResume() {
@@ -104,6 +160,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         map.onPause(); // ważne dla OSMDroid
         // Wyrejestrowanie nasłuchiwania (oszczędzanie baterii)
         sensorManager.unregisterListener(this);
+        fusedLocationClient.removeLocationUpdates(locationCallback);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
     @Override
@@ -178,6 +241,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             finish(); // kończymy MainActivity, by nie wrócić po cofnięciu
             return true;
         }
+
+        // Włącz aktualizacje:
+        // fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+
         return super.onOptionsItemSelected(item);
     }
 

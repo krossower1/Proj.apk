@@ -39,6 +39,8 @@ android {
 
 dependencies {
     implementation("org.osmdroid:osmdroid-android:6.1.20")
+    implementation("com.jjoe64:graphview:4.2.2")
+    implementation("com.google.android.gms:play-services-location:21.3.0")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
