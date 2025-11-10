@@ -22,6 +22,12 @@ import android.view.View;
 import android.widget.Toast;
 import android.content.Intent;
 import android.view.LayoutInflater;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.os.Bundle;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,10 +44,15 @@ import androidx.core.content.ContextCompat;
 
 import android.preference.PreferenceManager;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
     private MapView map;
     private TextView date;
+    private TextView predkosc;
+
+    double vel = 0;
     private FusedLocationProviderClient fusedLocationClient;
 
     @Override
@@ -91,16 +102,27 @@ public class MainActivity extends AppCompatActivity {
                 });
 
 
+        // Inicjalizacja sensor managera
+        sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+
+        // Pobranie akcelerometru
+        if (sensorManager != null) {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        }
+        if (accelerometer == null) {
+            Toast.makeText(this, "Brak akcelerometru w tym urządzeniu!", Toast.LENGTH_LONG).show();
+        }
+
         // Konfiguracja OSMDroid
         Configuration.getInstance().load(getApplicationContext(),
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
-
-        date = findViewById(R.id.date);
 
         // Create date and time formatters with locale
         DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
 
         String currentDateString = dateFormat.format(new Date());
+
+        date = findViewById(R.id.date);
 
         date.setText(getString(R.string.dzien) + " " + currentDateString);
 
@@ -125,13 +147,19 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        map.onResume();
+        map.onResume(); // ważne dla OSMDroid
+        // Rejestracja nasłuchiwania sensora
+        if (accelerometer != null) {
+            sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        map.onPause();
+        map.onPause(); // ważne dla OSMDroid
+        // Wyrejestrowanie nasłuchiwania (oszczędzanie baterii)
+        sensorManager.unregisterListener(this);
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
@@ -190,11 +218,6 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
-
-
-
-
-
         if (id == R.id.wyloguj) {
 
             // ----------------------------
@@ -223,5 +246,23 @@ public class MainActivity extends AppCompatActivity {
         // fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        predkosc = findViewById(R.id.textView4);
+
+        float x = event.values[0];
+        float y = event.values[1];
+        // float z = event.values[2];
+
+        vel = vel + Math.floor(Math.abs(x) + Math.abs(y));
+
+        predkosc.setText(getString(R.string.preskosc) + " " + vel + " m");
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        //
     }
 }
