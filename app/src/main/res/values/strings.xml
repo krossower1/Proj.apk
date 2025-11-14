@@ -1,9 +1,21 @@
 <resources>
     <string name="app_name">StepTracker</string>
     <string name="title_activity_spacer">Spacer</string>
+
+    <!-- Layout -->
     <string name="dzien">Wędrówka dnia </string>
     <string name="kalorie">Spalone kalorie:</string>
     <string name="kroki">Ilość kroków:</string>
-    <string name="preskosc">Średnia prędkość:</string>
+    <string name="dystans">Dystans przebyty:</string>
     <string name="przycisk">Rozpocznij wędrówkę</string>
+
+    <!-- MainActivity -->
+    <string name="t">Tak</string>
+    <string name="n">Nie</string>
+    <string name="start">Punkt początkowy</string>
+    <string name="noaccel">Brak czujnika akcelerometru</string>
+    <string name="nolok">Do wyświetlenia mapy wymagane jest uprawnienie do lokalizacji</string>
+    <string name="niestabil">Czy chcesz otrzymywać powiadomienia o niestabilnym chodzie?</string>
+    <string name="cleardb">Wszystkie dane zostały usunięte!</string>
+    <string name="logout">Wylogowano się pomyślnie!</string>
 </resources>
