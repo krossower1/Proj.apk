@@ -38,14 +38,14 @@
         android:layout_width="313dp"
         android:layout_height="49dp"
         android:text="@string/dzien"
+        android:textColor="#000"
         android:textSize="32sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.081"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.01"
-        android:textColor="#000" />
+        app:layout_constraintVertical_bias="0.008" />
 
     <org.osmdroid.views.MapView
         android:id="@+id/map"
@@ -86,10 +86,10 @@
         app:layout_constraintVertical_bias="0.794" />
 
     <TextView
-        android:id="@+id/preskosc"
+        android:id="@+id/dystans"
         android:layout_width="384dp"
         android:layout_height="36dp"
-        android:text="@string/preskosc"
+        android:text="@string/dystans"
         android:textColor="#000"
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"

@@ -42,63 +42,89 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.preference.PreferenceManager;
 
+/**
+ * The main activity of the application, responsible for displaying the map,
+ * tracking user location, and monitoring movement via the accelerometer.
+ * Also handles the login screen logic.
+ */
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
-    private SensorManager sensorManager;
-    private Sensor accelerometer;
+    // --- Constants and Class Variables ---
+
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 100; // Request code for location permission.
+
+    // UI Elements
     private MapView map;
     private TextView date;
-    private TextView predkosc;
-    private TextView kroki;
-    private Marker marker;
+    private TextView dystans;
+    // private TextView kroki;
+    // private TextView kalorie;
+    private Marker marker; // The marker on the map for the user's location.
 
-    double vel = 0;
+    // Sensor-related variables
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+    private float[] gravity = new float[3]; // Stores the gravity components for filtering.
+    double dist = 0; // Accumulated distance based on movement.
+
+    // Location-related variables
     private FusedLocationProviderClient fusedLocationClient;
-    private float[] gravity = new float[3];
 
+    /**
+     * Called when the activity is first created. Initializes the UI, map, sensors,
+     * and location services.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // --- Toolbar Setup ---
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // --- Location Services Setup ---
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        // --- osmdroid Map Configuration ---
         Configuration.getInstance().load(getApplicationContext(),
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
-
         map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setMultiTouchControls(true);
         map.getController().setZoom(12.0);
 
+        // --- Map Marker Setup ---
         marker = new Marker(map);
-        marker.setTitle("You are here");
-        marker.setEnabled(false);
+        marker.setTitle("@string/start");
+        marker.setEnabled(false); // Initially invisible until a location is found.
         map.getOverlays().add(marker);
 
+        // --- Permissions and Location Initiation ---
         checkAndRequestLocationPermission();
 
+        // --- Sensor Setup ---
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         }
         if (accelerometer == null) {
-            Toast.makeText(this, "Movement detection not available: No Accelerometer Sensor.", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "@string/noaccel", Toast.LENGTH_LONG).show();
         }
 
+        // --- UI Initialization ---
         DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
         String currentDateString = dateFormat.format(new Date());
-
         date = findViewById(R.id.date);
-        kroki = findViewById(R.id.kroki);
-        predkosc = findViewById(R.id.preskosc);
-
+        // kroki = findViewById(R.id.kroki);
+        dystans = findViewById(R.id.dystans);
         date.setText(getString(R.string.dzien) + " " + currentDateString);
     }
 
+    /**
+     * Checks if location permission has been granted. If not, requests it.
+     * If it is granted, it proceeds to start the location tracking process.
+     */
     private void checkAndRequestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -110,24 +136,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Callback for the result from requesting permissions. This method
+     * is invoked for every call on requestPermissions().
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission was granted, start the location process.
                 startLocationProcess();
             } else {
-                Toast.makeText(this, "Location permission is required to show the map.", Toast.LENGTH_LONG).show();
+                // Permission denied, show a toast.
+                Toast.makeText(this, "@string/nolok", Toast.LENGTH_LONG).show();
             }
         }
     }
 
+    /**
+     * Initiates the process of getting the device's location. It first tries to get the
+     * last known location and then requests continuous updates.
+     */
     private void startLocationProcess() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            return; // Should not happen, but as a safeguard
+            return; // Safeguard check.
         }
 
+        // Attempt to get the last known location for a quick initial fix.
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                     @Override
@@ -137,14 +174,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         }
                     }
                 });
+        // Start requesting continuous location updates.
         startLocationUpdates();
     }
 
 
+    /**
+     * Defines the parameters for location updates (priority and interval).
+     */
     LocationRequest locationRequest = new LocationRequest.Builder(
-            LocationRequest.PRIORITY_HIGH_ACCURACY, 5000)
+            LocationRequest.PRIORITY_HIGH_ACCURACY, 5000) // High accuracy, 5-second interval.
             .build();
 
+    /**
+     * Callback object for receiving location updates.
+     */
     LocationCallback locationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
@@ -156,10 +200,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     };
 
+    /**
+     * Updates the map with a new location. It places the marker and centers the map.
+     * Ignores invalid (0,0) coordinates.
+     * param location The new location to display.
+     */
     private void updateMapWithLocation(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
 
+        // Ignore invalid (0,0) locations which can be returned on initial fix.
         if (lat == 0.0 && lon == 0.0) {
             Log.d("GPS", "Ignoring invalid (0,0) location update.");
             return;
@@ -169,16 +219,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         GeoPoint newPoint = new GeoPoint(lat, lon);
         marker.setPosition(newPoint);
 
+        // If this is the first fix, enable the marker and jump to the location.
         if (!marker.isEnabled()) {
             marker.setEnabled(true);
             map.getController().setZoom(18.0);
             map.getController().setCenter(newPoint);
         } else {
+            // For subsequent updates, smoothly animate to the new location.
             map.getController().animateTo(newPoint);
         }
-        map.invalidate();
+        map.invalidate(); // Redraw the map.
     }
 
+    /**
+     * Called when the activity will start interacting with the user.
+     * Resumes map rendering, sensor listening, and location updates.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -189,6 +245,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         startLocationUpdates();
     }
 
+    /**
+     * Starts requesting location updates from the FusedLocationProviderClient.
+     * This is only done if permission has been granted.
+     */
     private void startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -198,6 +258,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Called when the activity is no longer in the foreground.
+     * Pauses map rendering, sensor listening, and location updates to save battery.
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -206,30 +270,41 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
+    /**
+     * Called when the activity is no longer visible to the user.
+     * Ensures location updates are stopped.
+     */
     @Override
     public void onStop() {
         super.onStop();
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
+    /**
+     * Initialize the contents of the Activity's standard options menu.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.home_menu,menu);
         return true;
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.alerty) {
+            // Show alert dialog for unstable walking.
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage("Do you want to receive alerts about unstable walking?");
+            builder.setMessage("@string/niestabil");
             builder.setTitle("Alert");
             builder.setCancelable(false);
-            builder.setPositiveButton("Yes", (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setPositiveButton("@string/t", (DialogInterface.OnClickListener) (dialog, which) -> {
                 dialog.cancel();
             });
-            builder.setNegativeButton("No", (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setNegativeButton("@string/n", (DialogInterface.OnClickListener) (dialog, which) -> {
                 dialog.cancel();
             });
             AlertDialog alertDialog = builder.create();
@@ -238,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if (id == R.id.udane) {
+            // Clear user data and show a confirmation toast.
             DatabaseHelper dbHelper = new DatabaseHelper(this);
             dbHelper.clearUsers();
 
@@ -245,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             View layout = inflater.inflate(R.layout.custom_toast, null);
 
             TextView text = layout.findViewById(R.id.text_toast);
-            text.setText("All data has been deleted!");
+            text.setText("@string/cleardb");
 
             Toast toast = new Toast(getApplicationContext());
             toast.setDuration(Toast.LENGTH_SHORT);
@@ -256,11 +332,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if (id == R.id.wyloguj) {
+            // Log out the user and return to the LoginActivity.
             LayoutInflater inflater = getLayoutInflater();
             View layout = inflater.inflate(R.layout.custom_toast, null);
 
             TextView text = layout.findViewById(R.id.text_toast);
-            text.setText("Logged out successfully!");
+            text.setText("@string/logout");
 
             Toast toast = new Toast(getApplicationContext());
             toast.setDuration(Toast.LENGTH_SHORT);
@@ -276,6 +353,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Called when there is a new sensor event.
+     * This method filters gravity from the accelerometer and calculates movement.
+     */
     @Override
     public void onSensorChanged(SensorEvent event) {
         // High-pass filter to isolate linear acceleration from gravity.
@@ -298,17 +379,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         final double MOVEMENT_THRESHOLD = 0.2;
 
         if (magnitude > MOVEMENT_THRESHOLD) {
-            // The original formula was Math.floor(Math.abs(x) + Math.abs(y)).
-            // Using the magnitude is more physically accurate and robust to orientation.
-            vel = vel + Math.floor(magnitude);
+            // Accumulate distance based on movement magnitude.
+            dist = dist + Math.floor(magnitude);
         }
 
-        if (predkosc != null) {
-            predkosc.setText(getString(R.string.preskosc) + " " + (int)vel + " m");
+        if (dystans != null) {
+            dystans.setText(getString(R.string.dystans) + " " + (int)dist + " m");
         }
     }
 
+    /**
+     * Called when the accuracy of the registered sensor has changed.
+     */
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Not used in this application, but required to be implemented.
     }
 }
