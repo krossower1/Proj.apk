@@ -58,36 +58,35 @@
         app:layout_constraintVertical_bias="0.127" />
 
     <TextView
-        android:id="@+id/textView2"
+        android:id="@+id/kalorie"
         android:layout_width="384dp"
         android:layout_height="36dp"
-        android:text="@string/preskosc"
+        android:text="@string/kalorie"
         android:textColor="#000"
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.481"
+        app:layout_constraintHorizontal_bias="0.592"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.846" />
+        app:layout_constraintVertical_bias="0.739" />
 
     <TextView
-        android:id="@+id/textView3"
+        android:id="@+id/kroki"
         android:layout_width="384dp"
         android:layout_height="36dp"
         android:text="@string/kroki"
-        android:textSize="26sp"
         android:textColor="#000"
+        android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.481"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.762"
-        android:textColor="#000" />
+        app:layout_constraintVertical_bias="0.794" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/preskosc"
         android:layout_width="384dp"
         android:layout_height="36dp"
         android:text="@string/preskosc"
@@ -98,8 +97,7 @@
         app:layout_constraintHorizontal_bias="0.481"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.812"
-        android:textColor="#000" />
+        app:layout_constraintVertical_bias="0.845" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button"

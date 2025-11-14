@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.os.Bundle;
 import org.osmdroid.config.Configuration;
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
@@ -51,6 +52,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private MapView map;
     private TextView date;
     private TextView predkosc;
+    private TextView kroki;
 
     double vel = 0;
     private FusedLocationProviderClient fusedLocationClient;
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
+
                         double lat = 0;
                         double lon = 0;
                         if (location != null) {
@@ -89,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                             Log.d("GPS", "Lat: " + lat + ", Lon: " + lon);
                         }
                         // Ustawienie punktu startowego
-                        GeoPoint startPoint = new GeoPoint(lat, lon); // Warszawa
+                        GeoPoint startPoint = new GeoPoint(lat, lon);
                         map.getController().setZoom(12.0);
                         map.getController().setCenter(startPoint);
 
@@ -98,6 +101,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         marker.setPosition(startPoint);
                         marker.setTitle("START");
                         map.getOverlays().add(marker);
+                        kroki = findViewById(R.id.kroki);
+                        kroki.setText(getString(R.string.preskosc) + " " + lat + lon + " m");
                     }
                 });
 
@@ -127,7 +132,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         date.setText(getString(R.string.dzien) + " " + currentDateString);
 
         map = findViewById(R.id.map);
+        Configuration.getInstance().setUserAgentValue(getPackageName());
         map.setMultiTouchControls(true); // umożliwia pinch-zoom
+
+        map.setMultiTouchControls(true);
+        map.setTileSource(TileSourceFactory.MAPNIK);
     }
 
     LocationRequest locationRequest = new LocationRequest.Builder(
@@ -250,7 +259,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     @Override
     public void onSensorChanged(SensorEvent event) {
-        predkosc = findViewById(R.id.textView4);
+        predkosc = findViewById(R.id.preskosc);
 
         float x = event.values[0];
         float y = event.values[1];
