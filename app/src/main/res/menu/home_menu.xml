@@ -37,21 +37,16 @@
         android:title="Usuń dane"
         android:id="@+id/udane"
         />
-
-    <item
-        android:title=" "
-        android:id="@+id/bla"
-        />
-
+<!-- przeniesc do ustawien
     <item
         android:title="Nazwa użytkownika"
         android:id="@+id/nazwau"
         />
+        -->
 
     <item
         android:title="Wyloguj"
-        android:id="@+id/wyloguj"
-        />
+        android:id="@+id/wyloguj"/>
 
 
 

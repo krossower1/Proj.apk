@@ -7,17 +7,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     android:orientation="vertical">
-    <!--
-    <com.jjoe64.graphview.GraphView
-        android:id="@+id/graph"
-        android:layout_width="395dp"
-        android:layout_height="178dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.635" />
-        -->
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -38,7 +27,7 @@
         android:layout_width="313dp"
         android:layout_height="49dp"
         android:text="@string/dzien"
-        android:textColor="#000"
+        android:textColor="@color/green_text"
         android:textSize="32sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -62,55 +51,55 @@
         android:layout_width="384dp"
         android:layout_height="36dp"
         android:text="@string/kalorie"
-        android:textColor="#000"
+        android:textColor="@color/green_text"
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.592"
+        app:layout_constraintHorizontal_bias="0.476"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.739" />
+        app:layout_constraintVertical_bias="0.569" />
 
     <TextView
         android:id="@+id/kroki"
         android:layout_width="384dp"
         android:layout_height="36dp"
         android:text="@string/kroki"
-        android:textColor="#000"
+        android:textColor="@color/green_text"
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.481"
+        app:layout_constraintHorizontal_bias="0.476"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.794" />
+        app:layout_constraintVertical_bias="0.625" />
 
     <TextView
         android:id="@+id/dystans"
         android:layout_width="384dp"
         android:layout_height="36dp"
         android:text="@string/dystans"
-        android:textColor="#000"
+        android:textColor="@color/green_text"
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.481"
+        app:layout_constraintHorizontal_bias="0.476"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.845" />
+        app:layout_constraintVertical_bias="0.68" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button"
         android:layout_width="411dp"
         android:layout_height="127dp"
         android:background="@drawable/button_m"
-        android:backgroundTint="@color/button_mc"
+        android:backgroundTint="@color/green_background"
         android:shadowColor="#fff"
         android:shadowDx="2"
         android:shadowDy="2"
         android:shadowRadius="1"
         android:text="@string/przycisk"
-        android:textColor="#000"
+        android:textColor="@color/green_text"
         android:textSize="44sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -118,20 +107,22 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="0.827" />
 
-    <!--
-    <ImageButton
-    android:id="@+id/imageButton"
-    android:layout_width="56dp"
-    android:layout_height="58dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintHorizontal_bias="0.498"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintVertical_bias="0.618"
-    app:srcCompat="@drawable/hamburger" />
-    -->
+    <!-- ============ NOWE — DOLNE MENU ============ -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:background="#FFFFFF"
+        app:menu="@menu/bottom_menu"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
+        app:itemIconSize="32dp"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+    <!-- ============ KONIEC NOWEGO ============ -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,11 +10,14 @@ import android.view.LayoutInflater; //biblioteki użyte do custom toast
 import android.view.View; // --
 import android.widget.TextView; // --
 import androidx.appcompat.app.AppCompatActivity;
+import android.widget.ImageButton;
+
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etLogin, etPassword;
-    private Button btnLogin, btnExit, btnGoToRegister;
+    private Button btnLogin, btnGoToRegister;
+    private ImageButton btnClose;
 
     // Dodanie bazy danych
     // ------------------------------------------
@@ -29,13 +32,20 @@ public class LoginActivity extends AppCompatActivity {
         etLogin = findViewById(R.id.etLogin);
         etPassword = findViewById(R.id.etPassword);
         btnLogin = findViewById(R.id.btnLogin);
-        btnExit = findViewById(R.id.btnExit);
         btnGoToRegister = findViewById(R.id.btnGoToRegister);
+        btnClose = findViewById(R.id.btnClose);
+
+
 
         // Inicjalizacja bazy danych
         // ------------------------------------------
         dbHelper = new DatabaseHelper(this);
         // ------------------------------------------
+
+
+        // ZAMKNIECIE APLIKACJI
+        btnClose.setOnClickListener(v -> finishAffinity());
+
 
         btnLogin.setOnClickListener(v -> {
             String login = etLogin.getText().toString().trim();
@@ -58,7 +68,6 @@ public class LoginActivity extends AppCompatActivity {
                 // ----------------------------
                 return;
             }
-
 
 
 
@@ -113,6 +122,7 @@ public class LoginActivity extends AppCompatActivity {
             finish();
         });
 
-        btnExit.setOnClickListener(v -> finishAffinity());
+
+
     }
 }

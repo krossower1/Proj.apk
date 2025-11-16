@@ -10,13 +10,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.LayoutInflater;
 import android.widget.TextView;
+import android.widget.ImageButton;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText etLogin, etPassword, etRepeatPassword;
-    private Button btnRegister, btnGoToLogin, btnExit;
+    private Button btnRegister, btnGoToLogin;
 
     // Dodanie bazy danych
     // ------------------------------------------
@@ -33,12 +35,16 @@ public class RegisterActivity extends AppCompatActivity {
         etRepeatPassword = findViewById(R.id.etRepeatPassword);
         btnRegister = findViewById(R.id.btnRegister);
         btnGoToLogin = findViewById(R.id.btnGoToLogin);
-        btnExit = findViewById(R.id.btnExit);
+        ImageButton btnClose = findViewById(R.id.btnClose);
+        btnClose.setOnClickListener(v -> finishAffinity());
 
         // Inicjalizacja bazy danych
         // ------------------------------------------
         dbHelper = new DatabaseHelper(this);
         // ------------------------------------------
+
+        // ZAMKNIECIE APLIKACJI
+        btnClose.setOnClickListener(v -> finishAffinity());
 
         // Obsługa kliknięcia przycisku "Zarejestruj się"
         btnRegister.setOnClickListener(v -> {
@@ -131,6 +137,5 @@ public class RegisterActivity extends AppCompatActivity {
             finish();
         });
 
-        btnExit.setOnClickListener(v -> finishAffinity());
     }
 }

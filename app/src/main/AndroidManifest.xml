@@ -17,12 +17,14 @@
     <!-- <uses-permission android:name="android.permission.MediaStore.createWriteRequest" /> -->
     <!-- te dwie linie nie są potrzebne i powodowały błędy -->
 
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/icons8boots50"
-        android:label="@string/app_name"
+        android:label="StepTracker"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
@@ -30,14 +32,35 @@
 
         <!-- Niepotrzebne meta-data – usunięto niepoprawny atrybut -->
         <!-- <meta-data ... /> -->
+        <!-- SplashActivity jako launcher -->
+        <activity
+            android:name=".SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:label="StepTracker">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <!-- Główna aktywność uruchamiana przy starcie -->
+        <!-- <activity
+            android:name=".LoginActivity"
+            android:exported="true"
+            android:label="StepTracker">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        -->
+
+        <!-- LoginActivity -->
         <activity
             android:name=".LoginActivity"
             android:exported="true"
-            android:label="Logowanie">
-        </activity>
-
+            android:label="StepTracker" />
 
         <!-- Ekran Spacer (jeśli istnieje w projekcie) -->
         <activity
@@ -46,23 +69,16 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:label="@string/title_activity_spacer" />
 
-        <!-- ✅ Nowo dodane ekrany -->
         <activity
             android:name=".RegisterActivity"
             android:exported="true"
-            android:label="StepTracker">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
+            android:label="Rejestracja" />
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="Główna" />
 
-
-
+        <activity android:name=".SettingsActivity" />
     </application>
 </manifest>
