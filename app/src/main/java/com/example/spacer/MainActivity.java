@@ -41,6 +41,17 @@ import android.content.pm.PackageManager;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.preference.PreferenceManager;
+import android.text.SpannableString;
+import android.text.style.StyleSpan;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.text.style.ImageSpan;
+import android.text.Spannable;
+import android.graphics.Color;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+
 
 /**
  * The main activity of the application, responsible for displaying the map,
@@ -69,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     // Location-related variables
     private FusedLocationProviderClient fusedLocationClient;
+    private BottomNavigationView bottomNav;
 
     /**
      * Called when the activity is first created. Initializes the UI, map, sensors,
@@ -119,6 +131,46 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // kroki = findViewById(R.id.kroki);
         dystans = findViewById(R.id.dystans);
         date.setText(getString(R.string.dzien) + " " + currentDateString);
+
+// ============ NOWA CZĘŚĆ — bottom menu ============
+        BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+
+        bottomNav.setOnItemSelectedListener(item -> {
+            int id = item.getItemId();
+
+            if (id == R.id.nav_settings) {
+                // ----------------------------
+                // 🔹 CUSTOM TOAST — Ustawienia
+                // ----------------------------
+                LayoutInflater inflater = getLayoutInflater();
+                View layout = inflater.inflate(R.layout.custom_toast, null);
+
+                TextView text = layout.findViewById(R.id.text_toast);
+                text.setText("Ustawienia");
+
+                Toast toast = new Toast(getApplicationContext());
+                toast.setDuration(Toast.LENGTH_SHORT);
+                toast.setView(layout);
+                toast.show();
+                // ----------------------------
+
+                // ============ CZĘŚĆ NOWA — uruchom SettingsActivity ============
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                // ================================================================
+
+                return true;
+            } else if (id == R.id.nav_home) {
+                Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (id == R.id.nav_account) {
+                Toast.makeText(this, "Konto", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            return false;
+        });
+// ============ KONIEC NOWEGO ============  
     }
 
     /**
@@ -286,6 +338,158 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.home_menu,menu);
+
+        //============== nowa część //================
+        // Znajdź element menu "Wyloguj"
+        MenuItem logoutItem = menu.findItem(R.id.wyloguj);
+        if (logoutItem != null) {
+            // Tworzymy SpannableString aby pogrubić tekst
+            SpannableString spanString = new SpannableString(logoutItem.getTitle());
+            spanString.setSpan(new StyleSpan(Typeface.BOLD), 0, spanString.length(), 0);
+            logoutItem.setTitle(spanString);
+        }
+        //============== //================
+
+
+        //Ikona obok "Eksport danych"
+        MenuItem item = menu.findItem(R.id.edane); // "Eksport danych"
+        SpannableString s = new SpannableString("Eksport danych   ");
+        Drawable d = ContextCompat.getDrawable(this, R.drawable.archive);
+        if (d != null) d.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+        d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+        ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_BOTTOM);
+        s.setSpan(span, s.length() - 1, s.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        item.setTitle(s);
+
+        // Ikona obok "Usuń dane"
+        MenuItem deleteItem = menu.findItem(R.id.udane);
+        SpannableString ss = new SpannableString("Usuń dane   "); // dodany odstęp
+        Drawable dd = ContextCompat.getDrawable(this, R.drawable.delete);
+        if (dd != null) dd.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+        dd.setBounds(0, 0, dd.getIntrinsicWidth(), dd.getIntrinsicHeight());
+        ImageSpan spann = new ImageSpan(dd, ImageSpan.ALIGN_BOTTOM);
+        ss.setSpan(spann, ss.length() - 1, ss.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        deleteItem.setTitle(ss);
+        //============== //================
+
+        // Ikona obok "Alerty o niestabilnym chodzie"
+        MenuItem alertItem = menu.findItem(R.id.alerty);
+        SpannableString alertText = new SpannableString("Alerty o niestabilnym chodzie   "); // dodany odstęp
+        Drawable alertIcon = ContextCompat.getDrawable(this, R.drawable.niest);
+        if (alertIcon != null) alertIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+        alertIcon.setBounds(0, 0, alertIcon.getIntrinsicWidth(), alertIcon.getIntrinsicHeight());
+        ImageSpan alertSpan = new ImageSpan(alertIcon, ImageSpan.ALIGN_BOTTOM);
+        alertText.setSpan(alertSpan, alertText.length() - 1, alertText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        alertItem.setTitle(alertText);
+
+        // Ikona obok "Cotygodniowe raporty"
+        MenuItem raportItem = menu.findItem(R.id.raporty);
+        SpannableString raportText = new SpannableString("Cotygodniowe raporty   "); // dodany odstęp
+        Drawable raportIcon = ContextCompat.getDrawable(this, R.drawable.raporty);
+        if (raportIcon != null) raportIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+        if (raportIcon != null) raportIcon.setBounds(0, 0, raportIcon.getIntrinsicWidth(), raportIcon.getIntrinsicHeight());
+        ImageSpan raportSpan = new ImageSpan(raportIcon, ImageSpan.ALIGN_BOTTOM);
+        raportText.setSpan(raportSpan, raportText.length() - 1, raportText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        raportItem.setTitle(raportText);
+        //============== //================
+
+        // Ikona obok "Pokazuj znaczniki na mapie"
+        MenuItem znacznikiItem = menu.findItem(R.id.pznaczniki);
+        SpannableString znacznikiText = new SpannableString("Pokazuj znaczniki na mapie   "); // dodany odstęp
+        Drawable znacznikiIcon = ContextCompat.getDrawable(this, R.drawable.znaczniki);
+        if (znacznikiIcon != null) znacznikiIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+        if (znacznikiIcon != null) znacznikiIcon.setBounds(0, 0, znacznikiIcon.getIntrinsicWidth(), znacznikiIcon.getIntrinsicHeight());
+        ImageSpan znacznikiSpan = new ImageSpan(znacznikiIcon, ImageSpan.ALIGN_BOTTOM);
+        znacznikiText.setSpan(znacznikiSpan, znacznikiText.length() - 1, znacznikiText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        znacznikiItem.setTitle(znacznikiText);
+        //============== //================
+
+        // Ikona obok "Usuń znacznik"
+        MenuItem usunZnacznikItem = menu.findItem(R.id.uznacznik);
+        SpannableString usunZnacznikText = new SpannableString("Usuń znacznik   "); // dodany odstęp
+        Drawable usunZnacznikIcon = ContextCompat.getDrawable(this, R.drawable.delete);
+        if (usunZnacznikIcon != null) usunZnacznikIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+        if (usunZnacznikIcon != null) usunZnacznikIcon.setBounds(0, 0, usunZnacznikIcon.getIntrinsicWidth(), usunZnacznikIcon.getIntrinsicHeight());
+        ImageSpan usunZnacznikSpan = new ImageSpan(usunZnacznikIcon, ImageSpan.ALIGN_BOTTOM);
+        usunZnacznikText.setSpan(usunZnacznikSpan, usunZnacznikText.length() - 1, usunZnacznikText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        usunZnacznikItem.setTitle(usunZnacznikText);
+        //============== //================
+
+        // Ikona obok "Porównaj ten dzień"
+        MenuItem compareItem = menu.findItem(R.id.pdzien);
+        SpannableString compareText = new SpannableString("Porównaj ten dzień   "); // dodany odstęp
+        Drawable compareIcon = ContextCompat.getDrawable(this, R.drawable.compare);
+        if (compareIcon != null) compareIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+        if (compareIcon != null) compareIcon.setBounds(0, 0, compareIcon.getIntrinsicWidth(), compareIcon.getIntrinsicHeight());
+        ImageSpan compareSpan = new ImageSpan(compareIcon, ImageSpan.ALIGN_BOTTOM);
+        compareText.setSpan(compareSpan, compareText.length() - 1, compareText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        compareItem.setTitle(compareText);
+        //============== //================
+
+        MenuItem alertItemm = menu.findItem(R.id.alerty); // np. "Alerty o niestabilnym chodzie"
+        if (alertItemm != null) {
+            SpannableString sss = new SpannableString(alertItemm.getTitle());
+            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
+            alertItemm.setTitle(sss);
+        }
+
+        // COTYGODNIOWE RAPORTY
+        MenuItem raportItemm = menu.findItem(R.id.raporty);
+        if (raportItemm != null) {
+            SpannableString sss = new SpannableString(raportItemm.getTitle());
+            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
+            raportItemm.setTitle(sss);
+        }
+
+        // POKAZUJ ZNACZNIKI NA MAPIE
+        MenuItem znacznikiItemm = menu.findItem(R.id.pznaczniki);
+        if (znacznikiItemm != null) {
+            SpannableString sss = new SpannableString(znacznikiItemm.getTitle());
+            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
+            znacznikiItemm.setTitle(sss);
+        }
+
+        // USUŃ ZNACZNIK
+        MenuItem usunZnacznikItemm = menu.findItem(R.id.uznacznik);
+        if (usunZnacznikItemm != null) {
+            SpannableString sss = new SpannableString(usunZnacznikItemm.getTitle());
+            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
+            usunZnacznikItemm.setTitle(sss);
+        }
+
+        // PORÓWNAJ TEN DZIEŃ
+        MenuItem pdzienItemm = menu.findItem(R.id.pdzien);
+        if (pdzienItemm != null) {
+            SpannableString sss = new SpannableString(pdzienItemm.getTitle());
+            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
+            pdzienItemm.setTitle(sss);
+        }
+
+        // EKSPORT DANYCH
+        MenuItem edaneItemm = menu.findItem(R.id.edane);
+        if (edaneItemm != null) {
+            SpannableString sss = new SpannableString(edaneItemm.getTitle());
+            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
+            edaneItemm.setTitle(sss);
+        }
+
+        // USUŃ DANE
+        MenuItem udaneItemm = menu.findItem(R.id.udane);
+        if (udaneItemm != null) {
+            SpannableString sss = new SpannableString(udaneItemm.getTitle());
+            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
+            udaneItemm.setTitle(sss);
+        }
+
+        // WYLOGUJ
+        MenuItem wylogujItemm = menu.findItem(R.id.wyloguj);
+        if (wylogujItemm != null) {
+            SpannableString sss = new SpannableString(wylogujItemm.getTitle());
+            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
+            wylogujItemm.setTitle(sss);
+        }
+
+
         return true;
     }
 
@@ -298,19 +502,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (id == R.id.alerty) {
             // Show alert dialog for unstable walking.
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage("@string/niestabil");
-            builder.setTitle("Alert");
+            builder.setMessage("Czy chcesz włączyć?");
+            builder.setTitle("Alerty o niestabilnym chodzie");
             builder.setCancelable(false);
-            builder.setPositiveButton("@string/t", (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setPositiveButton("tak", (DialogInterface.OnClickListener) (dialog, which) -> {
                 dialog.cancel();
             });
-            builder.setNegativeButton("@string/n", (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setNegativeButton("nie", (DialogInterface.OnClickListener) (dialog, which) -> {
                 dialog.cancel();
             });
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
             return true;
         }
+
+
 
         if (id == R.id.udane) {
             // Clear user data and show a confirmation toast.
@@ -321,7 +527,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             View layout = inflater.inflate(R.layout.custom_toast, null);
 
             TextView text = layout.findViewById(R.id.text_toast);
-            text.setText("@string/cleardb");
+            text.setText("Wyczyszczono dane użytkowników.");
 
             Toast toast = new Toast(getApplicationContext());
             toast.setDuration(Toast.LENGTH_SHORT);
@@ -337,7 +543,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             View layout = inflater.inflate(R.layout.custom_toast, null);
 
             TextView text = layout.findViewById(R.id.text_toast);
-            text.setText("@string/logout");
+            text.setText("Wylogowano pomyślnie.");
 
             Toast toast = new Toast(getApplicationContext());
             toast.setDuration(Toast.LENGTH_SHORT);

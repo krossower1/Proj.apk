@@ -1,86 +1,119 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:gravity="center_horizontal"
-    android:padding="24dp"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="24dp"
     android:background="@drawable/tlo">
 
     <!-- Nagłówek -->
+
+
+    <!-- Pole: Login -->
+
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
+        android:layout_marginTop="4dp"
         android:text="Rejestracja"
         android:textColor="#4CAF50"
         android:textSize="28sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Pole: Login -->
     <EditText
         android:id="@+id/etLogin"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="344dp"
+        android:background="@android:drawable/edit_text"
+        android:backgroundTint="#648a3a"
         android:hint="Login"
         android:inputType="textPersonName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:padding="12dp"
-        android:background="@android:drawable/edit_text"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="#648a3a" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTitle" />
 
     <!-- Pole: Hasło -->
     <EditText
         android:id="@+id/etPassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@android:drawable/edit_text"
+        android:backgroundTint="#648a3a"
         android:hint="Hasło"
         android:inputType="textPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:padding="12dp"
-        android:background="@android:drawable/edit_text"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="#648a3a" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etLogin" />
 
     <!-- Pole: Powtórz hasło -->
     <EditText
         android:id="@+id/etRepeatPassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@android:drawable/edit_text"
+        android:backgroundTint="#648a3a"
         android:hint="Powtórz hasło"
         android:inputType="textPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
         android:padding="12dp"
-        android:background="@android:drawable/edit_text"
-        android:layout_marginBottom="24dp"
-        android:backgroundTint="#648a3a" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etPassword" />
 
     <!-- Przycisk: Zarejestruj się -->
     <Button
         android:id="@+id/btnRegister"
-        android:text="Zarejestruj się"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
         android:backgroundTint="#4CAF50"
+        android:text="Zarejestruj się"
         android:textColor="#FFFFFF"
-        android:layout_marginBottom="12dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/etRepeatPassword" />
 
     <!-- Przycisk: Przejdź do logowania -->
     <Button
         android:id="@+id/btnGoToLogin"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
+        android:layout_marginTop="8dp"
         android:backgroundTint="#8BC34A"
         android:text="Przejdź do logowania"
-        android:textColor="#FFFFFF" />
+        android:textColor="#FFFFFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btnRegister" />
 
-    <!-- Przycisk: Zamknij aplikację -->
-    <Button
-        android:id="@+id/btnExit"
-        android:text="Zamknij aplikację"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:backgroundTint="#F44336"
-        android:textColor="#FFFFFF" />
+    <!-- Przycisk zamykający aplikację -->
+    <ImageButton
+        android:id="@+id/btnClose"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="4dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Zamknij"
+        android:src="@drawable/ikona"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="#4ff436" />
 
-</LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
