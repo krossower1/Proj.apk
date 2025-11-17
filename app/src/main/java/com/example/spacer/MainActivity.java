@@ -138,39 +138,45 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
+            // ============ WSPÓLNY CUSTOM TOAST =============
+            LayoutInflater inflater = getLayoutInflater();
+            View layout = inflater.inflate(R.layout.custom_toast, null);
+            TextView text = layout.findViewById(R.id.text_toast);
+
             if (id == R.id.nav_settings) {
-                // ----------------------------
-                // 🔹 CUSTOM TOAST — Ustawienia
-                // ----------------------------
-                LayoutInflater inflater = getLayoutInflater();
-                View layout = inflater.inflate(R.layout.custom_toast, null);
-
-                TextView text = layout.findViewById(R.id.text_toast);
                 text.setText("Ustawienia");
-
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
-                // ----------------------------
 
-                // ============ CZĘŚĆ NOWA — uruchom SettingsActivity ============
-                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                startActivity(intent);
-                // ================================================================
-
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return true;
+
             } else if (id == R.id.nav_home) {
-                Toast.makeText(this, "Home", Toast.LENGTH_SHORT).show();
+                text.setText("Ekran główny");
+                Toast toast = new Toast(getApplicationContext());
+                toast.setDuration(Toast.LENGTH_SHORT);
+                toast.setView(layout);
+                toast.show();
+
+                // pozostaje w MainActivity
                 return true;
+
             } else if (id == R.id.nav_account) {
-                Toast.makeText(this, "Konto", Toast.LENGTH_SHORT).show();
+                text.setText("Konto");
+                Toast toast = new Toast(getApplicationContext());
+                toast.setDuration(Toast.LENGTH_SHORT);
+                toast.setView(layout);
+                toast.show();
+
+                startActivity(new Intent(MainActivity.this, AccountActivity.class));
                 return true;
             }
 
             return false;
         });
-// ============ KONIEC NOWEGO ============  
+// ============ KONIEC NOWEGO ============
     }
 
     /**

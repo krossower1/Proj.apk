@@ -1,6 +1,5 @@
 package com.example.spacer;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,20 +10,18 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class SettingsActivity extends AppCompatActivity {
-
+public class AccountActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(R.layout.activity_account); // ============ czesc nowa // ===================
 
-// ============ NOWA CZĘŚĆ — bottom menu ============
+        // ============ NOWA CZĘŚĆ — bottom menu ============
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
 
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
-            // ============ WSPÓLNY CUSTOM TOAST =============
             LayoutInflater inflater = getLayoutInflater();
             View layout = inflater.inflate(R.layout.custom_toast, null);
             TextView text = layout.findViewById(R.id.text_toast);
@@ -36,7 +33,8 @@ public class SettingsActivity extends AppCompatActivity {
                 toast.setView(layout);
                 toast.show();
 
-                // pozostaje w SettingsActivity
+                startActivity(new android.content.Intent(AccountActivity.this, SettingsActivity.class));
+
                 return true;
 
             } else if (id == R.id.nav_home) {
@@ -46,7 +44,7 @@ public class SettingsActivity extends AppCompatActivity {
                 toast.setView(layout);
                 toast.show();
 
-                startActivity(new Intent(SettingsActivity.this, MainActivity.class));
+                startActivity(new android.content.Intent(AccountActivity.this, MainActivity.class));
                 return true;
 
             } else if (id == R.id.nav_account) {
@@ -56,12 +54,13 @@ public class SettingsActivity extends AppCompatActivity {
                 toast.setView(layout);
                 toast.show();
 
-                startActivity(new Intent(SettingsActivity.this, AccountActivity.class));
+                // pozostaje w AccountActivity
                 return true;
             }
 
             return false;
         });
-// ============ KONIEC NOWEGO ============
+        // ============ KONIEC NOWEGO ============
+
     }
 }

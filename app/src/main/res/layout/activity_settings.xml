@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
+    android:padding="0dp"
     android:background="@color/green_background">
 
     <!-- Nagłówek -->
@@ -40,7 +40,7 @@
             android:id="@+id/tvOption1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Opcja 1"
+            android:text="Zmień hasło"
             android:textColor="@color/green_text"
             android:textSize="20sp"
             android:padding="12dp"/>
@@ -49,12 +49,64 @@
             android:id="@+id/tvOption2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Opcja 2"
+            android:text="Przełącz motyw"
+            android:textColor="@color/green_text"
+            android:textSize="20sp"
+            android:padding="12dp"/>
+
+        <TextView
+            android:id="@+id/tvOption3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Włącz powiadomienia"
+            android:textColor="@color/green_text"
+            android:textSize="20sp"
+            android:padding="12dp"/>
+
+        <TextView
+            android:id="@+id/tvOption4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Zmień język"
+            android:textColor="@color/green_text"
+            android:textSize="20sp"
+            android:padding="12dp"/>
+
+        <TextView
+            android:id="@+id/tvOption5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tryb bezpieczny"
+            android:textColor="@color/green_text"
+            android:textSize="20sp"
+            android:padding="12dp"/>
+
+        <TextView
+            android:id="@+id/tvOption6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Jednostki: Kilometry"
             android:textColor="@color/green_text"
             android:textSize="20sp"
             android:padding="12dp"/>
 
     </LinearLayout>
+
+    <!-- ============ czesc nowa: bottom menu ============ -->
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNav"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:background="#FFFFFF"
+        app:menu="@menu/bottom_menu"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
+        app:itemIconSize="32dp"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+    <!-- ============ koniec nowego ============ -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
     <!-- ============ koniec nowej czesci // =================== -->
