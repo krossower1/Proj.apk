@@ -6,13 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/green_background">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="#ccc"
+        android:background="@color/green_background"
         app:title=" "
         app:titleTextColor="@android:color/black"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -42,9 +43,10 @@
         android:layout_height="395dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.812"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.127" />
+        app:layout_constraintVertical_bias="0.166" />
 
     <TextView
         android:id="@+id/kalorie"
@@ -88,28 +90,29 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.68" />
 
+    <!-- ============ NOWE — DOLNE MENU ============ -->
+
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button"
-        android:layout_width="411dp"
-        android:layout_height="127dp"
+        android:layout_width="362dp"
+        android:layout_height="93dp"
         android:background="@drawable/button_m"
-        android:backgroundTint="@color/green_background"
+        android:backgroundTint="@color/green"
         android:shadowColor="#fff"
         android:shadowDx="2"
         android:shadowDy="2"
         android:shadowRadius="1"
         android:text="@string/przycisk"
         android:textColor="@color/green_text"
-        android:textSize="44sp"
+        android:textSize="34sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.489"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.827" />
+        app:layout_constraintVertical_bias="0.797" />
 
-    <!-- ============ NOWE — DOLNE MENU ============ -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="0dp"
