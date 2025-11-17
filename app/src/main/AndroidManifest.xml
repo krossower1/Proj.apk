@@ -80,5 +80,6 @@
             android:label="Główna" />
 
         <activity android:name=".SettingsActivity" />
+        <activity android:name=".AccountActivity" />
     </application>
 </manifest>

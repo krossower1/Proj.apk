@@ -11,6 +11,9 @@ import android.view.View; // --
 import android.widget.TextView; // --
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.ImageButton;
+import android.content.SharedPreferences; // import do checkbox
+import android.widget.CheckBox; // import do checkbox
+
 
 
 public class LoginActivity extends AppCompatActivity {
@@ -18,7 +21,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText etLogin, etPassword;
     private Button btnLogin, btnGoToRegister;
     private ImageButton btnClose;
-
+    private CheckBox cbRememberMe; //zmienna do checkbox "Zapamiętaj mnie"
     // Dodanie bazy danych
     // ------------------------------------------
     private DatabaseHelper dbHelper;
@@ -34,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         btnGoToRegister = findViewById(R.id.btnGoToRegister);
         btnClose = findViewById(R.id.btnClose);
+        cbRememberMe = findViewById(R.id.cbRememberMe); // ============ czesc nowa // ===================
 
 
 
@@ -44,7 +48,23 @@ public class LoginActivity extends AppCompatActivity {
 
 
         // ZAMKNIECIE APLIKACJI
+        // ------------------------------------------
         btnClose.setOnClickListener(v -> finishAffinity());
+        // ------------------------------------------
+
+        // ============ czesc nowa // ===================
+        // SharedPreferences dla zapamiętywania loginu
+        SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
+        String savedLogin = prefs.getString("login", "");
+        String savedPass = prefs.getString("password", "");
+        boolean isRemembered = prefs.getBoolean("rememberMe", false);
+
+        etLogin.setText(isRemembered ? savedLogin : "");
+        etPassword.setText(isRemembered ? savedPass : "");
+        cbRememberMe.setChecked(isRemembered);
+        // ================================================================
+
+
 
 
         btnLogin.setOnClickListener(v -> {
@@ -91,6 +111,21 @@ public class LoginActivity extends AppCompatActivity {
                 toast.setView(layout);
                 toast.show();
                 // ----------------------------
+
+                // ============ czesc nowa // ===================
+                // Zapis loginu jeśli checkbox zaznaczony
+                SharedPreferences.Editor editor = prefs.edit();
+                if (cbRememberMe.isChecked()) {
+                    editor.putString("login", login);
+                    editor.putString("password", pass);
+                    editor.putBoolean("rememberMe", true);
+                } else {
+                    editor.remove("login");
+                    editor.remove("password");
+                    editor.putBoolean("rememberMe", false);
+                }
+                editor.apply();
+                // ================================================================
 
                 // 🔹 Przejście do ekranu głównego (MainActivity)
                 Intent intent = new Intent(this, MainActivity.class);
