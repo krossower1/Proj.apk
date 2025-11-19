@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView date;
     private TextView dystans;
     // private TextView kroki;
-    // private TextView kalorie;
+    private TextView kalorie;
     private Marker marker; // The marker on the map for the user's location.
 
     // Sensor-related variables
@@ -77,6 +77,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor accelerometer;
     private float[] gravity = new float[3]; // Stores the gravity components for filtering.
     double dist = 0; // Accumulated distance based on movement.
+    double kal = 0;
+    double waga = 0;
 
     // Location-related variables
     private FusedLocationProviderClient fusedLocationClient;
@@ -108,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // --- Map Marker Setup ---
         marker = new Marker(map);
-        marker.setTitle("@string/start");
+        marker.setTitle("Jesteś tutaj");
         marker.setEnabled(false); // Initially invisible until a location is found.
         map.getOverlays().add(marker);
 
@@ -130,9 +132,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         date = findViewById(R.id.date);
         // kroki = findViewById(R.id.kroki);
         dystans = findViewById(R.id.dystans);
+        kalorie = findViewById(R.id.kalorie);
         date.setText(getString(R.string.dzien) + " " + currentDateString);
 
-// ============ NOWA CZĘŚĆ — bottom menu ============
+        // Get waga from Intent
+        Intent intent = getIntent();
+        String wagaString = intent.getStringExtra("waga");
+        if (wagaString != null && !wagaString.isEmpty()) {
+            waga = Double.parseDouble(wagaString);
+        }
+
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
 
         bottomNav.setOnItemSelectedListener(item -> {
@@ -176,7 +185,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             return false;
         });
-// ============ KONIEC NOWEGO ============
     }
 
     /**
@@ -508,8 +516,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (id == R.id.alerty) {
             // Show alert dialog for unstable walking.
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage("Czy chcesz włączyć?");
-            builder.setTitle("Alerty o niestabilnym chodzie");
+            builder.setMessage("Czy chcesz wyłączyć alerty o niestabilnym chodzie?");
+            builder.setTitle("Alert");
             builder.setCancelable(false);
             builder.setPositiveButton("tak", (DialogInterface.OnClickListener) (dialog, which) -> {
                 dialog.cancel();
@@ -596,7 +604,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if (dystans != null) {
-            dystans.setText(getString(R.string.dystans) + " " + (int)dist + " m");
+            dystans.setText(getString(R.string.dystans) + " " + (int)dist/1000 + " kcal");
+        }
+
+        kal = dist/1000 * (3.5 / waga);
+
+        if (kalorie != null) {
+            kalorie.setText(getString(R.string.kalorie) + " " + (int)dist/1000 + " m");
         }
     }
 

@@ -37,7 +37,7 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         btnGoToRegister = findViewById(R.id.btnGoToRegister);
         btnClose = findViewById(R.id.btnClose);
-        cbRememberMe = findViewById(R.id.cbRememberMe); // ============ czesc nowa // ===================
+        cbRememberMe = findViewById(R.id.cbRememberMe);
 
 
 
@@ -52,7 +52,6 @@ public class LoginActivity extends AppCompatActivity {
         btnClose.setOnClickListener(v -> finishAffinity());
         // ------------------------------------------
 
-        // ============ czesc nowa // ===================
         // SharedPreferences dla zapamiętywania loginu
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String savedLogin = prefs.getString("login", "");
@@ -72,9 +71,6 @@ public class LoginActivity extends AppCompatActivity {
             String pass = etPassword.getText().toString();
 
             if (login.isEmpty() || pass.isEmpty()) {
-                // ----------------------------
-                // 🔹 CUSTOM TOAST DLA BŁĘDNYCH DANYCH
-                // ----------------------------
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
 
@@ -112,7 +108,6 @@ public class LoginActivity extends AppCompatActivity {
                 toast.show();
                 // ----------------------------
 
-                // ============ czesc nowa // ===================
                 // Zapis loginu jeśli checkbox zaznaczony
                 SharedPreferences.Editor editor = prefs.edit();
                 if (cbRememberMe.isChecked()) {
@@ -127,8 +122,11 @@ public class LoginActivity extends AppCompatActivity {
                 editor.apply();
                 // ================================================================
 
-                // 🔹 Przejście do ekranu głównego (MainActivity)
+                String waga = dbHelper.getWaga(login, pass);
+
+                // Przejście do ekranu głównego (MainActivity)
                 Intent intent = new Intent(this, MainActivity.class);
+                intent.putExtra("waga", waga);
                 startActivity(intent);
                 finish();
             } else { // CUSTOM TOAST
@@ -142,13 +140,9 @@ public class LoginActivity extends AppCompatActivity {
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
-                // ----------------------------
                 return;
             }
-            // ------------------------------------------
-
         });
-
 
         //Nazwa przycisku: PRZEJDŹ DO REJESTRACJI | CEL: REJESTRACJA
         btnGoToRegister.setOnClickListener(v -> {
@@ -156,8 +150,6 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
-
-
 
     }
 }

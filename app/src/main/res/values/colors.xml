@@ -4,8 +4,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="nav_item_color">#4CAF50</color>
     <color name="green">#4CAF50</color>
-    <!-- SPLASH SCREEN -->
-    <color name="green_background">#21c45a</color>
+    <color name="green_background">#7ebd94</color>
     <color name="green_text">#076600</color>
 
 </resources>
