@@ -9,12 +9,13 @@ import android.database.Cursor;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "users.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
     private static final String COLUMN_LOGIN = "login";
     private static final String COLUMN_PASSWORD = "password";
+    private static final String COLUMN_WAGA = "waga";
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -25,7 +26,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String CREATE_TABLE = "CREATE TABLE " + TABLE_USERS + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_LOGIN + " TEXT UNIQUE, " +
-                COLUMN_PASSWORD + " TEXT)";
+                COLUMN_PASSWORD + " TEXT, " +
+                COLUMN_WAGA + " TEXT)";
         db.execSQL(CREATE_TABLE);
     }
 
@@ -45,13 +47,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // ------------------------------------------
-    // ✅ DODAJ NOWEGO UŻYTKOWNIKA
+    // DODAJ NOWEGO UŻYTKOWNIKA
     // ------------------------------------------
-    public boolean addUser(String login, String password) {
+    public boolean addUser(String login, String password, String waga) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_LOGIN, login);
         values.put(COLUMN_PASSWORD, password);
+        values.put(COLUMN_WAGA, waga);
 
         long result = db.insert(TABLE_USERS, null, values);
         db.close();
@@ -59,16 +62,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // ------------------------------------------
-    // ✅ SPRAWDŹ CZY UŻYTKOWNIK ISTNIEJE
+    // SPRAWDŹ CZY UŻYTKOWNIK ISTNIEJE
     // ------------------------------------------
     public boolean checkUser(String login, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT * FROM " + TABLE_USERS +
-                " WHERE " + COLUMN_LOGIN + "=? AND " + COLUMN_PASSWORD + "=?";
+                " WHERE " + COLUMN_LOGIN + "=? AND " + COLUMN_PASSWORD + "=? ";
         Cursor cursor = db.rawQuery(query, new String[]{login, password});
         boolean exists = cursor.moveToFirst();
         cursor.close();
         db.close();
         return exists;
+    }
+
+    public String getWaga(String login, String password) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + COLUMN_WAGA + " FROM " + TABLE_USERS +
+            " WHERE " + COLUMN_LOGIN + "=? AND " + COLUMN_PASSWORD + "=?";
+        Cursor cursor = db.rawQuery(query, new String[]{login, password});
+        String waga = null;
+        if (cursor.moveToFirst()) {
+            waga = cursor.getString(0);
+        }
+        cursor.close();
+        db.close();
+        return waga;
     }
 }

@@ -13,7 +13,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@color/green_background"
+        android:background="#FFFFFF"
         app:title=" "
         app:titleTextColor="@android:color/black"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -43,10 +43,9 @@
         android:layout_height="395dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.812"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.166" />
+        app:layout_constraintVertical_bias="0.159" />
 
     <TextView
         android:id="@+id/kalorie"
@@ -90,14 +89,12 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.68" />
 
-    <!-- ============ NOWE — DOLNE MENU ============ -->
-
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button"
         android:layout_width="362dp"
         android:layout_height="93dp"
         android:background="@drawable/button_m"
-        android:backgroundTint="@color/green"
+        android:backgroundTint="@color/button_mc"
         android:shadowColor="#fff"
         android:shadowDx="2"
         android:shadowDy="2"
@@ -126,6 +123,5 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-    <!-- ============ KONIEC NOWEGO ============ -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

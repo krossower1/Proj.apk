@@ -12,7 +12,6 @@
     <!-- MainActivity -->
     <string name="t">Tak</string>
     <string name="n">Nie</string>
-    <string name="start">Punkt początkowy</string>
     <string name="noaccel">Brak czujnika akcelerometru</string>
     <string name="nolok">Do wyświetlenia mapy wymagane jest uprawnienie do lokalizacji</string>
     <string name="niestabil">Czy chcesz otrzymywać powiadomienia o niestabilnym chodzie?</string>

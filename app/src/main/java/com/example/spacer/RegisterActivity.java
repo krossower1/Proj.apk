@@ -17,7 +17,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class RegisterActivity extends AppCompatActivity {
 
-    private EditText etLogin, etPassword, etRepeatPassword;
+    private EditText etLogin, etPassword, etRepeatPassword, etWaga;
     private Button btnRegister, btnGoToLogin;
 
     // Dodanie bazy danych
@@ -33,6 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
         etLogin = findViewById(R.id.etLogin);
         etPassword = findViewById(R.id.etPassword);
         etRepeatPassword = findViewById(R.id.etRepeatPassword);
+        etWaga = findViewById(R.id.etWaga);
         btnRegister = findViewById(R.id.btnRegister);
         btnGoToLogin = findViewById(R.id.btnGoToLogin);
         ImageButton btnClose = findViewById(R.id.btnClose);
@@ -51,8 +52,9 @@ public class RegisterActivity extends AppCompatActivity {
             String login = etLogin.getText().toString().trim();
             String pass = etPassword.getText().toString();
             String repeat = etRepeatPassword.getText().toString();
+            String waga = etWaga.getText().toString().trim();
 
-            if (login.isEmpty() || pass.isEmpty() || repeat.isEmpty()) {
+            if (login.isEmpty() || pass.isEmpty() || repeat.isEmpty() || waga.isEmpty()) {
                 // CUSTOM TOAST
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
@@ -64,7 +66,6 @@ public class RegisterActivity extends AppCompatActivity {
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
-                // ----------------------------
                 return;
             }
 
@@ -80,22 +81,12 @@ public class RegisterActivity extends AppCompatActivity {
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
-                // ----------------------------
                 return;
             }
 
-
-
-
-
-
             // ZAPISZ DANE DO BAZY
-            // ------------------------------------------
-            boolean inserted = dbHelper.addUser(login, pass);
+            boolean inserted = dbHelper.addUser(login, pass, waga);
             if (inserted) {
-                // ----------------------------
-                // 🔹 CUSTOM TOAST
-                // ----------------------------
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
 
@@ -106,16 +97,13 @@ public class RegisterActivity extends AppCompatActivity {
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
-                // ----------------------------
 
                 // Przejście do ekranu logowania
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish(); // kończymy ekran rejestracji
             } else {
-                // ----------------------------
                 // CUSTOM TOAST: użytkownik już istnieje
-                // ----------------------------
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
 
