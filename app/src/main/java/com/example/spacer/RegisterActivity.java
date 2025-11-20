@@ -16,17 +16,15 @@ import androidx.appcompat.app.AppCompatActivity;
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText etLogin, etPassword, etRepeatPassword, etWaga;
-    private Button btnRegister, btnGoToLogin;
 
     // Dodanie bazy danych
-    // ------------------------------------------
     private DatabaseHelper dbHelper;
-    // ------------------------------------------
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        Button btnRegister, btnGoToLogin;
 
         etLogin = findViewById(R.id.etLogin);
         etPassword = findViewById(R.id.etPassword);
@@ -38,9 +36,7 @@ public class RegisterActivity extends AppCompatActivity {
         btnClose.setOnClickListener(v -> finishAffinity());
 
         // Inicjalizacja bazy danych
-        // ------------------------------------------
         dbHelper = new DatabaseHelper(this);
-        // ------------------------------------------
 
         // ZAMKNIECIE APLIKACJI
         btnClose.setOnClickListener(v -> finishAffinity());
@@ -59,7 +55,7 @@ public class RegisterActivity extends AppCompatActivity {
                 layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
-                text.setText("Wypełnij wszystkie pola!");
+                text.setText("@string/no_field");
 
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
@@ -85,7 +81,6 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             // ZAPISZ DANE DO BAZY
-            // ------------------------------------------
             boolean inserted = dbHelper.addUser(login, pass, waga);
             if (inserted) {
                 LayoutInflater inflater = getLayoutInflater();
@@ -98,16 +93,13 @@ public class RegisterActivity extends AppCompatActivity {
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
-                // ----------------------------
 
                 // Przejście do ekranu logowania
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
-                finish(); // kończymy ekran rejestracji
+                finish();
             } else {
-                // ----------------------------
                 // CUSTOM TOAST: użytkownik już istnieje
-                // ----------------------------
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
                 layout.setBackgroundResource(R.drawable.toast_error_background);
@@ -120,7 +112,6 @@ public class RegisterActivity extends AppCompatActivity {
                 toast.setView(layout);
                 toast.show();
             }
-            // ------------------------------------------
 
         });
 
