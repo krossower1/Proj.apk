@@ -8,10 +8,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.LayoutInflater;
 import android.widget.TextView;
 import android.widget.ImageButton;
-
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -58,6 +56,7 @@ public class RegisterActivity extends AppCompatActivity {
                 // CUSTOM TOAST
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
+                layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
                 text.setText("Wypełnij wszystkie pola!");
@@ -73,6 +72,7 @@ public class RegisterActivity extends AppCompatActivity {
                 // CUSTOM TOAST
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
+                layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
                 text.setText("Hasła nie są takie same!");
@@ -85,6 +85,7 @@ public class RegisterActivity extends AppCompatActivity {
             }
 
             // ZAPISZ DANE DO BAZY
+            // ------------------------------------------
             boolean inserted = dbHelper.addUser(login, pass, waga);
             if (inserted) {
                 LayoutInflater inflater = getLayoutInflater();
@@ -97,15 +98,19 @@ public class RegisterActivity extends AppCompatActivity {
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
+                // ----------------------------
 
                 // Przejście do ekranu logowania
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish(); // kończymy ekran rejestracji
             } else {
+                // ----------------------------
                 // CUSTOM TOAST: użytkownik już istnieje
+                // ----------------------------
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
+                layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
                 text.setText("Błąd: użytkownik już istnieje!");

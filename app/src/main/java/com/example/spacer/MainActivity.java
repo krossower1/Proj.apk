@@ -604,13 +604,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if (dystans != null) {
-            dystans.setText(getString(R.string.dystans) + " " + (int)dist/1000 + " kcal");
+            dystans.setText(getString(R.string.dystans) + " " + Math.floor(dist)/1000 + " m");
         }
 
-        kal = dist/1000 * (3.5 / waga);
+        kal = Math.floor(dist)/1000 * (3.5 / waga);
 
         if (kalorie != null) {
-            kalorie.setText(getString(R.string.kalorie) + " " + (int)dist/1000 + " m");
+            kalorie.setText(getString(R.string.kalorie) + " " + kal + " kcal");
         }
     }
 
