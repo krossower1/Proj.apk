@@ -6,5 +6,6 @@
     <color name="green">#4CAF50</color>
     <color name="green_background">#7ebd94</color>
     <color name="green_text">#076600</color>
+    <color name="toast_error_red">#FF0000</color>
 
 </resources>
