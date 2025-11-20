@@ -17,4 +17,7 @@
     <string name="niestabil">Czy chcesz otrzymywać powiadomienia o niestabilnym chodzie?</string>
     <string name="cleardb">Wszystkie dane zostały usunięte!</string>
     <string name="logout">Wylogowano się pomyślnie!</string>
+
+
+    <string name="no_field">Wypełnij wszystkie pola!</string>
 </resources>

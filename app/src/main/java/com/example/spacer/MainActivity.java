@@ -63,22 +63,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // --- Constants and Class Variables ---
 
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100; // Request code for location permission.
+    private static final float GYRO_THRESHOLD = 2.0f; // Threshold for step detection
+    private static final int STEP_DELAY_MS = 500; // Minimum delay between steps
 
     // UI Elements
     private MapView map;
     private TextView date;
     private TextView dystans;
-    // private TextView kroki;
+    private TextView kroki;
     private TextView kalorie;
     private Marker marker; // The marker on the map for the user's location.
 
     // Sensor-related variables
     private SensorManager sensorManager;
     private Sensor accelerometer;
+    private Sensor gyroscope;
     private float[] gravity = new float[3]; // Stores the gravity components for filtering.
     double dist = 0; // Accumulated distance based on movement.
     double kal = 0;
     double waga = 0;
+    private int kro = 0;
+    private long lastStepTime = 0;
 
     // Location-related variables
     private FusedLocationProviderClient fusedLocationClient;
@@ -121,16 +126,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         }
         if (accelerometer == null) {
             Toast.makeText(this, "@string/noaccel", Toast.LENGTH_LONG).show();
+        }
+        if (gyroscope == null) {
+            Toast.makeText(this, "Gyroscope not available", Toast.LENGTH_LONG).show();
         }
 
         // --- UI Initialization ---
         DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
         String currentDateString = dateFormat.format(new Date());
         date = findViewById(R.id.date);
-        // kroki = findViewById(R.id.kroki);
+        kroki = findViewById(R.id.kroki);
         dystans = findViewById(R.id.dystans);
         kalorie = findViewById(R.id.kalorie);
         date.setText(getString(R.string.dzien) + " " + currentDateString);
@@ -308,6 +317,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (accelerometer != null) {
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         }
+        if (gyroscope != null) {
+            sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
+        }
         startLocationUpdates();
     }
 
@@ -353,7 +365,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.home_menu,menu);
 
-        //============== nowa część //================
         // Znajdź element menu "Wyloguj"
         MenuItem logoutItem = menu.findItem(R.id.wyloguj);
         if (logoutItem != null) {
@@ -362,7 +373,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             spanString.setSpan(new StyleSpan(Typeface.BOLD), 0, spanString.length(), 0);
             logoutItem.setTitle(spanString);
         }
-        //============== //================
 
 
         //Ikona obok "Eksport danych"
@@ -579,39 +589,48 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      */
     @Override
     public void onSensorChanged(SensorEvent event) {
-        // High-pass filter to isolate linear acceleration from gravity.
-        final float alpha = 0.8f;
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            // High-pass filter to isolate linear acceleration from gravity.
+            final float alpha = 0.8f;
 
-        // Isolate gravity contribution with a low-pass filter.
-        gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-        gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-        gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+            // Isolate gravity contribution with a low-pass filter.
+            gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+            gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+            gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
 
-        // Remove gravity contribution to get linear acceleration.
-        float x = event.values[0] - gravity[0];
-        float y = event.values[1] - gravity[1];
-        float z = event.values[2] - gravity[2];
+            // Remove gravity contribution to get linear acceleration.
+            float x = event.values[0] - gravity[0];
+            float y = event.values[1] - gravity[1];
+            float z = event.values[2] - gravity[2];
 
-        // Calculate the magnitude of the acceleration vector.
-        double magnitude = Math.sqrt(x * x + y * y + z * z);
+            // Calculate the magnitude of the acceleration vector.
+            double magnitude = Math.sqrt(x * x + y * y + z * z);
 
-        // A threshold to filter out sensor noise when the device is mostly stationary.
-        final double MOVEMENT_THRESHOLD = 0.2;
+            // A threshold to filter out sensor noise when the device is mostly stationary.
+            final double MOVEMENT_THRESHOLD = 0.2;
 
-        if (magnitude > MOVEMENT_THRESHOLD) {
-            // Accumulate distance based on movement magnitude.
-            dist = dist + Math.floor(magnitude);
+            if (magnitude > MOVEMENT_THRESHOLD) {
+                // Accumulate distance based on movement magnitude.
+                dist = dist + Math.floor(magnitude);
+            }
+        } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+            long currentTime = System.currentTimeMillis();
+            if ((currentTime - lastStepTime) > STEP_DELAY_MS) {
+                float omegaMagnitude = (float) Math.sqrt(event.values[0] * event.values[0] + event.values[1] * event.values[1] + event.values[2] * event.values[2]);
+                if (omegaMagnitude > GYRO_THRESHOLD) {
+                    lastStepTime = currentTime;
+                    kro++;
+                }
+            }
         }
 
-        if (dystans != null) {
-            dystans.setText(getString(R.string.dystans) + " " + Math.floor(dist)/1000 + " m");
-        }
+        kal = Math.floor(dist)/50 * (3.5 / waga);
 
-        kal = Math.floor(dist)/1000 * (3.5 / waga);
+        dystans.setText(getString(R.string.dystans) + " " + Math.floor(dist)/50 + " m");
 
-        if (kalorie != null) {
-            kalorie.setText(getString(R.string.kalorie) + " " + kal + " kcal");
-        }
+        kroki.setText(getString(R.string.kroki) + " " + kro);
+
+        kalorie.setText(getString(R.string.kalorie) + " " + (int)kal + " kcal");
     }
 
     /**
