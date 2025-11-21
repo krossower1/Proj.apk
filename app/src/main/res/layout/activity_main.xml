@@ -21,30 +21,26 @@
         app:layout_constraintHorizontal_bias="0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0"/>
+        app:layout_constraintVertical_bias="0">
 
-    <TextView
-        android:id="@+id/date"
-        android:layout_width="313dp"
-        android:layout_height="49dp"
-        android:text="@string/dzien"
-        android:textColor="@color/green_text"
-        android:textSize="32sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.081"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.008" />
+        <TextView
+            android:id="@+id/date"
+            android:layout_width="313dp"
+            android:layout_height="40dp"
+            android:text="@string/dzien"
+            android:textColor="@color/green_text"
+            android:textSize="32sp"/>
+
+    </androidx.appcompat.widget.Toolbar>
 
     <org.osmdroid.views.MapView
         android:id="@+id/map"
         android:layout_width="395dp"
         android:layout_height="395dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/kalorie"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar"
         app:layout_constraintVertical_bias="0.159" />
 
     <TextView
@@ -56,10 +52,10 @@
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.476"
+        app:layout_constraintHorizontal_bias="0.592"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.569" />
+        app:layout_constraintVertical_bias="0.542" />
 
     <TextView
         android:id="@+id/kroki"
@@ -70,10 +66,10 @@
         android:textSize="26sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.476"
+        app:layout_constraintHorizontal_bias="0.592"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.625" />
+        app:layout_constraintTop_toBottomOf="@+id/kalorie"
+        app:layout_constraintVertical_bias="0.027" />
 
     <TextView
         android:id="@+id/dystans"
@@ -82,12 +78,12 @@
         android:text="@string/dystans"
         android:textColor="@color/green_text"
         android:textSize="26sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.476"
+        app:layout_constraintHorizontal_bias="0.592"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.68" />
+        app:layout_constraintTop_toBottomOf="@+id/kroki"
+        app:layout_constraintVertical_bias="0.102" />
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/button"
@@ -99,16 +95,16 @@
         android:shadowDx="2"
         android:shadowDy="2"
         android:shadowRadius="1"
-        android:text="@string/przycisk"
+        android:text="@string/rozpocznij"
         android:textColor="@color/green_text"
         android:textSize="34sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNav"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.489"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.797" />
+        app:layout_constraintVertical_bias="0.889" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"

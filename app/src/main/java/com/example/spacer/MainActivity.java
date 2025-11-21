@@ -3,12 +3,14 @@ package com.example.spacer;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import android.os.Bundle;
 import android.os.Looper;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -73,6 +75,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView kroki;
     private TextView kalorie;
     private Marker marker; // The marker on the map for the user's location.
+    private Button trackingButton;
+    private ConstraintLayout mainLayout;
 
     // Sensor-related variables
     private SensorManager sensorManager;
@@ -84,10 +88,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     double waga = 0;
     private int kro = 0;
     private long lastStepTime = 0;
+    private boolean isTracking = false;
 
     // Location-related variables
     private FusedLocationProviderClient fusedLocationClient;
     private BottomNavigationView bottomNav;
+    private DatabaseHelper dbHelper;
 
     /**
      * Called when the activity is first created. Initializes the UI, map, sensors,
@@ -101,6 +107,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // --- Toolbar Setup ---
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        dbHelper = new DatabaseHelper(this);
 
         // --- Location Services Setup ---
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -143,6 +151,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         dystans = findViewById(R.id.dystans);
         kalorie = findViewById(R.id.kalorie);
         date.setText(getString(R.string.dzien) + " " + currentDateString);
+        trackingButton = findViewById(R.id.button);
+        mainLayout = findViewById(R.id.main);
+
+        trackingButton.setOnClickListener(v -> {
+            isTracking = !isTracking;
+            if (isTracking) {
+                trackingButton.setText(R.string.zakoncz);
+                mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background_dark));
+            } else {
+                trackingButton.setText(R.string.rozpocznij);
+                mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background));
+            }
+        });
 
         // Get waga from Intent
         Intent intent = getIntent();
@@ -589,48 +610,50 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      */
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            // High-pass filter to isolate linear acceleration from gravity.
-            final float alpha = 0.8f;
+        if (isTracking) {
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                // High-pass filter to isolate linear acceleration from gravity.
+                final float alpha = 0.8f;
 
-            // Isolate gravity contribution with a low-pass filter.
-            gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
-            gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
-            gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+                // Isolate gravity contribution with a low-pass filter.
+                gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+                gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+                gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
 
-            // Remove gravity contribution to get linear acceleration.
-            float x = event.values[0] - gravity[0];
-            float y = event.values[1] - gravity[1];
-            float z = event.values[2] - gravity[2];
+                // Remove gravity contribution to get linear acceleration.
+                float x = event.values[0] - gravity[0];
+                float y = event.values[1] - gravity[1];
+                float z = event.values[2] - gravity[2];
 
-            // Calculate the magnitude of the acceleration vector.
-            double magnitude = Math.sqrt(x * x + y * y + z * z);
+                // Calculate the magnitude of the acceleration vector.
+                double magnitude = Math.sqrt(x * x + y * y + z * z);
 
-            // A threshold to filter out sensor noise when the device is mostly stationary.
-            final double MOVEMENT_THRESHOLD = 0.2;
+                // A threshold to filter out sensor noise when the device is mostly stationary.
+                final double MOVEMENT_THRESHOLD = 0.2;
 
-            if (magnitude > MOVEMENT_THRESHOLD) {
-                // Accumulate distance based on movement magnitude.
-                dist = dist + Math.floor(magnitude);
-            }
-        } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-            long currentTime = System.currentTimeMillis();
-            if ((currentTime - lastStepTime) > STEP_DELAY_MS) {
-                float omegaMagnitude = (float) Math.sqrt(event.values[0] * event.values[0] + event.values[1] * event.values[1] + event.values[2] * event.values[2]);
-                if (omegaMagnitude > GYRO_THRESHOLD) {
-                    lastStepTime = currentTime;
-                    kro++;
+                if (magnitude > MOVEMENT_THRESHOLD) {
+                    // Accumulate distance based on movement magnitude.
+                    dist = dist + Math.floor(magnitude);
+                }
+            } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
+                long currentTime = System.currentTimeMillis();
+                if ((currentTime - lastStepTime) > STEP_DELAY_MS) {
+                    float omegaMagnitude = (float) Math.sqrt(event.values[0] * event.values[0] + event.values[1] * event.values[1] + event.values[2] * event.values[2]);
+                    if (omegaMagnitude > GYRO_THRESHOLD) {
+                        lastStepTime = currentTime;
+                        kro++;
+                    }
                 }
             }
+
+            kal = Math.floor(dist) / 50 * (3.5 / waga);
+
+            dystans.setText(getString(R.string.dystans) + " " + Math.floor(dist) / 50 + " m");
+
+            kroki.setText(getString(R.string.kroki) + " " + kro);
+
+            kalorie.setText(getString(R.string.kalorie) + " " + (int) kal + " kcal");
         }
-
-        kal = Math.floor(dist)/50 * (3.5 / waga);
-
-        dystans.setText(getString(R.string.dystans) + " " + Math.floor(dist)/50 + " m");
-
-        kroki.setText(getString(R.string.kroki) + " " + kro);
-
-        kalorie.setText(getString(R.string.kalorie) + " " + (int)kal + " kcal");
     }
 
     /**
@@ -639,5 +662,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Not used in this application, but required to be implemented.
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        int userId = dbHelper.getLastUserId();
+        if (userId != -1) {
+            dbHelper.addTrainingData(Math.floor(dist)/50, kro, kal, userId);
+        }
     }
 }

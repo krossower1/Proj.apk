@@ -9,7 +9,7 @@ import android.database.Cursor;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "users.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3; // Incremented database version
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
@@ -17,22 +17,41 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_PASSWORD = "password";
     private static final String COLUMN_WAGA = "waga";
 
+    // New table for training data
+    private static final String TABLE_TRAINING = "training_data";
+    private static final String COLUMN_TRAINING_ID = "id";
+    private static final String COLUMN_DIST = "dist";
+    private static final String COLUMN_KRO = "kro";
+    private static final String COLUMN_KAL = "kal";
+    private static final String COLUMN_USER_ID = "user_id";
+
+
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String CREATE_TABLE = "CREATE TABLE " + TABLE_USERS + " (" +
+        String CREATE_USERS_TABLE = "CREATE TABLE " + TABLE_USERS + " (" +
                 COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_LOGIN + " TEXT UNIQUE, " +
                 COLUMN_PASSWORD + " TEXT, " +
                 COLUMN_WAGA + " TEXT)";
-        db.execSQL(CREATE_TABLE);
+        db.execSQL(CREATE_USERS_TABLE);
+
+        String CREATE_TRAINING_TABLE = "CREATE TABLE " + TABLE_TRAINING + " (" +
+                COLUMN_TRAINING_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_DIST + " REAL, " +
+                COLUMN_KRO + " INTEGER, " +
+                COLUMN_KAL + " REAL, " +
+                COLUMN_USER_ID + " INTEGER, " +
+                "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + "))";
+        db.execSQL(CREATE_TRAINING_TABLE);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_TRAINING);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
         onCreate(db);
     }
@@ -62,6 +81,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // ------------------------------------------
+    // DODAJ DANE TRENINGOWE
+    // ------------------------------------------
+    public boolean addTrainingData(double dist, int kro, double kal, int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_DIST, dist);
+        values.put(COLUMN_KRO, kro);
+        values.put(COLUMN_KAL, kal);
+        values.put(COLUMN_USER_ID, userId);
+
+        long result = db.insert(TABLE_TRAINING, null, values);
+        db.close();
+        return result != -1;
+    }
+    
+    // ------------------------------------------
+    // POBIERZ ID OSTATNIEGO UŻYTKOWNIKA
+    // ------------------------------------------
+    public int getLastUserId() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_USERS + " ORDER BY " + COLUMN_ID + " DESC LIMIT 1";
+        Cursor cursor = db.rawQuery(query, null);
+        int userId = -1;
+        if (cursor.moveToFirst()) {
+            userId = cursor.getInt(0);
+        }
+        cursor.close();
+        db.close();
+        return userId;
+    }
+
+
+    // ------------------------------------------
     // SPRAWDŹ CZY UŻYTKOWNIK ISTNIEJE
     // ------------------------------------------
     public boolean checkUser(String login, String password) {
@@ -78,7 +130,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public String getWaga(String login, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
         String query = "SELECT " + COLUMN_WAGA + " FROM " + TABLE_USERS +
-            " WHERE " + COLUMN_LOGIN + "=? AND " + COLUMN_PASSWORD + "=?";
+            " WHERE " + COLUMN_LOGIN + "=? AND " + COLUMN_PASSWORD + "=? ";
         Cursor cursor = db.rawQuery(query, new String[]{login, password});
         String waga = null;
         if (cursor.moveToFirst()) {
