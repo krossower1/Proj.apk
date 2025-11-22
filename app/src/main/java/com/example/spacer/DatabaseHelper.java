@@ -61,6 +61,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // ------------------------------------------
     public void clearUsers() {
         SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_TRAINING, null, null);
         db.delete(TABLE_USERS, null, null); // usuwa wszystkie rekordy
         db.close();
     }
@@ -110,6 +111,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return userId;
+    }
+
+    // ------------------------------------------
+    // POBIERZ WSZYSTKIE DANE TRENINGOWE
+    // ------------------------------------------
+    public Cursor getAllTrainingData() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + TABLE_TRAINING, null);
     }
 
 

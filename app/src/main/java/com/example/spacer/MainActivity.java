@@ -1,5 +1,7 @@
 package com.example.spacer;
 
+import android.database.Cursor;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +18,11 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -159,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 trackingButton.setText(R.string.zakoncz);
                 mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background_dark));
             } else {
-                trackingButton.setText(R.string.zakoncz);
+                trackingButton.setText(R.string.rozpocznij);
                 mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background));
             }
         });
@@ -222,9 +229,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      */
     private void checkAndRequestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED | ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                     LOCATION_PERMISSION_REQUEST_CODE);
         } else {
             startLocationProcess();
@@ -558,6 +566,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return true;
         }
 
+        if (id == R.id.edane) {
+            // Export user data and show a confirmation toast.
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setMessage("Czy chcesz wyeksportować dane do pliku CSV?");
+            builder.setTitle("Eksport danych");
+            builder.setCancelable(false);
+            builder.setPositiveButton("tak", (DialogInterface.OnClickListener) (dialog, which) -> {
+                exportTrainingData();
+            });
+            builder.setNegativeButton("nie", (DialogInterface.OnClickListener) (dialog, which) -> {
+                dialog.cancel();
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+            return true;
+        }
+
         if (id == R.id.udane) {
             // Clear user data and show a confirmation toast.
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -608,8 +633,42 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             finish();
             return true;
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    private void exportTrainingData() {
+        File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        if (!exportDir.exists()) {
+            exportDir.mkdirs();
+        }
+
+        File file = new File(exportDir, "training_data.csv");
+        try {
+            file.createNewFile();
+            FileOutputStream fos = new FileOutputStream(file);
+            OutputStreamWriter osw = new OutputStreamWriter(fos);
+
+            Cursor cursor = dbHelper.getAllTrainingData();
+            osw.append("ID,Distance,Steps,Calories,UserID\n");
+
+            while (cursor.moveToNext()) {
+                osw.append(String.format("%s,%s,%s,%s,%s\n",
+                        cursor.getString(0),
+                        cursor.getString(1),
+                        cursor.getString(2),
+                        cursor.getString(3),
+                        cursor.getString(4)));
+            }
+
+            osw.flush();
+            osw.close();
+
+            Toast.makeText(this, "Dane wyeksportowane do folderu Pobrane", Toast.LENGTH_LONG).show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Błąd podczas eksportu danych", Toast.LENGTH_LONG).show();
+        }
     }
 
     /**
