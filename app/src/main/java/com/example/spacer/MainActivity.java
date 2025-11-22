@@ -51,7 +51,6 @@ import android.text.style.ImageSpan;
 import android.text.Spannable;
 import android.graphics.Color;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 
 
@@ -160,7 +159,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 trackingButton.setText(R.string.zakoncz);
                 mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background_dark));
             } else {
-                trackingButton.setText(R.string.rozpocznij);
+                trackingButton.setText(R.string.zakoncz);
                 mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background));
             }
         });
@@ -533,8 +532,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
             wylogujItemm.setTitle(sss);
         }
-
-
         return true;
     }
 
@@ -561,24 +558,35 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return true;
         }
 
-
-
         if (id == R.id.udane) {
             // Clear user data and show a confirmation toast.
-            DatabaseHelper dbHelper = new DatabaseHelper(this);
-            dbHelper.clearUsers();
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setMessage("Czy chcesz wyczyścić WSZYSTKIE dane?");
+            builder.setTitle("Alert");
+            builder.setCancelable(false);
+            builder.setPositiveButton("tak", (DialogInterface.OnClickListener) (dialog, which) -> {
+                dbHelper.clearUsers();
 
-            LayoutInflater inflater = getLayoutInflater();
-            View layout = inflater.inflate(R.layout.custom_toast, null);
+                LayoutInflater inflater = getLayoutInflater();
+                View layout = inflater.inflate(R.layout.custom_toast, null);
 
-            TextView text = layout.findViewById(R.id.text_toast);
-            text.setText("Wyczyszczono dane użytkowników.");
+                TextView text = layout.findViewById(R.id.text_toast);
+                text.setText(R.string.cleardb);
 
-            Toast toast = new Toast(getApplicationContext());
-            toast.setDuration(Toast.LENGTH_SHORT);
-            toast.setView(layout);
-            toast.show();
+                Toast toast = new Toast(getApplicationContext());
+                toast.setDuration(Toast.LENGTH_SHORT);
+                toast.setView(layout);
+                toast.show();
 
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                finish();
+            });
+            builder.setNegativeButton("nie", (DialogInterface.OnClickListener) (dialog, which) -> {
+                dialog.cancel();
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
             return true;
         }
 
@@ -669,7 +677,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onDestroy();
         int userId = dbHelper.getLastUserId();
         if (userId != -1) {
-            dbHelper.addTrainingData(Math.floor(dist)/50, kro, kal, userId);
+            dbHelper.addTrainingData(dist, kro, kal, userId);
         }
     }
 }
