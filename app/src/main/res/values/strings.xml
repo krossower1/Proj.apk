@@ -54,6 +54,7 @@
     <string name="enable_weekly_report_alerts_prompt">Cotygodniowe raporty są wyłączone. Czy chcesz je włączyć?</string>
     <string name="weekly_report_alerts_on_toast">Cotygodniowe raporty włączone</string>
     <string name="weekly_report_alerts_off_toast">Cotygodniowe raporty wyłączone</string>
+    <string name="sudden_movement_marker_title">Wykryto nagły ruch</string>
 
     <string name="no_field">Wypełnij wszystkie pola!</string>
 

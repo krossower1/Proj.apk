@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView dystans;
     private TextView kroki;
     private TextView kalorie;
-    private Marker marker; // The marker on the map for the user's location.
+    private Marker userMarker; // The marker on the map for the user's location.
     private Button trackingButton;
     private ConstraintLayout mainLayout;
 
@@ -137,10 +137,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         map.getController().setZoom(12.0);
 
         // --- Map Marker Setup ---
-        marker = new Marker(map);
-        marker.setTitle(getString(R.string.user_location_marker));
-        marker.setEnabled(false); // Initially invisible until a location is found.
-        map.getOverlays().add(marker);
+        userMarker = new Marker(map);
+        userMarker.setTitle(getString(R.string.user_location_marker));
+        userMarker.setEnabled(false); // Initially invisible until a location is found.
+        map.getOverlays().add(userMarker);
 
         // --- Permissions and Location Initiation ---
         checkAndRequestLocationPermission();
@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
-                        if (location != null && !marker.isEnabled()) {
+                        if (location != null && !userMarker.isEnabled()) {
                             updateMapWithLocation(location);
                         }
                     }
@@ -329,11 +329,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         Log.d("GPS", "Lat: " + lat + ", Lon: " + lon);
         GeoPoint newPoint = new GeoPoint(lat, lon);
-        marker.setPosition(newPoint);
+        userMarker.setPosition(newPoint);
 
         // If this is the first fix, enable the marker and jump to the location.
-        if (!marker.isEnabled()) {
-            marker.setEnabled(true);
+        if (!userMarker.isEnabled()) {
+            userMarker.setEnabled(true);
             map.getController().setZoom(18.0);
             map.getController().setCenter(newPoint);
         } else {
@@ -753,6 +753,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 if (suddenMovementAlertsEnabled && magnitude > SUDDEN_MOVEMENT_THRESHOLD && (currentTime - lastSuddenMovementTime) > SUDDEN_MOVEMENT_COOLDOWN_MS) {
                     lastSuddenMovementTime = currentTime;
                     Snackbar.make(findViewById(R.id.main), getString(R.string.sudden_movement_detected), Snackbar.LENGTH_LONG).show();
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                            if (location != null) {
+                                GeoPoint point = new GeoPoint(location.getLatitude(), location.getLongitude());
+                                Marker incidentMarker = new Marker(map);
+                                incidentMarker.setPosition(point);
+                                incidentMarker.setTitle(getString(R.string.sudden_movement_marker_title));
+                                map.getOverlays().add(incidentMarker);
+                                map.invalidate();
+                            }
+                        });
+                    }
                 }
 
             } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
