@@ -19,7 +19,7 @@
     <string name="cleardb">Wszystkie dane zostały usunięte!</string>
     <string name="logout">Wylogowano się pomyślnie!</string>
     <string name="user_location_marker">Jesteś tutaj</string>
-    <string name="no_gyroscope">Gyroscope not available</string>
+    <string name="no_gyroscope">Brak czujnika żyroskopu</string>
     <string name="settings">Ustawienia</string>
     <string name="main_screen">Ekran główny</string>
     <string name="account">Konto</string>
@@ -36,4 +36,13 @@
     <string name="kcal_unit"> kcal</string>
 
     <string name="no_field">Wypełnij wszystkie pola!</string>
+
+    <!-- LoginActivity -->
+    <string name="login_successful">Zalogowano pomyślnie!</string>
+    <string name="login_failed">Błędny login lub hasło!</string>
+
+    <!-- RegisterActivity -->
+    <string name="passwords_not_matching">Hasła nie są takie same!</string>
+    <string name="registration_successful">Rejestracja zakończona sukcesem!</string>
+    <string name="user_already_exists">Błąd: użytkownik już istnieje!</string>
 </resources>

@@ -73,9 +73,10 @@ public class LoginActivity extends AppCompatActivity {
             if (login.isEmpty() || pass.isEmpty()) {
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
+                layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
-                text.setText("Wypełnij wszystkie pola!");
+                text.setText(getString(R.string.no_field));
 
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
@@ -100,7 +101,7 @@ public class LoginActivity extends AppCompatActivity {
                 View layout = inflater.inflate(R.layout.custom_toast, null);
 
                 TextView text = layout.findViewById(R.id.text_toast);
-                text.setText("Zalogowano pomyślnie!");
+                text.setText(getString(R.string.login_successful));
 
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
@@ -129,12 +130,14 @@ public class LoginActivity extends AppCompatActivity {
                 intent.putExtra("waga", waga);
                 startActivity(intent);
                 finish();
-            } else { // CUSTOM TOAST
+            } else {
+                // CUSTOM TOAST
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
+                layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
-                text.setText("Błędny login lub hasło!");
+                text.setText(getString(R.string.login_failed));
 
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
