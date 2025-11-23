@@ -9,7 +9,7 @@ import android.database.Cursor;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "users.db";
-    private static final int DATABASE_VERSION = 5; // Incremented database version
+    private static final int DATABASE_VERSION = 6; // Incremented database version
 
     private static final String TABLE_USERS = "users";
     private static final String COLUMN_ID = "id";
@@ -24,6 +24,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             TABLE_TRAINING_DAYS[i] = "training_data_" + i;
         }
     }
+
+    private static final String TABLE_MARKERS = "markers";
+    private static final String COLUMN_MARKER_ID = "id";
+    private static final String COLUMN_LATITUDE = "latitude";
+    private static final String COLUMN_LONGITUDE = "longitude";
 
     private static final String COLUMN_TRAINING_ID = "id";
     public static final String COLUMN_DIST = "dist";
@@ -55,6 +60,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + "))";
             db.execSQL(CREATE_TRAINING_TABLE);
         }
+
+        String CREATE_MARKERS_TABLE = "CREATE TABLE " + TABLE_MARKERS + " (" +
+                COLUMN_MARKER_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_LATITUDE + " REAL, " +
+                COLUMN_LONGITUDE + " REAL, " +
+                COLUMN_USER_ID + " INTEGER, " +
+                "FOREIGN KEY(" + COLUMN_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + COLUMN_ID + "))";
+        db.execSQL(CREATE_MARKERS_TABLE);
     }
 
     @Override
@@ -63,6 +76,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + tableName);
         }
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_MARKERS);
         onCreate(db);
     }
     
@@ -84,6 +98,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.delete(tableName, null, null);
         }
         db.delete(TABLE_USERS, null, null);
+        db.delete(TABLE_MARKERS, null, null);
         db.close();
     }
 
@@ -110,6 +125,29 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         long result = db.insert(TABLE_TRAINING_DAYS[0], null, values);
         db.close();
         return result != -1;
+    }
+
+    public boolean addMarker(double latitude, double longitude, int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(COLUMN_LATITUDE, latitude);
+        values.put(COLUMN_LONGITUDE, longitude);
+        values.put(COLUMN_USER_ID, userId);
+        long result = db.insert(TABLE_MARKERS, null, values);
+        db.close();
+        return result != -1;
+    }
+
+    public void deleteLastMarker(int userId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "DELETE FROM " + TABLE_MARKERS + " WHERE " + COLUMN_MARKER_ID + " = (SELECT MAX(" + COLUMN_MARKER_ID + ") FROM " + TABLE_MARKERS + " WHERE " + COLUMN_USER_ID + " = " + userId + ")";
+        db.execSQL(query);
+        db.close();
+    }
+
+    public Cursor getAllMarkers(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        return db.rawQuery("SELECT * FROM " + TABLE_MARKERS + " WHERE " + COLUMN_USER_ID + " = " + userId, null);
     }
 
     public int getLastUserId() {

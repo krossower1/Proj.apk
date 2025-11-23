@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.os.Bundle;
 import android.os.Looper;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import com.google.android.material.snackbar.Snackbar;
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -60,6 +61,8 @@ import android.graphics.Color;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import android.text.style.ForegroundColorSpan;
 import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -74,6 +77,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100; // Request code for location permission.
     private static final float GYRO_THRESHOLD = 2.0f; // Threshold for step detection
     private static final int STEP_DELAY_MS = 500; // Minimum delay between steps
+    private static final double SUDDEN_MOVEMENT_THRESHOLD = 15.0; // Threshold for sudden movement detection
+    private static final long SUDDEN_MOVEMENT_COOLDOWN_MS = 5000; // Cooldown for sudden movement snackbar
+    private long lastSuddenMovementTime = 0;
+    private boolean suddenMovementAlertsEnabled = true;
+    private boolean weeklyReportEnabled = true;
+    private boolean incidentMarkersVisible = true;
 
     // UI Elements
     private MapView map;
@@ -81,7 +90,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView dystans;
     private TextView kroki;
     private TextView kalorie;
-    private Marker marker; // The marker on the map for the user's location.
+    private Marker userMarker; // The marker on the map for the user's location.
+    private List<Marker> incidentMarkers = new ArrayList<>();
     private Button trackingButton;
     private ConstraintLayout mainLayout;
 
@@ -131,10 +141,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         map.getController().setZoom(12.0);
 
         // --- Map Marker Setup ---
-        marker = new Marker(map);
-        marker.setTitle(getString(R.string.user_location_marker));
-        marker.setEnabled(false); // Initially invisible until a location is found.
-        map.getOverlays().add(marker);
+        userMarker = new Marker(map);
+        userMarker.setTitle(getString(R.string.user_location_marker));
+        userMarker.setEnabled(false); // Initially invisible until a location is found.
+        map.getOverlays().add(userMarker);
+        loadMarkersFromDatabase();
 
         // --- Permissions and Location Initiation ---
         checkAndRequestLocationPermission();
@@ -275,7 +286,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .addOnSuccessListener(this, new OnSuccessListener<Location>() {
                     @Override
                     public void onSuccess(Location location) {
-                        if (location != null && !marker.isEnabled()) {
+                        if (location != null && !userMarker.isEnabled()) {
                             updateMapWithLocation(location);
                         }
                     }
@@ -323,11 +334,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         Log.d("GPS", "Lat: " + lat + ", Lon: " + lon);
         GeoPoint newPoint = new GeoPoint(lat, lon);
-        marker.setPosition(newPoint);
+        userMarker.setPosition(newPoint);
 
         // If this is the first fix, enable the marker and jump to the location.
-        if (!marker.isEnabled()) {
-            marker.setEnabled(true);
+        if (!userMarker.isEnabled()) {
+            userMarker.setEnabled(true);
             map.getController().setZoom(18.0);
             map.getController().setCenter(newPoint);
         } else {
@@ -553,12 +564,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.alerty) {
-            // Show alert dialog for unstable walking.
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage(getString(R.string.disable_instability_alerts_prompt));
             builder.setTitle(getString(R.string.alert));
+            if (suddenMovementAlertsEnabled) {
+                builder.setMessage(getString(R.string.disable_sudden_movement_alerts_prompt));
+            } else {
+                builder.setMessage(getString(R.string.enable_sudden_movement_alerts_prompt));
+            }
             builder.setCancelable(false);
             builder.setPositiveButton(getString(R.string.t), (DialogInterface.OnClickListener) (dialog, which) -> {
+                suddenMovementAlertsEnabled = !suddenMovementAlertsEnabled;
+                String toastMessage = suddenMovementAlertsEnabled ? getString(R.string.sudden_movement_alerts_on_toast) : getString(R.string.sudden_movement_alerts_off_toast);
+                Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                 dialog.cancel();
             });
             builder.setNegativeButton(getString(R.string.n), (DialogInterface.OnClickListener) (dialog, which) -> {
@@ -566,6 +583,44 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             });
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
+            return true;
+        } else if (id == R.id.raporty) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+            builder.setTitle(getString(R.string.weekly_report_title));
+            if (weeklyReportEnabled) {
+                builder.setMessage(getString(R.string.disable_weekly_report_alerts_prompt));
+            } else {
+                builder.setMessage(getString(R.string.enable_weekly_report_alerts_prompt));
+            }
+            builder.setCancelable(false);
+            builder.setPositiveButton(getString(R.string.t), (DialogInterface.OnClickListener) (dialog, which) -> {
+                weeklyReportEnabled = !weeklyReportEnabled;
+                String toastMessage = weeklyReportEnabled ? getString(R.string.weekly_report_alerts_on_toast) : getString(R.string.weekly_report_alerts_off_toast);
+                Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                dialog.cancel();
+            });
+            builder.setNegativeButton(getString(R.string.n), (DialogInterface.OnClickListener) (dialog, which) -> {
+                dialog.cancel();
+            });
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+            return true;
+        } else if (id == R.id.pznaczniki) {
+            incidentMarkersVisible = !incidentMarkersVisible;
+            for (Marker m : incidentMarkers) {
+                m.setEnabled(incidentMarkersVisible);
+            }
+            map.invalidate();
+            return true;
+        } else if (id == R.id.uznacznik) {
+            if (incidentMarkers.size() > 1) {
+                dbHelper.deleteLastMarker(dbHelper.getLastUserId());
+                Marker lastMarker = incidentMarkers.remove(incidentMarkers.size() - 1);
+                map.getOverlays().remove(lastMarker);
+                map.invalidate();
+            } else {
+                Toast.makeText(this, getString(R.string.cannot_delete_first_marker), Toast.LENGTH_SHORT).show();
+            }
             return true;
         }
 
@@ -715,6 +770,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     // Accumulate distance based on movement magnitude.
                     dist = dist + Math.floor(magnitude);
                 }
+
+                long currentTime = System.currentTimeMillis();
+                if (suddenMovementAlertsEnabled && magnitude > SUDDEN_MOVEMENT_THRESHOLD && (currentTime - lastSuddenMovementTime) > SUDDEN_MOVEMENT_COOLDOWN_MS) {
+                    lastSuddenMovementTime = currentTime;
+                    Snackbar.make(findViewById(R.id.main), getString(R.string.sudden_movement_detected), Snackbar.LENGTH_LONG).show();
+                    if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        fusedLocationClient.getLastLocation().addOnSuccessListener(this, location -> {
+                            if (location != null) {
+                                GeoPoint point = new GeoPoint(location.getLatitude(), location.getLongitude());
+                                Marker incidentMarker = new Marker(map);
+                                incidentMarker.setPosition(point);
+                                incidentMarker.setTitle(getString(R.string.sudden_movement_marker_title));
+                                incidentMarker.setEnabled(incidentMarkersVisible);
+                                map.getOverlays().add(incidentMarker);
+                                incidentMarkers.add(incidentMarker);
+                                dbHelper.addMarker(location.getLatitude(), location.getLongitude(), dbHelper.getLastUserId());
+                                map.invalidate();
+                            }
+                        });
+                    }
+                }
+
             } else if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
                 long currentTime = System.currentTimeMillis();
                 if ((currentTime - lastStepTime) > STEP_DELAY_MS) {
@@ -749,6 +826,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         int currentDay = c.get(Calendar.DAY_OF_YEAR);
         if (lastDay != -1 && lastDay != currentDay) {
             dbHelper.shiftTrainingData();
+            if (weeklyReportEnabled && c.get(Calendar.DAY_OF_WEEK) == Calendar.MONDAY) {
+                showWeeklyReport();
+            }
         }
         lastDay = currentDay;
     }
@@ -794,6 +874,74 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
         builder.create().show();
+    }
+
+    private void showWeeklyReport() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.weekly_report_title));
+
+        double prevWeekDist = 0, prevWeekKro = 0, prevWeekKal = 0;
+        double currentWeekDist = 0, currentWeekKro = 0, currentWeekKal = 0;
+        boolean dataFound = false;
+
+        for (int i = 0; i < 14; i++) {
+            Cursor cursor = dbHelper.getTrainingDataForDay(i);
+            if (cursor != null && cursor.moveToFirst()) {
+                dataFound = true;
+                do {
+                    if (i < 7) {
+                        currentWeekDist += cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
+                        currentWeekKro += cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KRO));
+                        currentWeekKal += cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KAL));
+                    } else {
+                        prevWeekDist += cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
+                        prevWeekKro += cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KRO));
+                        prevWeekKal += cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KAL));
+                    }
+                } while (cursor.moveToNext());
+                cursor.close();
+            }
+        }
+
+        if (dataFound) {
+            String message = getString(R.string.previous_week_report) + "\n" +
+                    getString(R.string.distance_label) + " " + String.format(Locale.getDefault(), "%.2f", prevWeekDist / 50) + getString(R.string.meters_unit) + "\n" +
+                    getString(R.string.steps_label) + " " + (int)prevWeekKro + "\n" +
+                    getString(R.string.calories_label) + " " + String.format(Locale.getDefault(), "%.2f", prevWeekKal) + getString(R.string.kcal_unit) + "\n\n";
+
+            message += getString(R.string.current_week_report) + "\n" +
+                    getString(R.string.distance_label) + " " + String.format(Locale.getDefault(), "%.2f", currentWeekDist / 50) + getString(R.string.meters_unit) + "\n" +
+                    getString(R.string.steps_label) + " " + (int)currentWeekKro + "\n" +
+                    getString(R.string.calories_label) + " " + String.format(Locale.getDefault(), "%.2f", currentWeekKal) + getString(R.string.kcal_unit);
+            builder.setMessage(message);
+        } else {
+            builder.setMessage(getString(R.string.not_enough_data_for_report));
+        }
+
+        builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
+        builder.create().show();
+    }
+
+    private void loadMarkersFromDatabase() {
+        int userId = dbHelper.getLastUserId();
+        if (userId != -1) {
+            Cursor cursor = dbHelper.getAllMarkers(userId);
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    double lat = cursor.getDouble(cursor.getColumnIndexOrThrow("latitude"));
+                    double lon = cursor.getDouble(cursor.getColumnIndexOrThrow("longitude"));
+                    GeoPoint point = new GeoPoint(lat, lon);
+                    Marker incidentMarker = new Marker(map);
+                    incidentMarker.setPosition(point);
+                    incidentMarker.setTitle(getString(R.string.sudden_movement_marker_title));
+                    incidentMarker.setEnabled(incidentMarkersVisible);
+                    map.getOverlays().add(incidentMarker);
+                    incidentMarkers.add(incidentMarker);
+                } while (cursor.moveToNext());
+                cursor.close();
+                map.invalidate();
+            }
+        }
     }
 
 
