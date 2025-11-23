@@ -460,7 +460,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //============== //================
 
         // Ikona obok "Pokazuj znaczniki na mapie"
-        MenuItem znacznikiItem = menu.finditem(R.id.pznaczniki);
+        MenuItem znacznikiItem = menu.findItem(R.id.pznaczniki);
         SpannableString znacznikiText = new SpannableString("Pokazuj znaczniki na mapie   "); // dodany odstęp
         Drawable znacznikiIcon = ContextCompat.getDrawable(this, R.drawable.znaczniki);
         if (znacznikiIcon != null) znacznikiIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
