@@ -23,7 +23,10 @@
     <string name="settings">Ustawienia</string>
     <string name="main_screen">Ekran główny</string>
     <string name="account">Konto</string>
-    <string name="disable_instability_alerts_prompt">Czy chcesz wyłączyć alerty o niestabilnym chodzie?</string>
+    <string name="disable_sudden_movement_alerts_prompt">Alerty o nagłym ruchu są włączone. Czy chcesz je wyłączyć?</string>
+    <string name="enable_sudden_movement_alerts_prompt">Alerty o nagłym ruchu są wyłączone. Czy chcesz je włączyć?</string>
+    <string name="sudden_movement_alerts_on_toast">Alerty o nagłym ruchu włączone</string>
+    <string name="sudden_movement_alerts_off_toast">Alerty o nagłym ruchu wyłączone</string>
     <string name="alert">Alert</string>
     <string name="export_data_prompt_csv">Czy chcesz wyeksportować dane do pliku CSV?</string>
     <string name="export_data_title">Eksport danych</string>
@@ -42,6 +45,15 @@
     <string name="distance_label">Dystans:</string>
     <string name="steps_label">Kroki:</string>
     <string name="calories_label">Kalorie:</string>
+    <string name="sudden_movement_detected">Wykryto nagły ruch! Wszystko w porządku?</string>
+    <string name="weekly_report_title">Raport tygodniowy</string>
+    <string name="previous_week_report">Poprzedni tydzień:</string>
+    <string name="current_week_report">Obecny tydzień:</string>
+    <string name="not_enough_data_for_report">Brak wystarczających danych do wygenerowania raportu.</string>
+    <string name="disable_weekly_report_alerts_prompt">Cotygodniowe raporty są włączone. Czy chcesz je wyłączyć?</string>
+    <string name="enable_weekly_report_alerts_prompt">Cotygodniowe raporty są wyłączone. Czy chcesz je włączyć?</string>
+    <string name="weekly_report_alerts_on_toast">Cotygodniowe raporty włączone</string>
+    <string name="weekly_report_alerts_off_toast">Cotygodniowe raporty wyłączone</string>
 
     <string name="no_field">Wypełnij wszystkie pola!</string>
 
