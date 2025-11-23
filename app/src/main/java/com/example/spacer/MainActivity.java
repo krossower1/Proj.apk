@@ -59,6 +59,7 @@ import android.text.Spannable;
 import android.graphics.Color;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import android.text.style.ForegroundColorSpan;
+import java.util.Calendar;
 
 
 /**
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private FusedLocationProviderClient fusedLocationClient;
     private BottomNavigationView bottomNav;
     private DatabaseHelper dbHelper;
+    private int lastDay = -1;
 
     /**
      * Called when the activity is first created. Initializes the UI, map, sensors,
@@ -115,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setSupportActionBar(toolbar);
 
         dbHelper = new DatabaseHelper(this);
+        checkDay();
 
         // --- Location Services Setup ---
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -633,6 +636,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             finish();
             return true;
         }
+
+        if (id == R.id.pdzien) {
+            showComparisonDialog();
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -730,6 +738,59 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Not used in this application, but required to be implemented.
     }
+    
+    private void checkDay() {
+        Calendar c = Calendar.getInstance();
+        int currentDay = c.get(Calendar.DAY_OF_YEAR);
+        if (lastDay != -1 && lastDay != currentDay) {
+            dbHelper.shiftTrainingData();
+        }
+        lastDay = currentDay;
+    }
+
+    private void showComparisonDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.day_comparison_title));
+
+        Cursor prevCursor = dbHelper.getPreviousTrainingData();
+        Cursor currentCursor = dbHelper.getAllTrainingData();
+
+        if (prevCursor != null && prevCursor.moveToFirst()) {
+            double prevDist = prevCursor.getDouble(prevCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
+            int prevKro = prevCursor.getInt(prevCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KRO));
+            double prevKal = prevCursor.getDouble(prevCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KAL));
+
+            String message = getString(R.string.previous_day) + "\n" +
+                    getString(R.string.distance_label) + " " + String.format(Locale.getDefault(), "%.2f", prevDist / 50) + getString(R.string.meters_unit) + "\n" +
+                    getString(R.string.steps_label) + " " + prevKro + "\n" +
+                    getString(R.string.calories_label) + " " + String.format(Locale.getDefault(), "%.2f", prevKal) + getString(R.string.kcal_unit) + "\n\n";
+
+            if (currentCursor != null && currentCursor.moveToFirst()) {
+                double currentDist = currentCursor.getDouble(currentCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
+                int currentKro = currentCursor.getInt(currentCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KRO));
+                double currentKal = currentCursor.getDouble(currentCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KAL));
+                message += getString(R.string.current_day) + "\n" +
+                        getString(R.string.distance_label) + " " + String.format(Locale.getDefault(), "%.2f", currentDist / 50) + getString(R.string.meters_unit) + "\n" +
+                        getString(R.string.steps_label) + " " + currentKro + "\n" +
+                        getString(R.string.calories_label) + " " + String.format(Locale.getDefault(), "%.2f", currentKal) + getString(R.string.kcal_unit);
+            }
+            builder.setMessage(message);
+
+        } else {
+            builder.setMessage(getString(R.string.no_previous_data));
+        }
+
+        if (prevCursor != null) {
+            prevCursor.close();
+        }
+        if (currentCursor != null) {
+            currentCursor.close();
+        }
+
+        builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
+        builder.create().show();
+    }
+
 
     @Override
     protected void onDestroy() {

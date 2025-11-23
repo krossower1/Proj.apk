@@ -34,6 +34,14 @@
     <string name="data_export_error">Błąd podczas eksportu danych</string>
     <string name="meters_unit"> m</string>
     <string name="kcal_unit"> kcal</string>
+    <string name="day_comparison_title">Porównanie dni</string>
+    <string name="no_previous_data">Brak danych z poprzedniego dnia.</string>
+    <string name="ok">OK</string>
+    <string name="previous_day">Poprzedni dzień:</string>
+    <string name="current_day">Obecny dzień:</string>
+    <string name="distance_label">Dystans:</string>
+    <string name="steps_label">Kroki:</string>
+    <string name="calories_label">Kalorie:</string>
 
     <string name="no_field">Wypełnij wszystkie pola!</string>
 
