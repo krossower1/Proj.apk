@@ -18,7 +18,22 @@
     <string name="niestabil">Czy chcesz otrzymywać powiadomienia o niestabilnym chodzie?</string>
     <string name="cleardb">Wszystkie dane zostały usunięte!</string>
     <string name="logout">Wylogowano się pomyślnie!</string>
-
+    <string name="user_location_marker">Jesteś tutaj</string>
+    <string name="no_gyroscope">Gyroscope not available</string>
+    <string name="settings">Ustawienia</string>
+    <string name="main_screen">Ekran główny</string>
+    <string name="account">Konto</string>
+    <string name="disable_instability_alerts_prompt">Czy chcesz wyłączyć alerty o niestabilnym chodzie?</string>
+    <string name="alert">Alert</string>
+    <string name="export_data_prompt_csv">Czy chcesz wyeksportować dane do pliku CSV?</string>
+    <string name="export_data_title">Eksport danych</string>
+    <string name="clear_all_data_prompt">Czy chcesz wyczyścić WSZYSTKIE dane?</string>
+    <string name="csv_header">ID,Distance,Steps,Calories,UserID
+</string>
+    <string name="data_exported_to_downloads">Dane wyeksportowane do folderu Pobrane</string>
+    <string name="data_export_error">Błąd podczas eksportu danych</string>
+    <string name="meters_unit"> m</string>
+    <string name="kcal_unit"> kcal</string>
 
     <string name="no_field">Wypełnij wszystkie pola!</string>
 </resources>
