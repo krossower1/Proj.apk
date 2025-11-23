@@ -59,6 +59,7 @@ import android.text.Spannable;
 import android.graphics.Color;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import android.text.style.ForegroundColorSpan;
+import java.util.Calendar;
 
 
 /**
@@ -100,6 +101,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private FusedLocationProviderClient fusedLocationClient;
     private BottomNavigationView bottomNav;
     private DatabaseHelper dbHelper;
+    private int lastDay = -1;
 
     /**
      * Called when the activity is first created. Initializes the UI, map, sensors,
@@ -115,6 +117,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         setSupportActionBar(toolbar);
 
         dbHelper = new DatabaseHelper(this);
+        checkDay();
 
         // --- Location Services Setup ---
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -129,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // --- Map Marker Setup ---
         marker = new Marker(map);
-        marker.setTitle("Jesteś tutaj");
+        marker.setTitle(getString(R.string.user_location_marker));
         marker.setEnabled(false); // Initially invisible until a location is found.
         map.getOverlays().add(marker);
 
@@ -143,10 +146,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
         }
         if (accelerometer == null) {
-            Toast.makeText(this, "@string/noaccel", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.noaccel), Toast.LENGTH_LONG).show();
         }
         if (gyroscope == null) {
-            Toast.makeText(this, "Gyroscope not available", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.no_gyroscope), Toast.LENGTH_LONG).show();
         }
 
         // --- UI Initialization ---
@@ -189,7 +192,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             TextView text = layout.findViewById(R.id.text_toast);
 
             if (id == R.id.nav_settings) {
-                text.setText("Ustawienia");
+                text.setText(getString(R.string.settings));
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
@@ -199,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 return true;
 
             } else if (id == R.id.nav_home) {
-                text.setText("Ekran główny");
+                text.setText(getString(R.string.main_screen));
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
@@ -209,7 +212,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 return true;
 
             } else if (id == R.id.nav_account) {
-                text.setText("Konto");
+                text.setText(getString(R.string.account));
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
@@ -252,7 +255,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 startLocationProcess();
             } else {
                 // Permission denied, show a toast.
-                Toast.makeText(this, "@string/nolok", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, getString(R.string.nolok), Toast.LENGTH_LONG).show();
             }
         }
     }
@@ -552,13 +555,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (id == R.id.alerty) {
             // Show alert dialog for unstable walking.
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage("Czy chcesz wyłączyć alerty o niestabilnym chodzie?");
-            builder.setTitle("Alert");
+            builder.setMessage(getString(R.string.disable_instability_alerts_prompt));
+            builder.setTitle(getString(R.string.alert));
             builder.setCancelable(false);
-            builder.setPositiveButton("tak", (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setPositiveButton(getString(R.string.t), (DialogInterface.OnClickListener) (dialog, which) -> {
                 dialog.cancel();
             });
-            builder.setNegativeButton("nie", (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setNegativeButton(getString(R.string.n), (DialogInterface.OnClickListener) (dialog, which) -> {
                 dialog.cancel();
             });
             AlertDialog alertDialog = builder.create();
@@ -569,13 +572,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (id == R.id.edane) {
             // Export user data and show a confirmation toast.
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage("Czy chcesz wyeksportować dane do pliku CSV?");
-            builder.setTitle("Eksport danych");
+            builder.setMessage(getString(R.string.export_data_prompt_csv));
+            builder.setTitle(getString(R.string.export_data_title));
             builder.setCancelable(false);
-            builder.setPositiveButton("tak", (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setPositiveButton(getString(R.string.t), (DialogInterface.OnClickListener) (dialog, which) -> {
                 exportTrainingData();
             });
-            builder.setNegativeButton("nie", (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setNegativeButton(getString(R.string.n), (DialogInterface.OnClickListener) (dialog, which) -> {
                 dialog.cancel();
             });
             AlertDialog alertDialog = builder.create();
@@ -586,10 +589,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (id == R.id.udane) {
             // Clear user data and show a confirmation toast.
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage("Czy chcesz wyczyścić WSZYSTKIE dane?");
-            builder.setTitle("Alert");
+            builder.setMessage(getString(R.string.clear_all_data_prompt));
+            builder.setTitle(getString(R.string.alert));
             builder.setCancelable(false);
-            builder.setPositiveButton("tak", (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setPositiveButton(getString(R.string.t), (DialogInterface.OnClickListener) (dialog, which) -> {
                 dbHelper.clearUsers();
 
                 LayoutInflater inflater = getLayoutInflater();
@@ -607,7 +610,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 startActivity(intent);
                 finish();
             });
-            builder.setNegativeButton("nie", (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setNegativeButton(getString(R.string.n), (DialogInterface.OnClickListener) (dialog, which) -> {
                 dialog.cancel();
             });
             AlertDialog alertDialog = builder.create();
@@ -621,7 +624,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             View layout = inflater.inflate(R.layout.custom_toast, null);
 
             TextView text = layout.findViewById(R.id.text_toast);
-            text.setText("Wylogowano pomyślnie.");
+            text.setText(R.string.logout);
 
             Toast toast = new Toast(getApplicationContext());
             toast.setDuration(Toast.LENGTH_SHORT);
@@ -631,6 +634,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
+            return true;
+        }
+
+        if (id == R.id.pdzien) {
+            showComparisonDialog();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -648,26 +656,31 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             FileOutputStream fos = new FileOutputStream(file);
             OutputStreamWriter osw = new OutputStreamWriter(fos);
 
-            Cursor cursor = dbHelper.getAllTrainingData();
-            osw.append("ID,Distance,Steps,Calories,UserID\n");
+            osw.append(getString(R.string.csv_header));
 
-            while (cursor.moveToNext()) {
-                osw.append(String.format("%s,%s,%s,%s,%s\n",
-                        cursor.getString(0),
-                        cursor.getString(1),
-                        cursor.getString(2),
-                        cursor.getString(3),
-                        cursor.getString(4)));
+            for (int i = 0; i < 14; i++) {
+                Cursor cursor = dbHelper.getTrainingDataForDay(i);
+                if (cursor != null && cursor.moveToFirst()) {
+                    do {
+                        osw.append(String.format("%s,%s,%s,%s,%s\n",
+                                cursor.getString(0),
+                                cursor.getString(1),
+                                cursor.getString(2),
+                                cursor.getString(3),
+                                cursor.getString(4)));
+                    } while (cursor.moveToNext());
+                    cursor.close();
+                }
             }
 
             osw.flush();
             osw.close();
 
-            Toast.makeText(this, "Dane wyeksportowane do folderu Pobrane", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.data_exported_to_downloads), Toast.LENGTH_LONG).show();
 
         } catch (IOException e) {
             e.printStackTrace();
-            Toast.makeText(this, "Błąd podczas eksportu danych", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.data_export_error), Toast.LENGTH_LONG).show();
         }
     }
 
@@ -715,11 +728,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             kal = Math.floor(dist) / 50 * (3.5 / waga);
 
-            dystans.setText(getString(R.string.dystans) + " " + Math.floor(dist) / 50 + " m");
+            dystans.setText(getString(R.string.dystans) + " " + Math.floor(dist) / 50 + getString(R.string.meters_unit));
 
             kroki.setText(getString(R.string.kroki) + " " + kro);
 
-            kalorie.setText(getString(R.string.kalorie) + " " + (int) kal + " kcal");
+            kalorie.setText(getString(R.string.kalorie) + " " + (int) kal + getString(R.string.kcal_unit));
         }
     }
 
@@ -730,6 +743,59 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Not used in this application, but required to be implemented.
     }
+    
+    private void checkDay() {
+        Calendar c = Calendar.getInstance();
+        int currentDay = c.get(Calendar.DAY_OF_YEAR);
+        if (lastDay != -1 && lastDay != currentDay) {
+            dbHelper.shiftTrainingData();
+        }
+        lastDay = currentDay;
+    }
+
+    private void showComparisonDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.day_comparison_title));
+
+        Cursor prevCursor = dbHelper.getPreviousTrainingData();
+        Cursor currentCursor = dbHelper.getAllTrainingData();
+
+        if (prevCursor != null && prevCursor.moveToFirst()) {
+            double prevDist = prevCursor.getDouble(prevCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
+            int prevKro = prevCursor.getInt(prevCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KRO));
+            double prevKal = prevCursor.getDouble(prevCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KAL));
+
+            String message = getString(R.string.previous_day) + "\n" +
+                    getString(R.string.distance_label) + " " + String.format(Locale.getDefault(), "%.2f", prevDist / 50) + getString(R.string.meters_unit) + "\n" +
+                    getString(R.string.steps_label) + " " + prevKro + "\n" +
+                    getString(R.string.calories_label) + " " + String.format(Locale.getDefault(), "%.2f", prevKal) + getString(R.string.kcal_unit) + "\n\n";
+
+            if (currentCursor != null && currentCursor.moveToFirst()) {
+                double currentDist = currentCursor.getDouble(currentCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
+                int currentKro = currentCursor.getInt(currentCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KRO));
+                double currentKal = currentCursor.getDouble(currentCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KAL));
+                message += getString(R.string.current_day) + "\n" +
+                        getString(R.string.distance_label) + " " + String.format(Locale.getDefault(), "%.2f", currentDist / 50) + getString(R.string.meters_unit) + "\n" +
+                        getString(R.string.steps_label) + " " + currentKro + "\n" +
+                        getString(R.string.calories_label) + " " + String.format(Locale.getDefault(), "%.2f", currentKal) + getString(R.string.kcal_unit);
+            }
+            builder.setMessage(message);
+
+        } else {
+            builder.setMessage(getString(R.string.no_previous_data));
+        }
+
+        if (prevCursor != null) {
+            prevCursor.close();
+        }
+        if (currentCursor != null) {
+            currentCursor.close();
+        }
+
+        builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
+        builder.create().show();
+    }
+
 
     @Override
     protected void onDestroy() {

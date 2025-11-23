@@ -55,7 +55,7 @@ public class RegisterActivity extends AppCompatActivity {
                 layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
-                text.setText("@string/no_field");
+                text.setText(getString(R.string.no_field));
 
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
@@ -71,7 +71,7 @@ public class RegisterActivity extends AppCompatActivity {
                 layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
-                text.setText("Hasła nie są takie same!");
+                text.setText(getString(R.string.passwords_not_matching));
 
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
@@ -87,7 +87,7 @@ public class RegisterActivity extends AppCompatActivity {
                 View layout = inflater.inflate(R.layout.custom_toast, null);
 
                 TextView text = layout.findViewById(R.id.text_toast);
-                text.setText("Rejestracja zakończona sukcesem!");
+                text.setText(getString(R.string.registration_successful));
 
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
@@ -105,7 +105,7 @@ public class RegisterActivity extends AppCompatActivity {
                 layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
-                text.setText("Błąd: użytkownik już istnieje!");
+                text.setText(getString(R.string.user_already_exists));
 
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);

@@ -18,7 +18,39 @@
     <string name="niestabil">Czy chcesz otrzymywać powiadomienia o niestabilnym chodzie?</string>
     <string name="cleardb">Wszystkie dane zostały usunięte!</string>
     <string name="logout">Wylogowano się pomyślnie!</string>
-
+    <string name="user_location_marker">Jesteś tutaj</string>
+    <string name="no_gyroscope">Brak czujnika żyroskopu</string>
+    <string name="settings">Ustawienia</string>
+    <string name="main_screen">Ekran główny</string>
+    <string name="account">Konto</string>
+    <string name="disable_instability_alerts_prompt">Czy chcesz wyłączyć alerty o niestabilnym chodzie?</string>
+    <string name="alert">Alert</string>
+    <string name="export_data_prompt_csv">Czy chcesz wyeksportować dane do pliku CSV?</string>
+    <string name="export_data_title">Eksport danych</string>
+    <string name="clear_all_data_prompt">Czy chcesz wyczyścić WSZYSTKIE dane?</string>
+    <string name="csv_header">ID,Distance,Steps,Calories,UserID
+</string>
+    <string name="data_exported_to_downloads">Dane wyeksportowane do folderu Pobrane</string>
+    <string name="data_export_error">Błąd podczas eksportu danych</string>
+    <string name="meters_unit"> m</string>
+    <string name="kcal_unit"> kcal</string>
+    <string name="day_comparison_title">Porównanie dni</string>
+    <string name="no_previous_data">Brak danych z poprzedniego dnia.</string>
+    <string name="ok">OK</string>
+    <string name="previous_day">Poprzedni dzień:</string>
+    <string name="current_day">Obecny dzień:</string>
+    <string name="distance_label">Dystans:</string>
+    <string name="steps_label">Kroki:</string>
+    <string name="calories_label">Kalorie:</string>
 
     <string name="no_field">Wypełnij wszystkie pola!</string>
+
+    <!-- LoginActivity -->
+    <string name="login_successful">Zalogowano pomyślnie!</string>
+    <string name="login_failed">Błędny login lub hasło!</string>
+
+    <!-- RegisterActivity -->
+    <string name="passwords_not_matching">Hasła nie są takie same!</string>
+    <string name="registration_successful">Rejestracja zakończona sukcesem!</string>
+    <string name="user_already_exists">Błąd: użytkownik już istnieje!</string>
 </resources>
