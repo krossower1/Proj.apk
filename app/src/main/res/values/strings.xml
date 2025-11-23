@@ -55,6 +55,8 @@
     <string name="weekly_report_alerts_on_toast">Cotygodniowe raporty włączone</string>
     <string name="weekly_report_alerts_off_toast">Cotygodniowe raporty wyłączone</string>
     <string name="sudden_movement_marker_title">Wykryto nagły ruch</string>
+    <string name="incident_marker_removed_toast">Usunięto ostatni znacznik incydentu</string>
+    <string name="no_incident_markers_to_remove_toast">Brak znaczników incydentów do usunięcia</string>
 
     <string name="no_field">Wypełnij wszystkie pola!</string>
 

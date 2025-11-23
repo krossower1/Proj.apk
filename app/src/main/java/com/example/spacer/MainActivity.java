@@ -61,6 +61,8 @@ import android.graphics.Color;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import android.text.style.ForegroundColorSpan;
 import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -80,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private long lastSuddenMovementTime = 0;
     private boolean suddenMovementAlertsEnabled = true;
     private boolean weeklyReportEnabled = true;
+    private boolean incidentMarkersVisible = true;
 
     // UI Elements
     private MapView map;
@@ -88,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView kroki;
     private TextView kalorie;
     private Marker userMarker; // The marker on the map for the user's location.
+    private List<Marker> incidentMarkers = new ArrayList<>();
     private Button trackingButton;
     private ConstraintLayout mainLayout;
 
@@ -141,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         userMarker.setTitle(getString(R.string.user_location_marker));
         userMarker.setEnabled(false); // Initially invisible until a location is found.
         map.getOverlays().add(userMarker);
+        loadMarkersFromDatabase();
 
         // --- Permissions and Location Initiation ---
         checkAndRequestLocationPermission();
@@ -455,7 +460,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         //============== //================
 
         // Ikona obok "Pokazuj znaczniki na mapie"
-        MenuItem znacznikiItem = menu.findItem(R.id.pznaczniki);
+        MenuItem znacznikiItem = menu.finditem(R.id.pznaczniki);
         SpannableString znacznikiText = new SpannableString("Pokazuj znaczniki na mapie   "); // dodany odstęp
         Drawable znacznikiIcon = ContextCompat.getDrawable(this, R.drawable.znaczniki);
         if (znacznikiIcon != null) znacznikiIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
@@ -599,6 +604,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             });
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
+            return true;
+        } else if (id == R.id.pznaczniki) {
+            incidentMarkersVisible = !incidentMarkersVisible;
+            for (Marker m : incidentMarkers) {
+                m.setEnabled(incidentMarkersVisible);
+            }
+            map.invalidate();
+            return true;
+        } else if (id == R.id.uznacznik) {
+            if (incidentMarkers.size() > 1) {
+                dbHelper.deleteLastMarker(dbHelper.getLastUserId());
+                Marker lastMarker = incidentMarkers.remove(incidentMarkers.size() - 1);
+                map.getOverlays().remove(lastMarker);
+                map.invalidate();
+            } else {
+                Toast.makeText(this, getString(R.string.cannot_delete_first_marker), Toast.LENGTH_SHORT).show();
+            }
             return true;
         }
 
@@ -760,7 +782,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                 Marker incidentMarker = new Marker(map);
                                 incidentMarker.setPosition(point);
                                 incidentMarker.setTitle(getString(R.string.sudden_movement_marker_title));
+                                incidentMarker.setEnabled(incidentMarkersVisible);
                                 map.getOverlays().add(incidentMarker);
+                                incidentMarkers.add(incidentMarker);
+                                dbHelper.addMarker(location.getLatitude(), location.getLongitude(), dbHelper.getLastUserId());
                                 map.invalidate();
                             }
                         });
@@ -895,6 +920,28 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
         builder.create().show();
+    }
+
+    private void loadMarkersFromDatabase() {
+        int userId = dbHelper.getLastUserId();
+        if (userId != -1) {
+            Cursor cursor = dbHelper.getAllMarkers(userId);
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    double lat = cursor.getDouble(cursor.getColumnIndexOrThrow("latitude"));
+                    double lon = cursor.getDouble(cursor.getColumnIndexOrThrow("longitude"));
+                    GeoPoint point = new GeoPoint(lat, lon);
+                    Marker incidentMarker = new Marker(map);
+                    incidentMarker.setPosition(point);
+                    incidentMarker.setTitle(getString(R.string.sudden_movement_marker_title));
+                    incidentMarker.setEnabled(incidentMarkersVisible);
+                    map.getOverlays().add(incidentMarker);
+                    incidentMarkers.add(incidentMarker);
+                } while (cursor.moveToNext());
+                cursor.close();
+                map.invalidate();
+            }
+        }
     }
 
 
