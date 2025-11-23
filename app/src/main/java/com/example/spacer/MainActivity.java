@@ -656,16 +656,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             FileOutputStream fos = new FileOutputStream(file);
             OutputStreamWriter osw = new OutputStreamWriter(fos);
 
-            Cursor cursor = dbHelper.getAllTrainingData();
             osw.append(getString(R.string.csv_header));
 
-            while (cursor.moveToNext()) {
-                osw.append(String.format("%s,%s,%s,%s,%s\n",
-                        cursor.getString(0),
-                        cursor.getString(1),
-                        cursor.getString(2),
-                        cursor.getString(3),
-                        cursor.getString(4)));
+            for (int i = 0; i < 14; i++) {
+                Cursor cursor = dbHelper.getTrainingDataForDay(i);
+                if (cursor != null && cursor.moveToFirst()) {
+                    do {
+                        osw.append(String.format("%s,%s,%s,%s,%s\n",
+                                cursor.getString(0),
+                                cursor.getString(1),
+                                cursor.getString(2),
+                                cursor.getString(3),
+                                cursor.getString(4)));
+                    } while (cursor.moveToNext());
+                    cursor.close();
+                }
             }
 
             osw.flush();
