@@ -193,7 +193,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
-
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
@@ -208,7 +207,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
-
                 startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                 return true;
 
