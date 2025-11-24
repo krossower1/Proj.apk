@@ -71,4 +71,36 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return exists;
     }
+<<<<<<< Updated upstream
+=======
+
+    public String getWaga(String login, String password) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + COLUMN_WAGA + " FROM " + TABLE_USERS +
+            " WHERE " + COLUMN_LOGIN + "=? AND " + COLUMN_PASSWORD + "=? ";
+        Cursor cursor = db.rawQuery(query, new String[]{login, password});
+        String waga = null;
+        if (cursor.moveToFirst()) {
+            waga = cursor.getString(0);
+        }
+        cursor.close();
+        db.close();
+        return waga;
+    }
+
+    //Zapisywanie do bazy - Moje Konto
+    // W DatabaseHelper.java
+    public boolean updateUser(String oldLogin, String newLogin, String newPassword, String phone, String avatar) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("login", newLogin);
+        values.put("password", newPassword);
+        values.put("phone", phone);
+        values.put("avatar", avatar); // jeśli przechowujesz ścieżkę lub identyfikator
+
+        // Aktualizacja wiersza o danym loginie
+        int rows = db.update("users", values, "login = ?", new String[]{oldLogin});
+        return rows > 0;
+    }
+>>>>>>> Stashed changes
 }
