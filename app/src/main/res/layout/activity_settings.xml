@@ -37,15 +37,6 @@
 
         <!-- Przykładowe opcje -->
         <TextView
-            android:id="@+id/tvOption1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Zmień hasło"
-            android:textColor="@color/green_text"
-            android:textSize="20sp"
-            android:padding="12dp"/>
-
-        <TextView
             android:id="@+id/tvOption2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

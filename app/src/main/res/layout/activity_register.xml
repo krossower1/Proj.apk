@@ -7,11 +7,6 @@
     android:padding="24dp"
     android:background="@drawable/tlo">
 
-    <!-- Nagłówek -->
-
-
-    <!-- Pole: Login -->
-
     <TextView
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
