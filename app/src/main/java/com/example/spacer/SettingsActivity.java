@@ -20,7 +20,6 @@ public class SettingsActivity extends AppCompatActivity {
 
 // ============ NOWA CZĘŚĆ — bottom menu ============
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
-
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
@@ -30,7 +29,7 @@ public class SettingsActivity extends AppCompatActivity {
             TextView text = layout.findViewById(R.id.text_toast);
 
             if (id == R.id.nav_settings) {
-                text.setText("Ustawienia");
+                text.setText(getString(R.string.settings));
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
