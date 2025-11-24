@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="0dp"
-    android:background="@color/green_background">
+    android:background="@color/green_background"
+    android:padding="0dp">
 
 
     <TextView
@@ -16,9 +16,9 @@
         android:textColor="@color/green_text"
         android:textSize="28sp"
         android:textStyle="bold"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <!-- ============ Nagłówek ============ -->
@@ -42,24 +42,40 @@
         android:id="@+id/etUsername"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Login / Nazwa użytkownika"
-        android:inputType="textPersonName"
+        android:layout_marginTop="16dp"
         android:background="@drawable/edittext_rounded"
         android:backgroundTint="#648a3a"
+        android:hint="Login / Nazwa użytkownika"
+        android:inputType="textPersonName"
         android:padding="12dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintTop_toBottomOf="@id/tvAccountTitle"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/tvAccountTitle" />
 
-    <!-- ============ Numer telefonu ============ -->
+    <EditText
+        android:id="@+id/etPassword"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="76dp"
+        android:background="@drawable/edittext_rounded"
+        android:backgroundTint="#648a3a"
+        android:hint="Hasło"
+        android:inputType="textPersonName"
+        android:padding="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvAccountTitle" />
 
-    <!-- ============ Avatar / zdjęcie profilowe ============ -->
+    <!-- ============ Wiek ============ -->
+
+    <!-- ============ bottom menu ============ -->
+
     <EditText
         android:id="@+id/etPhone"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="224dp"
         android:background="@drawable/edittext_rounded"
         android:backgroundTint="#648a3a"
         android:hint="Numer telefonu"
@@ -74,41 +90,69 @@
         android:id="@+id/imgAvatar"
         android:layout_width="120dp"
         android:layout_height="120dp"
-        android:layout_marginTop="16dp"
-        android:src="@drawable/avatar"
+        android:layout_marginTop="20dp"
         android:contentDescription="Avatar użytkownika"
         android:scaleType="centerCrop"
-        app:layout_constraintTop_toBottomOf="@id/etPhone"
+        android:src="@drawable/avatar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/etPassword" />
 
-    <!-- ============ Wiek ============ -->
     <EditText
         android:id="@+id/etAge"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:hint="Wiek"
-        android:inputType="number"
+        android:layout_marginTop="84dp"
         android:background="@drawable/edittext_rounded"
         android:backgroundTint="#648a3a"
+        android:hint="Wiek"
+        android:inputType="number"
         android:padding="12dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintTop_toBottomOf="@id/imgAvatar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toBottomOf="@id/imgAvatar" />
 
-    <!-- ============ bottom menu ============ -->
+    <EditText
+        android:id="@+id/etWaga"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="148dp"
+        android:background="@drawable/edittext_rounded"
+        android:backgroundTint="#648a3a"
+        android:hint="Waga"
+        android:inputType="number"
+        android:padding="12dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/imgAvatar" />
+
+    <Button
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="136dp"
+        android:layout_marginTop="664dp"
+        android:background="@drawable/edittext_rounded"
+        android:backgroundTint="#648a3a"
+        android:inputType="text"
+        android:text="Zapisz zmiany"
+        android:textSize="20dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottomNav"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:background="#FFFFFF"
-        app:menu="@menu/bottom_menu"
+        app:itemIconSize="32dp"
         app:itemIconTint="@color/nav_item_color"
         app:itemTextColor="@color/nav_item_color"
-        app:itemIconSize="32dp"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:menu="@menu/bottom_menu" />
 </androidx.constraintlayout.widget.ConstraintLayout>
