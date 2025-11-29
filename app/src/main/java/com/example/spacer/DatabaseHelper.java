@@ -170,21 +170,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Adds a new training data entry for the current day.
+     * Saves training data for a specific day, updating if it exists or inserting if it's new.
+     * @param dayIndex Index of the day (0-13).
      * @param dist Distance of the training.
      * @param kro Number of steps.
      * @param kal Calories burned.
      * @param userId ID of the user.
      */
-    public void addTrainingData(double dist, int kro, double kal, int userId) {
+    public void saveTrainingData(int dayIndex, double dist, int kro, double kal, int userId) {
+        if (dayIndex < 0 || dayIndex >= 14) return;
+
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_DIST, dist);
         values.put(COLUMN_KRO, kro);
         values.put(COLUMN_KAL, kal);
-        values.put(COLUMN_USER_ID, userId);
 
-        db.insert(TABLE_TRAINING_DAYS[0], null, values);
+        String selection = COLUMN_USER_ID + " = ?";
+        String[] selectionArgs = { String.valueOf(userId) };
+        Cursor cursor = db.query(TABLE_TRAINING_DAYS[dayIndex], null, selection, selectionArgs, null, null, null);
+
+        if (cursor != null && cursor.moveToFirst()) {
+            db.update(TABLE_TRAINING_DAYS[dayIndex], values, selection, selectionArgs);
+        } else {
+            values.put(COLUMN_USER_ID, userId);
+            db.insert(TABLE_TRAINING_DAYS[dayIndex], null, values);
+        }
+        if (cursor != null) {
+            cursor.close();
+        }
         db.close();
     }
 
@@ -203,7 +217,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_MARKERS, null, values);
         db.close();
     }
-    
+
     /**
      * Adds a new path point to the database.
      * @param latitude Latitude of the point.
@@ -216,36 +230,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_PATH_POINT_LATITUDE, latitude);
         values.put(COLUMN_PATH_POINT_LONGITUDE, longitude);
         values.put(COLUMN_USER_ID, userId);
-        db.insert(TABLE_PATH_POINTS, null, values);
-        db.close();
-    }
-
-    /**
-     * Retrieves all path points for a specific user.
-     * @param userId ID of the user.
-     * @return A cursor with all path points.
-     */
-    public Cursor getAllPathPoints(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_PATH_POINTS + " WHERE " + COLUMN_USER_ID + " = " + userId + " ORDER BY " + COLUMN_PATH_POINT_ID + " ASC", null);
-    }
-    
-    /**
-     * Adds a new path point to the database.
-     * @param latitude Latitude of the point.
-     * @param longitude Longitude of the point.
-     * @param userId ID of the user.
-     * @return True if the point was added successfully, false otherwise.
-     */
-    public boolean addPathPoint(double latitude, double longitude, int userId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_PATH_POINT_LATITUDE, latitude);
-        values.put(COLUMN_PATH_POINT_LONGITUDE, longitude);
-        values.put(COLUMN_USER_ID, userId);
         long result = db.insert(TABLE_PATH_POINTS, null, values);
         db.close();
-        return result != -1;
     }
 
     /**
@@ -292,26 +278,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM " + TABLE_TRAINING_DAYS[dayIndex] + " WHERE " + COLUMN_USER_ID + " = " + userId, null);
-    }
-
-    /**
-     * Retrieves all training data for the current day (day 0).
-     * @param userId ID of the user.
-     * @return A cursor with the training data.
-     */
-    public Cursor getAllTrainingData(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_TRAINING_DAYS[0] + " WHERE " + COLUMN_USER_ID + " = " + userId, null);
-    }
-
-    /**
-     * Retrieves training data for the previous day (day 1).
-     * @param userId ID of the user.
-     * @return A cursor with the training data.
-     */
-    public Cursor getPreviousTrainingData(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_TRAINING_DAYS[1] + " WHERE " + COLUMN_USER_ID + " = " + userId, null);
     }
 
     /**

@@ -1,14 +1,15 @@
 package com.example.spacer;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.TextView;
+import android.widget.ImageButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -50,7 +51,7 @@ public class RegisterActivity extends AppCompatActivity {
             if (login.isEmpty() || pass.isEmpty() || repeat.isEmpty() || waga.isEmpty()) {
                 // CUSTOM TOAST
                 LayoutInflater inflater = getLayoutInflater();
-                View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.register_container));
+                View layout = inflater.inflate(R.layout.custom_toast, null);
                 layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
@@ -66,7 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
             if (!pass.equals(repeat)) {
                 // CUSTOM TOAST
                 LayoutInflater inflater = getLayoutInflater();
-                View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.register_container));
+                View layout = inflater.inflate(R.layout.custom_toast, null);
                 layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
@@ -83,7 +84,7 @@ public class RegisterActivity extends AppCompatActivity {
             boolean inserted = dbHelper.addUser(login, pass, waga);
             if (inserted) {
                 LayoutInflater inflater = getLayoutInflater();
-                View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.register_container));
+                View layout = inflater.inflate(R.layout.custom_toast, null);
 
                 TextView text = layout.findViewById(R.id.text_toast);
                 text.setText(getString(R.string.registration_successful));
@@ -100,7 +101,7 @@ public class RegisterActivity extends AppCompatActivity {
             } else {
                 // CUSTOM TOAST: użytkownik już istnieje
                 LayoutInflater inflater = getLayoutInflater();
-                View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.register_container));
+                View layout = inflater.inflate(R.layout.custom_toast, null);
                 layout.setBackgroundResource(R.drawable.toast_error_background);
 
                 TextView text = layout.findViewById(R.id.text_toast);
