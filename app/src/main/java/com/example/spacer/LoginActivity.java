@@ -68,10 +68,6 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            if (dbHelper.checkUser(login, pass)) {
-                showToast(getString(R.string.login_successful), false);
-
-
             // Verify login and password with the database
             boolean valid = dbHelper.checkUser(login, pass);
 

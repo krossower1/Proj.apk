@@ -203,7 +203,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.insert(TABLE_MARKERS, null, values);
         db.close();
     }
-    
+
     /**
      * Adds a new path point to the database.
      * @param latitude Latitude of the point.
@@ -216,36 +216,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_PATH_POINT_LATITUDE, latitude);
         values.put(COLUMN_PATH_POINT_LONGITUDE, longitude);
         values.put(COLUMN_USER_ID, userId);
-        db.insert(TABLE_PATH_POINTS, null, values);
-        db.close();
-    }
-
-    /**
-     * Retrieves all path points for a specific user.
-     * @param userId ID of the user.
-     * @return A cursor with all path points.
-     */
-    public Cursor getAllPathPoints(int userId) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_PATH_POINTS + " WHERE " + COLUMN_USER_ID + " = " + userId + " ORDER BY " + COLUMN_PATH_POINT_ID + " ASC", null);
-    }
-    
-    /**
-     * Adds a new path point to the database.
-     * @param latitude Latitude of the point.
-     * @param longitude Longitude of the point.
-     * @param userId ID of the user.
-     * @return True if the point was added successfully, false otherwise.
-     */
-    public boolean addPathPoint(double latitude, double longitude, int userId) {
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues values = new ContentValues();
-        values.put(COLUMN_PATH_POINT_LATITUDE, latitude);
-        values.put(COLUMN_PATH_POINT_LONGITUDE, longitude);
-        values.put(COLUMN_USER_ID, userId);
         long result = db.insert(TABLE_PATH_POINTS, null, values);
         db.close();
-        return result != -1;
     }
 
     /**
