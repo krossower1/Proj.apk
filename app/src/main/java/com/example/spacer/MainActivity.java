@@ -1,6 +1,7 @@
 package com.example.spacer;
 
 import android.database.Cursor;
+import android.graphics.Color;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
@@ -19,6 +20,7 @@ import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
+import org.osmdroid.views.overlay.Polyline;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -57,7 +59,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.style.ImageSpan;
 import android.text.Spannable;
-import android.graphics.Color;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import android.text.style.ForegroundColorSpan;
 import java.util.Calendar;
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 100; // Request code for location permission.
     private static final float GYRO_THRESHOLD = 2.0f; // Threshold for step detection
     private static final int STEP_DELAY_MS = 500; // Minimum delay between steps
-    private static final double SUDDEN_MOVEMENT_THRESHOLD = 15.0; // Threshold for sudden movement detection
+    private static final double SUDDEN_MOVEMENT_THRESHOLD = 25.0; // Threshold for sudden movement detection
     private static final long SUDDEN_MOVEMENT_COOLDOWN_MS = 5000; // Cooldown for sudden movement snackbar
     private long lastSuddenMovementTime = 0;
     private boolean suddenMovementAlertsEnabled = true;
@@ -112,6 +113,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private BottomNavigationView bottomNav;
     private DatabaseHelper dbHelper;
     private int lastDay = -1;
+    private int userId = -1;
+    private Polyline userPath;
+    private List<GeoPoint> pathPoints = new ArrayList<>();
+    private long lastPathUpdateTime = 0;
 
     /**
      * Called when the activity is first created. Initializes the UI, map, sensors,
@@ -128,6 +133,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         dbHelper = new DatabaseHelper(this);
         checkDay();
+
+        // Get userId and waga from Intent
+        Intent intent = getIntent();
+        userId = intent.getIntExtra("userId", -1);
+        String wagaString = intent.getStringExtra("waga");
+        if (wagaString != null && !wagaString.isEmpty()) {
+            waga = Double.parseDouble(wagaString);
+        }
 
         // --- Location Services Setup ---
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
@@ -146,6 +159,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         userMarker.setEnabled(false); // Initially invisible until a location is found.
         map.getOverlays().add(userMarker);
         loadMarkersFromDatabase();
+
+        userPath = new Polyline();
+        userPath.setColor(Color.BLUE);
+        map.getOverlays().add(userPath);
+        loadPathFromDatabase();
 
         // --- Permissions and Location Initiation ---
         checkAndRequestLocationPermission();
@@ -184,13 +202,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background));
             }
         });
-
-        // Get waga from Intent
-        Intent intent = getIntent();
-        String wagaString = intent.getStringExtra("waga");
-        if (wagaString != null && !wagaString.isEmpty()) {
-            waga = Double.parseDouble(wagaString);
-        }
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
@@ -298,7 +309,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      * Defines the parameters for location updates (priority and interval).
      */
     LocationRequest locationRequest = new LocationRequest.Builder(
-            LocationRequest.PRIORITY_HIGH_ACCURACY, 5000) // High accuracy, 5-second interval.
+            LocationRequest.PRIORITY_HIGH_ACCURACY, 10000) // High accuracy, 10-second interval.
             .build();
 
     /**
@@ -333,6 +344,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Log.d("GPS", "Lat: " + lat + ", Lon: " + lon);
         GeoPoint newPoint = new GeoPoint(lat, lon);
         userMarker.setPosition(newPoint);
+
+        if (isTracking) {
+            pathPoints.add(newPoint);
+            userPath.setPoints(pathPoints);
+            dbHelper.addPathPoint(lat, lon, userId);
+        }
 
         // If this is the first fix, enable the marker and jump to the location.
         if (!userMarker.isEnabled()) {
@@ -611,8 +628,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             map.invalidate();
             return true;
         } else if (id == R.id.uznacznik) {
-            if (incidentMarkers.size() > 1) {
-                dbHelper.deleteLastMarker(dbHelper.getLastUserId());
+            if (!incidentMarkers.isEmpty()) {
+                dbHelper.deleteLastMarker(userId);
                 Marker lastMarker = incidentMarkers.remove(incidentMarkers.size() - 1);
                 map.getOverlays().remove(lastMarker);
                 map.invalidate();
@@ -783,7 +800,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                                 incidentMarker.setEnabled(incidentMarkersVisible);
                                 map.getOverlays().add(incidentMarker);
                                 incidentMarkers.add(incidentMarker);
-                                dbHelper.addMarker(location.getLatitude(), location.getLongitude(), dbHelper.getLastUserId());
+                                dbHelper.addMarker(location.getLatitude(), location.getLongitude(), userId);
                                 map.invalidate();
                             }
                         });
@@ -921,7 +938,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
     private void loadMarkersFromDatabase() {
-        int userId = dbHelper.getLastUserId();
         if (userId != -1) {
             Cursor cursor = dbHelper.getAllMarkers(userId);
             if (cursor != null && cursor.moveToFirst()) {
@@ -942,11 +958,27 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    private void loadPathFromDatabase() {
+        if (userId != -1) {
+            Cursor cursor = dbHelper.getAllPathPoints(userId);
+            if (cursor != null && cursor.moveToFirst()) {
+                pathPoints.clear();
+                do {
+                    double lat = cursor.getDouble(cursor.getColumnIndexOrThrow("latitude"));
+                    double lon = cursor.getDouble(cursor.getColumnIndexOrThrow("longitude"));
+                    pathPoints.add(new GeoPoint(lat, lon));
+                } while (cursor.moveToNext());
+                cursor.close();
+                userPath.setPoints(pathPoints);
+                map.invalidate();
+            }
+        }
+    }
+
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        int userId = dbHelper.getLastUserId();
         if (userId != -1) {
             dbHelper.addTrainingData(dist, kro, kal, userId);
         }
