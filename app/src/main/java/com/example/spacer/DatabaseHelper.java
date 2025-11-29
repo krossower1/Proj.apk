@@ -13,7 +13,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Database name and version
     private static final String DATABASE_NAME = "users.db";
-    private static final int DATABASE_VERSION = 7; // Incremented database version for path table
+    private static final int DATABASE_VERSION = 7;
 
     // Users table
     private static final String TABLE_USERS = "users";
@@ -278,32 +278,35 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     /**
      * Retrieves training data for a specific day index.
      * @param dayIndex Index of the day (0-13).
+     * @param userId ID of the user.
      * @return A cursor with the training data, or null if the index is invalid.
      */
-    public Cursor getTrainingDataForDay(int dayIndex) {
+    public Cursor getTrainingDataForDay(int dayIndex, int userId) {
         if (dayIndex < 0 || dayIndex >= 14) {
             return null;
         }
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_TRAINING_DAYS[dayIndex], null);
+        return db.rawQuery("SELECT * FROM " + TABLE_TRAINING_DAYS[dayIndex] + " WHERE " + COLUMN_USER_ID + " = " + userId, null);
     }
 
     /**
      * Retrieves all training data for the current day (day 0).
+     * @param userId ID of the user.
      * @return A cursor with the training data.
      */
-    public Cursor getAllTrainingData() {
+    public Cursor getAllTrainingData(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_TRAINING_DAYS[0], null);
+        return db.rawQuery("SELECT * FROM " + TABLE_TRAINING_DAYS[0] + " WHERE " + COLUMN_USER_ID + " = " + userId, null);
     }
 
     /**
      * Retrieves training data for the previous day (day 1).
+     * @param userId ID of the user.
      * @return A cursor with the training data.
      */
-    public Cursor getPreviousTrainingData() {
+    public Cursor getPreviousTrainingData(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.rawQuery("SELECT * FROM " + TABLE_TRAINING_DAYS[1], null);
+        return db.rawQuery("SELECT * FROM " + TABLE_TRAINING_DAYS[1] + " WHERE " + COLUMN_USER_ID + " = " + userId, null);
     }
 
     /**

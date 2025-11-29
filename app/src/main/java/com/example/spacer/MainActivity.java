@@ -64,6 +64,7 @@ import android.text.style.ForegroundColorSpan;
 import java.util.Calendar;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 
 /**
@@ -192,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         trackingButton = findViewById(R.id.button);
         mainLayout = findViewById(R.id.main);
 
+        loadTrainingData();
+
         trackingButton.setOnClickListener(v -> {
             isTracking = !isTracking;
             if (isTracking) {
@@ -244,6 +247,29 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             return false;
         });
+    }
+
+    private void loadTrainingData() {
+        if (userId != -1) {
+            Cursor cursor = dbHelper.getAllTrainingData(userId);
+            if (cursor != null && cursor.moveToFirst()) {
+                dist = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
+                kro = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KRO));
+                kal = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KAL));
+                cursor.close();
+            } else {
+                dist = 0;
+                kro = 0;
+                kal = 0;
+            }
+            updateTrainingUI();
+        }
+    }
+
+    private void updateTrainingUI() {
+        dystans.setText(getString(R.string.dystans) + " " + Math.floor(dist) / 50 + getString(R.string.meters_unit));
+        kroki.setText(getString(R.string.kroki) + " " + kro);
+        kalorie.setText(getString(R.string.kalorie) + " " + (int) kal + getString(R.string.kcal_unit));
     }
 
     /**
@@ -378,6 +404,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
         }
         startLocationUpdates();
+        loadTrainingData();
     }
 
     /**
@@ -689,7 +716,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if (id == R.id.wyloguj) {
-            // Log out the user and return to the LoginActivity.
+            // Log out the user and and return to the LoginActivity.
             LayoutInflater inflater = getLayoutInflater();
             View layout = inflater.inflate(R.layout.custom_toast, null);
 
@@ -711,7 +738,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             showComparisonDialog();
             return true;
         }
+
+        if (id == R.id.debug_fill_data) {
+            fillWithDummyData();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    private void fillWithDummyData() {
+        Random random = new Random();
+        for (int i = 0; i < 14; i++) {
+            double dummyDist = 1000 + random.nextDouble() * 9000; // Random distance between 1000 and 10000
+            int dummyKro = 500 + random.nextInt(9500); // Random steps between 500 and 10000
+            double dummyKal = 50 + random.nextDouble() * 450; // Random calories between 50 and 500
+            dbHelper.addTrainingData(dummyDist, dummyKro, dummyKal, userId);
+        }
+        Toast.makeText(this, "Filled database with dummy data", Toast.LENGTH_SHORT).show();
     }
 
     private void exportTrainingData() {
@@ -729,7 +773,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             osw.append(getString(R.string.csv_header));
 
             for (int i = 0; i < 14; i++) {
-                Cursor cursor = dbHelper.getTrainingDataForDay(i);
+                Cursor cursor = dbHelper.getTrainingDataForDay(i, userId);
                 if (cursor != null && cursor.moveToFirst()) {
                     do {
                         osw.append(String.format("%s,%s,%s,%s,%s\n",
@@ -852,8 +896,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.day_comparison_title));
 
-        Cursor prevCursor = dbHelper.getPreviousTrainingData();
-        Cursor currentCursor = dbHelper.getAllTrainingData();
+        Cursor prevCursor = dbHelper.getPreviousTrainingData(userId);
+        Cursor currentCursor = dbHelper.getAllTrainingData(userId);
 
         if (prevCursor != null && prevCursor.moveToFirst()) {
             double prevDist = prevCursor.getDouble(prevCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
@@ -900,7 +944,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         boolean dataFound = false;
 
         for (int i = 0; i < 14; i++) {
-            Cursor cursor = dbHelper.getTrainingDataForDay(i);
+            Cursor cursor = dbHelper.getTrainingDataForDay(i, userId);
             if (cursor != null && cursor.moveToFirst()) {
                 dataFound = true;
                 do {
