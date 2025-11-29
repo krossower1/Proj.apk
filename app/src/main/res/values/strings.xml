@@ -69,4 +69,10 @@
     <string name="passwords_not_matching">Hasła nie są takie same!</string>
     <string name="registration_successful">Rejestracja zakończona sukcesem!</string>
     <string name="user_already_exists">Błąd: użytkownik już istnieje!</string>
+
+    <!-- Formatted strings -->
+    <string name="dzien_formatted">Wędrówka dnia %1$s</string>
+    <string name="dystans_formatted">Dystans przebyty: %.2f %s</string>
+    <string name="kroki_formatted">Ilość kroków: %d</string>
+    <string name="kalorie_formatted">Spalone kalorie: %d %s</string>
 </resources>

@@ -1,20 +1,53 @@
 package com.example.spacer;
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
+import android.location.Location;
+import android.os.Bundle;
 import android.os.Environment;
+import android.os.Looper;
+import androidx.preference.PreferenceManager;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
+import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import android.os.Bundle;
-import android.os.Looper;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
+
 import org.osmdroid.config.Configuration;
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
 import org.osmdroid.util.GeoPoint;
@@ -28,42 +61,12 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import android.content.DialogInterface;
-import androidx.appcompat.app.AlertDialog;
-import android.view.View;
-import android.widget.Toast;
-import android.content.Intent;
-import android.view.LayoutInflater;
-import android.content.Context;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.tasks.OnSuccessListener;
-import android.location.Location;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationResult;
-import android.Manifest;
-import android.content.pm.PackageManager;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import android.preference.PreferenceManager;
-import android.text.SpannableString;
-import android.text.style.StyleSpan;
-import android.graphics.Typeface;
-import android.graphics.drawable.Drawable;
-import android.text.style.ImageSpan;
-import android.text.Spannable;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import android.text.style.ForegroundColorSpan;
-import java.util.Calendar;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.Random;
 
 
 /**
@@ -87,12 +90,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     // UI Elements
     private MapView map;
-    private TextView date;
     private TextView dystans;
     private TextView kroki;
     private TextView kalorie;
     private Marker userMarker; // The marker on the map for the user's location.
-    private List<Marker> incidentMarkers = new ArrayList<>();
+    private final List<Marker> incidentMarkers = new ArrayList<>();
     private Button trackingButton;
     private ConstraintLayout mainLayout;
 
@@ -100,7 +102,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private Sensor gyroscope;
-    private float[] gravity = new float[3]; // Stores the gravity components for filtering.
+    private final float[] gravity = new float[3]; // Stores the gravity components for filtering.
     double dist = 0; // Accumulated distance based on movement.
     double kal = 0;
     double waga = 0;
@@ -110,13 +112,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     // Location-related variables
     private FusedLocationProviderClient fusedLocationClient;
-    private BottomNavigationView bottomNav;
     private DatabaseHelper dbHelper;
     private int lastDay = -1;
     private int userId = -1;
     private Polyline userPath;
-    private List<GeoPoint> pathPoints = new ArrayList<>();
-    private long lastPathUpdateTime = 0;
+    private final List<GeoPoint> pathPoints = new ArrayList<>();
 
     /**
      * Called when the activity is first created. Initializes the UI, map, sensors,
@@ -134,12 +134,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         dbHelper = new DatabaseHelper(this);
         checkDay();
 
-        // Get userId and waga from Intent
-        Intent intent = getIntent();
-        userId = intent.getIntExtra("userId", -1);
-        String wagaString = intent.getStringExtra("waga");
-        if (wagaString != null && !wagaString.isEmpty()) {
-            waga = Double.parseDouble(wagaString);
+        if (savedInstanceState != null) {
+            userId = savedInstanceState.getInt("userId", -1);
+            waga = savedInstanceState.getDouble("waga", 0);
+        } else {
+            // Get userId and waga from Intent
+            Intent intent = getIntent();
+            userId = intent.getIntExtra("userId", -1);
+            String wagaString = intent.getStringExtra("waga");
+            if (wagaString != null && !wagaString.isEmpty()) {
+                waga = Double.parseDouble(wagaString);
+            }
         }
 
         // --- Location Services Setup ---
@@ -147,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // --- osmdroid Map Configuration ---
         Configuration.getInstance().load(getApplicationContext(),
-                PreferenceManager.getDefaultSharedPreferences(getApplicationContext()));
+                PreferenceManager.getDefaultSharedPreferences(this));
         map = findViewById(R.id.map);
         map.setTileSource(TileSourceFactory.MAPNIK);
         map.setMultiTouchControls(true);
@@ -161,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         loadMarkersFromDatabase();
 
         userPath = new Polyline();
-        userPath.setColor(Color.BLUE);
+        userPath.getOutlinePaint().setColor(Color.BLUE);
         map.getOverlays().add(userPath);
         loadPathFromDatabase();
 
@@ -184,13 +189,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         // --- UI Initialization ---
         DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
         String currentDateString = dateFormat.format(new Date());
-        date = findViewById(R.id.date);
+        TextView date = findViewById(R.id.date);
         kroki = findViewById(R.id.kroki);
         dystans = findViewById(R.id.dystans);
         kalorie = findViewById(R.id.kalorie);
-        date.setText(getString(R.string.dzien) + " " + currentDateString);
+        date.setText(getString(R.string.dzien_formatted, currentDateString));
         trackingButton = findViewById(R.id.button);
         mainLayout = findViewById(R.id.main);
+
+        loadTrainingData();
 
         trackingButton.setOnClickListener(v -> {
             isTracking = !isTracking;
@@ -209,7 +216,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             // ============ WSPÓLNY CUSTOM TOAST =============
             LayoutInflater inflater = getLayoutInflater();
-            View layout = inflater.inflate(R.layout.custom_toast, null);
+            View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
             TextView text = layout.findViewById(R.id.text_toast);
 
             if (id == R.id.nav_settings) {
@@ -244,6 +251,36 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             return false;
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("userId", userId);
+        outState.putDouble("waga", waga);
+    }
+
+    private void loadTrainingData() {
+        if (userId != -1) {
+            Cursor cursor = dbHelper.getAllTrainingData(userId);
+            if (cursor != null && cursor.moveToFirst()) {
+                dist = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
+                kro = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KRO));
+                kal = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KAL));
+                cursor.close();
+            } else {
+                dist = 0;
+                kro = 0;
+                kal = 0;
+            }
+            updateTrainingUI();
+        }
+    }
+
+    private void updateTrainingUI() {
+        dystans.setText(getString(R.string.dystans_formatted, Math.floor(dist) / 50, getString(R.string.meters_unit)));
+        kroki.setText(getString(R.string.kroki_formatted, kro));
+        kalorie.setText(getString(R.string.kalorie_formatted, (int) kal, getString(R.string.kcal_unit)));
     }
 
     /**
@@ -292,12 +329,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         // Attempt to get the last known location for a quick initial fix.
         fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null && !userMarker.isEnabled()) {
-                            updateMapWithLocation(location);
-                        }
+                .addOnSuccessListener(this, location -> {
+                    if (location != null && !userMarker.isEnabled()) {
+                        updateMapWithLocation(location);
                     }
                 });
         // Start requesting continuous location updates.
@@ -309,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      * Defines the parameters for location updates (priority and interval).
      */
     LocationRequest locationRequest = new LocationRequest.Builder(
-            LocationRequest.PRIORITY_HIGH_ACCURACY, 10000) // High accuracy, 10-second interval.
+            Priority.PRIORITY_HIGH_ACCURACY, 10000) // High accuracy, 10-second interval.
             .build();
 
     /**
@@ -317,8 +351,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      */
     LocationCallback locationCallback = new LocationCallback() {
         @Override
-        public void onLocationResult(LocationResult locationResult) {
-            if (locationResult == null) return;
+        public void onLocationResult(@NonNull LocationResult locationResult) {
             Location lastLocation = locationResult.getLastLocation();
             if (lastLocation != null) {
                 updateMapWithLocation(lastLocation);
@@ -378,6 +411,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
         }
         startLocationUpdates();
+        loadTrainingData();
     }
 
     /**
@@ -436,75 +470,89 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         MenuItem item = menu.findItem(R.id.edane); // "Eksport danych"
         SpannableString s = new SpannableString("Eksport danych   ");
         Drawable d = ContextCompat.getDrawable(this, R.drawable.archive);
-        if (d != null) d.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
-        d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
-        ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_BOTTOM);
-        s.setSpan(span, s.length() - 1, s.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        item.setTitle(s);
+        if (d != null) {
+            d.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+            ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_BOTTOM);
+            s.setSpan(span, s.length() - 1, s.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            item.setTitle(s);
+        }
 
         // Ikona obok "Usuń dane"
         MenuItem deleteItem = menu.findItem(R.id.udane);
         SpannableString ss = new SpannableString("Usuń dane   "); // dodany odstęp
         Drawable dd = ContextCompat.getDrawable(this, R.drawable.delete);
-        if (dd != null) dd.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
-        dd.setBounds(0, 0, dd.getIntrinsicWidth(), dd.getIntrinsicHeight());
-        ImageSpan spann = new ImageSpan(dd, ImageSpan.ALIGN_BOTTOM);
-        ss.setSpan(spann, ss.length() - 1, ss.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        deleteItem.setTitle(ss);
+        if (dd != null) {
+            dd.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            dd.setBounds(0, 0, dd.getIntrinsicWidth(), dd.getIntrinsicHeight());
+            ImageSpan spann = new ImageSpan(dd, ImageSpan.ALIGN_BOTTOM);
+            ss.setSpan(spann, ss.length() - 1, ss.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            deleteItem.setTitle(ss);
+        }
         //============== //================
 
         // Ikona obok "Alerty o niestabilnym chodzie"
         MenuItem alertItem = menu.findItem(R.id.alerty);
         SpannableString alertText = new SpannableString("Alerty o niestabilnym chodzie   "); // dodany odstęp
         Drawable alertIcon = ContextCompat.getDrawable(this, R.drawable.niest);
-        if (alertIcon != null) alertIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
-        alertIcon.setBounds(0, 0, alertIcon.getIntrinsicWidth(), alertIcon.getIntrinsicHeight());
-        ImageSpan alertSpan = new ImageSpan(alertIcon, ImageSpan.ALIGN_BOTTOM);
-        alertText.setSpan(alertSpan, alertText.length() - 1, alertText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        alertItem.setTitle(alertText);
+        if (alertIcon != null) {
+            alertIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            alertIcon.setBounds(0, 0, alertIcon.getIntrinsicWidth(), alertIcon.getIntrinsicHeight());
+            ImageSpan alertSpan = new ImageSpan(alertIcon, ImageSpan.ALIGN_BOTTOM);
+            alertText.setSpan(alertSpan, alertText.length() - 1, alertText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            alertItem.setTitle(alertText);
+        }
 
         // Ikona obok "Cotygodniowe raporty"
         MenuItem raportItem = menu.findItem(R.id.raporty);
         SpannableString raportText = new SpannableString("Cotygodniowe raporty   "); // dodany odstęp
         Drawable raportIcon = ContextCompat.getDrawable(this, R.drawable.raporty);
-        if (raportIcon != null) raportIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
-        if (raportIcon != null) raportIcon.setBounds(0, 0, raportIcon.getIntrinsicWidth(), raportIcon.getIntrinsicHeight());
-        ImageSpan raportSpan = new ImageSpan(raportIcon, ImageSpan.ALIGN_BOTTOM);
-        raportText.setSpan(raportSpan, raportText.length() - 1, raportText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        raportItem.setTitle(raportText);
+        if (raportIcon != null) {
+            raportIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            raportIcon.setBounds(0, 0, raportIcon.getIntrinsicWidth(), raportIcon.getIntrinsicHeight());
+            ImageSpan raportSpan = new ImageSpan(raportIcon, ImageSpan.ALIGN_BOTTOM);
+            raportText.setSpan(raportSpan, raportText.length() - 1, raportText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            raportItem.setTitle(raportText);
+        }
         //============== //================
 
         // Ikona obok "Pokazuj znaczniki na mapie"
         MenuItem znacznikiItem = menu.findItem(R.id.pznaczniki);
         SpannableString znacznikiText = new SpannableString("Pokazuj znaczniki na mapie   "); // dodany odstęp
         Drawable znacznikiIcon = ContextCompat.getDrawable(this, R.drawable.znaczniki);
-        if (znacznikiIcon != null) znacznikiIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
-        if (znacznikiIcon != null) znacznikiIcon.setBounds(0, 0, znacznikiIcon.getIntrinsicWidth(), znacznikiIcon.getIntrinsicHeight());
-        ImageSpan znacznikiSpan = new ImageSpan(znacznikiIcon, ImageSpan.ALIGN_BOTTOM);
-        znacznikiText.setSpan(znacznikiSpan, znacznikiText.length() - 1, znacznikiText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        znacznikiItem.setTitle(znacznikiText);
+        if (znacznikiIcon != null) {
+            znacznikiIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            znacznikiIcon.setBounds(0, 0, znacznikiIcon.getIntrinsicWidth(), znacznikiIcon.getIntrinsicHeight());
+            ImageSpan znacznikiSpan = new ImageSpan(znacznikiIcon, ImageSpan.ALIGN_BOTTOM);
+            znacznikiText.setSpan(znacznikiSpan, znacznikiText.length() - 1, znacznikiText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            znacznikiItem.setTitle(znacznikiText);
+        }
         //============== //================
 
         // Ikona obok "Usuń znacznik"
         MenuItem usunZnacznikItem = menu.findItem(R.id.uznacznik);
         SpannableString usunZnacznikText = new SpannableString("Usuń znacznik   "); // dodany odstęp
         Drawable usunZnacznikIcon = ContextCompat.getDrawable(this, R.drawable.delete);
-        if (usunZnacznikIcon != null) usunZnacznikIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
-        if (usunZnacznikIcon != null) usunZnacznikIcon.setBounds(0, 0, usunZnacznikIcon.getIntrinsicWidth(), usunZnacznikIcon.getIntrinsicHeight());
-        ImageSpan usunZnacznikSpan = new ImageSpan(usunZnacznikIcon, ImageSpan.ALIGN_BOTTOM);
-        usunZnacznikText.setSpan(usunZnacznikSpan, usunZnacznikText.length() - 1, usunZnacznikText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        usunZnacznikItem.setTitle(usunZnacznikText);
+        if (usunZnacznikIcon != null) {
+            usunZnacznikIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            usunZnacznikIcon.setBounds(0, 0, usunZnacznikIcon.getIntrinsicWidth(), usunZnacznikIcon.getIntrinsicHeight());
+            ImageSpan usunZnacznikSpan = new ImageSpan(usunZnacznikIcon, ImageSpan.ALIGN_BOTTOM);
+            usunZnacznikText.setSpan(usunZnacznikSpan, usunZnacznikText.length() - 1, usunZnacznikText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            usunZnacznikItem.setTitle(usunZnacznikText);
+        }
         //============== //================
 
         // Ikona obok "Porównaj ten dzień"
         MenuItem compareItem = menu.findItem(R.id.pdzien);
         SpannableString compareText = new SpannableString("Porównaj ten dzień   "); // dodany odstęp
         Drawable compareIcon = ContextCompat.getDrawable(this, R.drawable.compare);
-        if (compareIcon != null) compareIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
-        if (compareIcon != null) compareIcon.setBounds(0, 0, compareIcon.getIntrinsicWidth(), compareIcon.getIntrinsicHeight());
-        ImageSpan compareSpan = new ImageSpan(compareIcon, ImageSpan.ALIGN_BOTTOM);
-        compareText.setSpan(compareSpan, compareText.length() - 1, compareText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-        compareItem.setTitle(compareText);
+        if (compareIcon != null) {
+            compareIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            compareIcon.setBounds(0, 0, compareIcon.getIntrinsicWidth(), compareIcon.getIntrinsicHeight());
+            ImageSpan compareSpan = new ImageSpan(compareIcon, ImageSpan.ALIGN_BOTTOM);
+            compareText.setSpan(compareSpan, compareText.length() - 1, compareText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            compareItem.setTitle(compareText);
+        }
         //============== //================
 
         MenuItem alertItemm = menu.findItem(R.id.alerty); // np. "Alerty o niestabilnym chodzie"
@@ -587,15 +635,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 builder.setMessage(getString(R.string.enable_sudden_movement_alerts_prompt));
             }
             builder.setCancelable(false);
-            builder.setPositiveButton(getString(R.string.t), (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setPositiveButton(getString(R.string.t), (dialog, which) -> {
                 suddenMovementAlertsEnabled = !suddenMovementAlertsEnabled;
                 String toastMessage = suddenMovementAlertsEnabled ? getString(R.string.sudden_movement_alerts_on_toast) : getString(R.string.sudden_movement_alerts_off_toast);
                 Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                 dialog.cancel();
             });
-            builder.setNegativeButton(getString(R.string.n), (DialogInterface.OnClickListener) (dialog, which) -> {
-                dialog.cancel();
-            });
+            builder.setNegativeButton(getString(R.string.n), (dialog, which) -> dialog.cancel());
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
             return true;
@@ -608,15 +654,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 builder.setMessage(getString(R.string.enable_weekly_report_alerts_prompt));
             }
             builder.setCancelable(false);
-            builder.setPositiveButton(getString(R.string.t), (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setPositiveButton(getString(R.string.t), (dialog, which) -> {
                 weeklyReportEnabled = !weeklyReportEnabled;
                 String toastMessage = weeklyReportEnabled ? getString(R.string.weekly_report_alerts_on_toast) : getString(R.string.weekly_report_alerts_off_toast);
                 Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
                 dialog.cancel();
             });
-            builder.setNegativeButton(getString(R.string.n), (DialogInterface.OnClickListener) (dialog, which) -> {
-                dialog.cancel();
-            });
+            builder.setNegativeButton(getString(R.string.n), (dialog, which) -> dialog.cancel());
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
             return true;
@@ -645,12 +689,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             builder.setMessage(getString(R.string.export_data_prompt_csv));
             builder.setTitle(getString(R.string.export_data_title));
             builder.setCancelable(false);
-            builder.setPositiveButton(getString(R.string.t), (DialogInterface.OnClickListener) (dialog, which) -> {
-                exportTrainingData();
-            });
-            builder.setNegativeButton(getString(R.string.n), (DialogInterface.OnClickListener) (dialog, which) -> {
-                dialog.cancel();
-            });
+            builder.setPositiveButton(getString(R.string.t), (dialog, which) -> exportTrainingData());
+            builder.setNegativeButton(getString(R.string.n), (dialog, which) -> dialog.cancel());
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
             return true;
@@ -662,11 +702,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             builder.setMessage(getString(R.string.clear_all_data_prompt));
             builder.setTitle(getString(R.string.alert));
             builder.setCancelable(false);
-            builder.setPositiveButton(getString(R.string.t), (DialogInterface.OnClickListener) (dialog, which) -> {
+            builder.setPositiveButton(getString(R.string.t), (dialog, which) -> {
                 dbHelper.clearUsers();
 
                 LayoutInflater inflater = getLayoutInflater();
-                View layout = inflater.inflate(R.layout.custom_toast, null);
+                View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
 
                 TextView text = layout.findViewById(R.id.text_toast);
                 text.setText(R.string.cleardb);
@@ -680,18 +720,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 startActivity(intent);
                 finish();
             });
-            builder.setNegativeButton(getString(R.string.n), (DialogInterface.OnClickListener) (dialog, which) -> {
-                dialog.cancel();
-            });
+            builder.setNegativeButton(getString(R.string.n), (dialog, which) -> dialog.cancel());
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
             return true;
         }
 
         if (id == R.id.wyloguj) {
-            // Log out the user and return to the LoginActivity.
+            // Log out the user and and return to the LoginActivity.
             LayoutInflater inflater = getLayoutInflater();
-            View layout = inflater.inflate(R.layout.custom_toast, null);
+            View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
 
             TextView text = layout.findViewById(R.id.text_toast);
             text.setText(R.string.logout);
@@ -711,25 +749,46 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             showComparisonDialog();
             return true;
         }
+
+        if (id == R.id.debug_fill_data) {
+            fillWithDummyData();
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
+    }
+
+    private void fillWithDummyData() {
+        Random random = new Random();
+        for (int i = 0; i < 14; i++) {
+            double dummyDist = 1000 + random.nextDouble() * 9000; // Random distance between 1000 and 10000
+            int dummyKro = 500 + random.nextInt(9500); // Random steps between 500 and 10000
+            double dummyKal = 50 + random.nextDouble() * 450; // Random calories between 50 and 500
+            dbHelper.addTrainingData(dummyDist, dummyKro, dummyKal, userId);
+        }
+        Toast.makeText(this, "Filled database with dummy data", Toast.LENGTH_SHORT).show();
     }
 
     private void exportTrainingData() {
         File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         if (!exportDir.exists()) {
-            exportDir.mkdirs();
+            if (!exportDir.mkdirs()) {
+                Log.e("exportTrainingData", "Failed to create directory");
+            }
         }
 
         File file = new File(exportDir, "training_data.csv");
         try {
-            file.createNewFile();
+            if (!file.createNewFile()) {
+                Log.e("exportTrainingData", "Failed to create file");
+            }
             FileOutputStream fos = new FileOutputStream(file);
             OutputStreamWriter osw = new OutputStreamWriter(fos);
 
             osw.append(getString(R.string.csv_header));
 
             for (int i = 0; i < 14; i++) {
-                Cursor cursor = dbHelper.getTrainingDataForDay(i);
+                Cursor cursor = dbHelper.getTrainingDataForDay(i, userId);
                 if (cursor != null && cursor.moveToFirst()) {
                     do {
                         osw.append(String.format("%s,%s,%s,%s,%s\n",
@@ -749,7 +808,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Toast.makeText(this, getString(R.string.data_exported_to_downloads), Toast.LENGTH_LONG).show();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("exportTrainingData", "Error writing to file", e);
             Toast.makeText(this, getString(R.string.data_export_error), Toast.LENGTH_LONG).show();
         }
     }
@@ -818,13 +877,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             }
 
-            kal = Math.floor(dist) / 50 * (3.5 / waga);
+            if (waga > 0) { // Check if waga is greater than 0 to avoid division by zero
+                kal = Math.floor(dist) / 50 * (3.5 / waga);
+            } else {
+                kal = 0; // Set calories to 0 if waga is not set
+            }
 
-            dystans.setText(getString(R.string.dystans) + " " + Math.floor(dist) / 50 + getString(R.string.meters_unit));
-
-            kroki.setText(getString(R.string.kroki) + " " + kro);
-
-            kalorie.setText(getString(R.string.kalorie) + " " + (int) kal + getString(R.string.kcal_unit));
+            updateTrainingUI();
         }
     }
 
@@ -852,8 +911,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.day_comparison_title));
 
-        Cursor prevCursor = dbHelper.getPreviousTrainingData();
-        Cursor currentCursor = dbHelper.getAllTrainingData();
+        Cursor prevCursor = dbHelper.getPreviousTrainingData(userId);
+        Cursor currentCursor = dbHelper.getAllTrainingData(userId);
 
         if (prevCursor != null && prevCursor.moveToFirst()) {
             double prevDist = prevCursor.getDouble(prevCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
@@ -900,7 +959,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         boolean dataFound = false;
 
         for (int i = 0; i < 14; i++) {
-            Cursor cursor = dbHelper.getTrainingDataForDay(i);
+            Cursor cursor = dbHelper.getTrainingDataForDay(i, userId);
             if (cursor != null && cursor.moveToFirst()) {
                 dataFound = true;
                 do {

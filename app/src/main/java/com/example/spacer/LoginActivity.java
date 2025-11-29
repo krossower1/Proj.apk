@@ -1,28 +1,22 @@
 package com.example.spacer;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.Toast;
-import android.view.LayoutInflater; // Libraries used for custom toast
-import android.view.View; // --
-import android.widget.TextView; // --
-import androidx.appcompat.app.AppCompatActivity;
 import android.widget.ImageButton;
-import android.content.SharedPreferences; // Import for checkbox
-import android.widget.CheckBox; // Import for checkbox
-
-
+import android.widget.TextView;
+import android.widget.Toast;
+import androidx.appcompat.app.AppCompatActivity;
+import android.content.SharedPreferences;
 
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etLogin, etPassword;
-    private Button btnLogin, btnGoToRegister;
-    private ImageButton btnClose;
-    private CheckBox cbRememberMe; // Variable for "Remember me" checkbox
-    // Database helper
+    private CheckBox cbRememberMe;
     private DatabaseHelper dbHelper;
 
     @Override
@@ -33,21 +27,15 @@ public class LoginActivity extends AppCompatActivity {
         // Initialize UI elements
         etLogin = findViewById(R.id.etLogin);
         etPassword = findViewById(R.id.etPassword);
-        btnLogin = findViewById(R.id.btnLogin);
-        btnGoToRegister = findViewById(R.id.btnGoToRegister);
-        btnClose = findViewById(R.id.btnClose);
+        Button btnLogin = findViewById(R.id.btnLogin);
+        Button btnGoToRegister = findViewById(R.id.btnGoToRegister);
+        ImageButton btnClose = findViewById(R.id.btnClose);
         cbRememberMe = findViewById(R.id.cbRememberMe);
 
-
-
-        // Database initialization
         dbHelper = new DatabaseHelper(this);
 
-
-        // Close the application
         btnClose.setOnClickListener(v -> finishAffinity());
 
-        // SharedPreferences for remembering login credentials
         SharedPreferences prefs = getSharedPreferences("prefs", MODE_PRIVATE);
         String savedLogin = prefs.getString("login", "");
         String savedPass = prefs.getString("password", "");
@@ -57,7 +45,6 @@ public class LoginActivity extends AppCompatActivity {
         etLogin.setText(isRemembered ? savedLogin : "");
         etPassword.setText(isRemembered ? savedPass : "");
         cbRememberMe.setChecked(isRemembered);
-
 
         // Listener for the login button
         btnLogin.setOnClickListener(v -> {
@@ -81,6 +68,8 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
+            if (dbHelper.checkUser(login, pass)) {
+                showToast(getString(R.string.login_successful), false);
 
 
             // Verify login and password with the database
@@ -145,6 +134,22 @@ public class LoginActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+    }
 
+    private void showToast(String message, boolean isError) {
+        LayoutInflater inflater = getLayoutInflater();
+        View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
+
+        if (isError) {
+            layout.setBackgroundResource(R.drawable.toast_error_background);
+        }
+
+        TextView text = layout.findViewById(R.id.text_toast);
+        text.setText(message);
+
+        Toast toast = new Toast(getApplicationContext());
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(layout);
+        toast.show();
     }
 }
