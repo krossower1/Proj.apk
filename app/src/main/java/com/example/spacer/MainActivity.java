@@ -264,10 +264,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
+    /**
+     * A gesture listener for detecting swipes on the main layout.
+     */
     private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
         private static final int SWIPE_THRESHOLD = 100;
         private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
+        /**
+         * Called when a fling gesture is detected.
+         *
+         * @param e1        The first down motion event that started the fling.
+         * @param e2        The move motion event that triggered the current onFling.
+         * @param velocityX The velocity of this fling measured in pixels per second along the x-axis.
+         * @param velocityY The velocity of this fling measured in pixels per second along the y-axis.
+         * @return True if the event is consumed, false otherwise.
+         */
         @Override
         public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
             if (isTracking) return false; // Disable swipe while tracking
@@ -329,6 +341,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Updates the date UI with the current or selected date.
+     */
     private void updateDateUI() {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -dayOffset);

@@ -15,9 +15,10 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class RegisterActivity extends AppCompatActivity {
 
+    // UI elements
     private EditText etLogin, etPassword, etRepeatPassword, etWaga;
 
-    // Dodanie bazy danych
+    // Database helper
     private DatabaseHelper dbHelper;
 
     @Override
@@ -26,6 +27,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         Button btnRegister, btnGoToLogin;
 
+        // Initialize UI elements
         etLogin = findViewById(R.id.etLogin);
         etPassword = findViewById(R.id.etPassword);
         etRepeatPassword = findViewById(R.id.etRepeatPassword);
@@ -35,21 +37,23 @@ public class RegisterActivity extends AppCompatActivity {
         ImageButton btnClose = findViewById(R.id.btnClose);
         btnClose.setOnClickListener(v -> finishAffinity());
 
-        // Inicjalizacja bazy danych
+        // Initialize database helper
         dbHelper = new DatabaseHelper(this);
 
-        // ZAMKNIECIE APLIKACJI
+        // Close the application when the close button is clicked
         btnClose.setOnClickListener(v -> finishAffinity());
 
-        // Obsługa kliknięcia przycisku "Zarejestruj się"
+        // Handle the "Register" button click
         btnRegister.setOnClickListener(v -> {
+            // Get user input from EditText fields
             String login = etLogin.getText().toString().trim();
             String pass = etPassword.getText().toString();
             String repeat = etRepeatPassword.getText().toString();
             String waga = etWaga.getText().toString().trim();
 
+            // Check if any of the fields are empty
             if (login.isEmpty() || pass.isEmpty() || repeat.isEmpty() || waga.isEmpty()) {
-                // CUSTOM TOAST
+                // Show a custom toast message if any field is empty
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
                 layout.setBackgroundResource(R.drawable.toast_error_background);
@@ -64,8 +68,9 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
+            // Check if the passwords match
             if (!pass.equals(repeat)) {
-                // CUSTOM TOAST
+                // Show a custom toast message if the passwords don't match
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
                 layout.setBackgroundResource(R.drawable.toast_error_background);
@@ -80,9 +85,10 @@ public class RegisterActivity extends AppCompatActivity {
                 return;
             }
 
-            // ZAPISZ DANE DO BAZY
+            // Add user to the database
             boolean inserted = dbHelper.addUser(login, pass, waga);
             if (inserted) {
+                // Show a custom toast message if registration is successful
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
 
@@ -94,12 +100,12 @@ public class RegisterActivity extends AppCompatActivity {
                 toast.setView(layout);
                 toast.show();
 
-                // Przejście do ekranu logowania
+                // Go to the login screen
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
                 finish();
             } else {
-                // CUSTOM TOAST: użytkownik już istnieje
+                // Show a custom toast message if the user already exists
                 LayoutInflater inflater = getLayoutInflater();
                 View layout = inflater.inflate(R.layout.custom_toast, null);
                 layout.setBackgroundResource(R.drawable.toast_error_background);
@@ -115,7 +121,9 @@ public class RegisterActivity extends AppCompatActivity {
 
         });
 
+        // Handle the "Go to Login" button click
         btnGoToLogin.setOnClickListener(v -> {
+            // Go to the login screen
             Intent intent = new Intent(this, LoginActivity.class);
             startActivity(intent);
             finish();
