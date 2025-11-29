@@ -23,9 +23,11 @@ import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -63,7 +65,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Random;
@@ -93,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private TextView dystans;
     private TextView kroki;
     private TextView kalorie;
+    private TextView date;
     private Marker userMarker; // The marker on the map for the user's location.
     private final List<Marker> incidentMarkers = new ArrayList<>();
     private Button trackingButton;
@@ -117,6 +119,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private int userId = -1;
     private Polyline userPath;
     private final List<GeoPoint> pathPoints = new ArrayList<>();
+
+    // Swipe-related variables
+    private GestureDetector gestureDetector;
+    private int dayOffset = 0;
+
 
     /**
      * Called when the activity is first created. Initializes the UI, map, sensors,
@@ -187,17 +194,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         // --- UI Initialization ---
-        DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
-        String currentDateString = dateFormat.format(new Date());
-        TextView date = findViewById(R.id.date);
+        date = findViewById(R.id.date);
         kroki = findViewById(R.id.kroki);
         dystans = findViewById(R.id.dystans);
         kalorie = findViewById(R.id.kalorie);
-        date.setText(getString(R.string.dzien_formatted, currentDateString));
+        updateDateUI();
         trackingButton = findViewById(R.id.button);
         mainLayout = findViewById(R.id.main);
 
-        loadTrainingData();
+        loadTrainingData(dayOffset);
 
         trackingButton.setOnClickListener(v -> {
             isTracking = !isTracking;
@@ -209,6 +214,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background));
             }
         });
+
+        // --- Swipe Gesture Setup ---
+        gestureDetector = new GestureDetector(this, new MyGestureListener());
+        mainLayout.setOnTouchListener((v, event) -> {
+            gestureDetector.onTouchEvent(event);
+            return true;
+        });
+
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
@@ -234,8 +247,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
-
-                // pozostaje w MainActivity
                 return true;
 
             } else if (id == R.id.nav_account) {
@@ -253,16 +264,56 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
+    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private static final int SWIPE_THRESHOLD = 100;
+        private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+        @Override
+        public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+            if (isTracking) return false; // Disable swipe while tracking
+
+            float diffX = e2.getX() - e1.getX();
+            float diffY = e2.getY() - e1.getY();
+            if (Math.abs(diffX) > Math.abs(diffY)) {
+                if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                    if (diffX > 0) {
+                        // Swipe Right
+                        if (dayOffset > 0) {
+                            dayOffset--;
+                            loadTrainingData(dayOffset);
+                            updateDateUI();
+                        }
+                    } else {
+                        // Swipe Left
+                        if (dayOffset < 13) {
+                            dayOffset++;
+                            loadTrainingData(dayOffset);
+                            updateDateUI();
+                        }
+                    }
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Saves the current state of the activity.
+     * @param outState The bundle to save the state to.
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("userId", userId);
         outState.putDouble("waga", waga);
     }
-
-    private void loadTrainingData() {
+    /**
+     * Loads training data from the database.
+     */
+    private void loadTrainingData(int dayIndex) {
         if (userId != -1) {
-            Cursor cursor = dbHelper.getAllTrainingData(userId);
+            Cursor cursor = dbHelper.getTrainingDataForDay(dayIndex, userId);
             if (cursor != null && cursor.moveToFirst()) {
                 dist = cursor.getDouble(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
                 kro = cursor.getInt(cursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_KRO));
@@ -274,9 +325,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 kal = 0;
             }
             updateTrainingUI();
+            trackingButton.setEnabled(dayIndex == 0);
         }
     }
 
+    private void updateDateUI() {
+        Calendar cal = Calendar.getInstance();
+        cal.add(Calendar.DAY_OF_YEAR, -dayOffset);
+        DateFormat dateFormat = new SimpleDateFormat("dd.MM", Locale.getDefault());
+        String dateString = dateFormat.format(cal.getTime());
+        date.setText(getString(R.string.dzien_formatted, dateString));
+    }
+
+    /**
+     * Updates the training UI with the latest data.
+     */
     private void updateTrainingUI() {
         dystans.setText(getString(R.string.dystans_formatted, Math.floor(dist) / 50, getString(R.string.meters_unit)));
         kroki.setText(getString(R.string.kroki_formatted, kro));
@@ -362,7 +425,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     /**
      * Updates the map with a new location. It places the marker and centers the map.
      * Ignores invalid (0,0) coordinates.
-     * param location The new location to display.
+     * @param location The new location to display.
      */
     private void updateMapWithLocation(Location location) {
         double lat = location.getLatitude();
@@ -411,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
         }
         startLocationUpdates();
-        loadTrainingData();
+        loadTrainingData(dayOffset);
     }
 
     /**
@@ -622,6 +685,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     /**
      * This hook is called whenever an item in your options menu is selected.
+     * @param item The menu item that was selected.
+     * @return boolean Return false to allow normal menu processing to
+     *         proceed, true to consume it here.
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -757,18 +823,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         return super.onOptionsItemSelected(item);
     }
-
+    /**
+     * Fills the database with dummy data for testing purposes.
+     */
     private void fillWithDummyData() {
         Random random = new Random();
         for (int i = 0; i < 14; i++) {
             double dummyDist = 1000 + random.nextDouble() * 9000; // Random distance between 1000 and 10000
             int dummyKro = 500 + random.nextInt(9500); // Random steps between 500 and 10000
             double dummyKal = 50 + random.nextDouble() * 450; // Random calories between 50 and 500
-            dbHelper.addTrainingData(dummyDist, dummyKro, dummyKal, userId);
+            dbHelper.saveTrainingData(i, dummyDist, dummyKro, dummyKal, userId);
         }
         Toast.makeText(this, "Filled database with dummy data", Toast.LENGTH_SHORT).show();
     }
-
+    /**
+     * Exports training data to a CSV file.
+     */
     private void exportTrainingData() {
         File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         if (!exportDir.exists()) {
@@ -816,6 +886,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     /**
      * Called when there is a new sensor event.
      * This method filters gravity from the accelerometer and calculates movement.
+     * @param event The sensor event.
      */
     @Override
     public void onSensorChanged(SensorEvent event) {
@@ -889,12 +960,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     /**
      * Called when the accuracy of the registered sensor has changed.
+     * @param sensor The sensor being monitored.
+     * @param accuracy The new accuracy of this sensor.
      */
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Not used in this application, but required to be implemented.
     }
-    
+    /**
+     * Checks if the day has changed and shifts the training data accordingly.
+     */
     private void checkDay() {
         Calendar c = Calendar.getInstance();
         int currentDay = c.get(Calendar.DAY_OF_YEAR);
@@ -906,13 +981,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         lastDay = currentDay;
     }
-
+    /**
+     * Shows a dialog comparing the current day's training data with the previous day's data.
+     */
     private void showComparisonDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.day_comparison_title));
 
-        Cursor prevCursor = dbHelper.getPreviousTrainingData(userId);
-        Cursor currentCursor = dbHelper.getAllTrainingData(userId);
+        Cursor prevCursor = dbHelper.getTrainingDataForDay(dayOffset + 1, userId);
+        Cursor currentCursor = dbHelper.getTrainingDataForDay(dayOffset, userId);
 
         if (prevCursor != null && prevCursor.moveToFirst()) {
             double prevDist = prevCursor.getDouble(prevCursor.getColumnIndexOrThrow(DatabaseHelper.COLUMN_DIST));
@@ -949,7 +1026,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
         builder.create().show();
     }
-
+    /**
+     * Shows a weekly report comparing the current week's training data with the previous week's data.
+     */
     private void showWeeklyReport() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.weekly_report_title));
@@ -995,7 +1074,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
         builder.create().show();
     }
-
+    /**
+     * Loads markers from the database and adds them to the map.
+     */
     private void loadMarkersFromDatabase() {
         if (userId != -1) {
             Cursor cursor = dbHelper.getAllMarkers(userId);
@@ -1016,7 +1097,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
     }
-
+    /**
+     * Loads the user's path from the database and displays it on the map.
+     */
     private void loadPathFromDatabase() {
         if (userId != -1) {
             Cursor cursor = dbHelper.getAllPathPoints(userId);
@@ -1035,11 +1118,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
 
+    /**
+     * Called when the activity is being destroyed.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (userId != -1) {
-            dbHelper.addTrainingData(dist, kro, kal, userId);
+            dbHelper.saveTrainingData(0, dist, kro, kal, userId);
         }
     }
 }
