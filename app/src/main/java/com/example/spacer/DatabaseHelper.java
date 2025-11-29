@@ -175,9 +175,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param kro Number of steps.
      * @param kal Calories burned.
      * @param userId ID of the user.
-     * @return True if data was added successfully, false otherwise.
      */
-    public boolean addTrainingData(double dist, int kro, double kal, int userId) {
+    public void addTrainingData(double dist, int kro, double kal, int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_DIST, dist);
@@ -185,9 +184,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(COLUMN_KAL, kal);
         values.put(COLUMN_USER_ID, userId);
 
-        long result = db.insert(TABLE_TRAINING_DAYS[0], null, values);
+        db.insert(TABLE_TRAINING_DAYS[0], null, values);
         db.close();
-        return result != -1;
     }
 
     /**
@@ -195,17 +193,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param latitude Latitude of the marker.
      * @param longitude Longitude of the marker.
      * @param userId ID of the user.
-     * @return True if the marker was added successfully, false otherwise.
      */
-    public boolean addMarker(double latitude, double longitude, int userId) {
+    public void addMarker(double latitude, double longitude, int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_LATITUDE, latitude);
         values.put(COLUMN_LONGITUDE, longitude);
         values.put(COLUMN_USER_ID, userId);
-        long result = db.insert(TABLE_MARKERS, null, values);
+        db.insert(TABLE_MARKERS, null, values);
         db.close();
-        return result != -1;
     }
     
     /**
@@ -213,17 +209,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
      * @param latitude Latitude of the point.
      * @param longitude Longitude of the point.
      * @param userId ID of the user.
-     * @return True if the point was added successfully, false otherwise.
      */
-    public boolean addPathPoint(double latitude, double longitude, int userId) {
+    public void addPathPoint(double latitude, double longitude, int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(COLUMN_PATH_POINT_LATITUDE, latitude);
         values.put(COLUMN_PATH_POINT_LONGITUDE, longitude);
         values.put(COLUMN_USER_ID, userId);
-        long result = db.insert(TABLE_PATH_POINTS, null, values);
+        db.insert(TABLE_PATH_POINTS, null, values);
         db.close();
-        return result != -1;
     }
 
     /**
@@ -256,23 +250,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getAllMarkers(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
         return db.rawQuery("SELECT * FROM " + TABLE_MARKERS + " WHERE " + COLUMN_USER_ID + " = " + userId, null);
-    }
-
-    /**
-     * Gets the ID of the last user that was inserted into the database.
-     * @return The user ID, or -1 if no user is found.
-     */
-    public int getLastUserId() {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String query = "SELECT " + COLUMN_ID + " FROM " + TABLE_USERS + " ORDER BY " + COLUMN_ID + " DESC LIMIT 1";
-        Cursor cursor = db.rawQuery(query, null);
-        int userId = -1;
-        if (cursor.moveToFirst()) {
-            userId = cursor.getInt(0);
-        }
-        cursor.close();
-        db.close();
-        return userId;
     }
 
     /**

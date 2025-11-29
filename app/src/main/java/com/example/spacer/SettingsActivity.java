@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,7 +26,8 @@ public class SettingsActivity extends AppCompatActivity {
 
             // ============ WSPÓLNY CUSTOM TOAST =============
             LayoutInflater inflater = getLayoutInflater();
-            View layout = inflater.inflate(R.layout.custom_toast, null);
+            View layout = inflater.inflate(R.layout.custom_toast,
+                    findViewById(R.id.settingsOptions));
             TextView text = layout.findViewById(R.id.text_toast);
 
             if (id == R.id.nav_settings) {
@@ -39,7 +41,7 @@ public class SettingsActivity extends AppCompatActivity {
                 return true;
 
             } else if (id == R.id.nav_home) {
-                text.setText("Ekran główny");
+                text.setText(R.string.main_screen);
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
@@ -49,7 +51,7 @@ public class SettingsActivity extends AppCompatActivity {
                 return true;
 
             } else if (id == R.id.nav_account) {
-                text.setText("Konto");
+                text.setText(R.string.account);
                 Toast toast = new Toast(getApplicationContext());
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);

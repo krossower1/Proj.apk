@@ -1,5 +1,6 @@
 package com.example.spacer;
 
+import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.InputType;
@@ -8,7 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.content.Intent;
 import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,10 +21,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 public class AccountActivity extends AppCompatActivity {
 
     private EditText etUsername, etPassword, etPhone, etAge, etWaga;
-    private Button btnSave;
     private static final String PREFS_NAME = "UserPrefs";
     private boolean passwordVisible = false;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -37,7 +37,7 @@ public class AccountActivity extends AppCompatActivity {
 
             // ============ WSPÓLNY CUSTOM TOAST =============
             LayoutInflater inflater = getLayoutInflater();
-            View layout = inflater.inflate(R.layout.custom_toast, null);
+            View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
             TextView text = layout.findViewById(R.id.text_toast);
 
             Toast toast = new Toast(getApplicationContext());
@@ -52,14 +52,14 @@ public class AccountActivity extends AppCompatActivity {
                 return true;
 
             } else if (id == R.id.nav_home) {
-                text.setText("Ekran główny");
+                text.setText(getString(R.string.main_screen));
                 toast.show();
 
                 startActivity(new Intent(AccountActivity.this, MainActivity.class));
                 return true;
 
             } else if (id == R.id.nav_account) {
-                text.setText("Konto");
+                text.setText(getString(R.string.account));
                 toast.show();
 
                 // pozostaje w AccountActivity, więc nie otwieramy nowej
@@ -76,7 +76,7 @@ public class AccountActivity extends AppCompatActivity {
         etPhone = findViewById(R.id.etPhone);
         etAge = findViewById(R.id.etAge);
         etWaga = findViewById(R.id.etWaga);
-        btnSave = findViewById(R.id.btnSave);
+        Button btnSave = findViewById(R.id.btnSave);
 
         // ======================= Toggle widoczności hasła =======================
         etPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_off, 0);
@@ -96,6 +96,7 @@ public class AccountActivity extends AppCompatActivity {
                         passwordVisible = true;
                     }
                     etPassword.setSelection(etPassword.getText().length());
+                    v.performClick();
                     return true;
                 }
             }
@@ -116,6 +117,7 @@ public class AccountActivity extends AppCompatActivity {
     }
 
     // Metoda dodająca ikonę „X” i czyszczącą pole
+    @SuppressLint("ClickableViewAccessibility")
     private void setupClearIcon(EditText editText) {
         editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_clear, 0);
 
@@ -124,6 +126,7 @@ public class AccountActivity extends AppCompatActivity {
             if (event.getAction() == MotionEvent.ACTION_UP) {
                 if (event.getRawX() >= (editText.getRight() - editText.getCompoundDrawables()[DRAWABLE_END].getBounds().width())) {
                     editText.setText("");
+                    v.performClick();
                     return true;
                 }
             }
