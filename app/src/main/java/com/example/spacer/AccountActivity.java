@@ -36,6 +36,30 @@ public class AccountActivity extends AppCompatActivity {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // ======== NOWE: SharedPreferences dla motywu ========
+        prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        Object stored = prefs.getAll().get("theme");
+        if (stored instanceof String) {
+            theme = (String) stored;
+        } else {
+            theme = "default";
+        }
+
+        // Wczytaj layout zależnie od motywu
+        switch (theme) {
+            case "light":
+                setContentView(R.layout.activity_account_light);
+                break;
+            case "dark":
+                setContentView(R.layout.activity_account_dark);
+                break;
+            default:
+                setContentView(R.layout.activity_account);
+                break;
+        }
+        // ======== KONIEC NOWEGO ========
+
         super.onCreate(savedInstanceState);
 
         // ======== NOWE: SharedPreferences dla motywu ========
@@ -83,6 +107,7 @@ public class AccountActivity extends AppCompatActivity {
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
                 return true;
+
 
             } else if (id == R.id.nav_home) {
                 text.setText(getString(R.string.main_screen));
