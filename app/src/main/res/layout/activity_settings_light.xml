@@ -61,14 +61,28 @@
 
         <!-- reszta opcji -->
 
-        <TextView
-            android:id="@+id/tvOption3"
+        <!-- Opcja: włącz powiadomienia -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Włącz powiadomienia"
-            android:textColor="@color/t_light"
-            android:textSize="20sp"
-            android:padding="12dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/tvOptionNotifications"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Włącz powiadomienia"
+                android:textColor="@color/t_light"
+                android:textSize="20sp"/>
+
+            <Switch
+                android:id="@+id/switchNotifications"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvOption4"
