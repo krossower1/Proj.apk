@@ -36,32 +36,8 @@ public class AccountActivity extends AppCompatActivity {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
-        // ======== NOWE: SharedPreferences dla motywu ========
-        prefs = getSharedPreferences("settings", MODE_PRIVATE);
-        Object stored = prefs.getAll().get("theme");
-        if (stored instanceof String) {
-            theme = (String) stored;
-        } else {
-            theme = "default";
-        }
-
-        // Wczytaj layout zależnie od motywu
-        switch (theme) {
-            case "light":
-                setContentView(R.layout.activity_account_light);
-                break;
-            case "dark":
-                setContentView(R.layout.activity_account_dark);
-                break;
-            default:
-                setContentView(R.layout.activity_account);
-                break;
-        }
-        // ======== KONIEC NOWEGO ========
-
         super.onCreate(savedInstanceState);
-
+        
         // ======== NOWE: SharedPreferences dla motywu ========
         prefs = getSharedPreferences("settings", MODE_PRIVATE);
         Object stored = prefs.getAll().get("theme");
