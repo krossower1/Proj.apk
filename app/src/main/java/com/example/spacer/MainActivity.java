@@ -29,9 +29,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewSwitcher;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -70,20 +72,15 @@ import java.util.Locale;
 import java.util.Random;
 
 
-/**
- * The main activity of the application, responsible for displaying the map,
- * tracking user location, and monitoring movement via the accelerometer.
- * Also handles the login screen logic.
- */
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     // --- Constants and Class Variables ---
 
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 100; // Request code for location permission.
-    private static final float GYRO_THRESHOLD = 2.0f; // Threshold for step detection
-    private static final int STEP_DELAY_MS = 500; // Minimum delay between steps
-    private static final double SUDDEN_MOVEMENT_THRESHOLD = 25.0; // Threshold for sudden movement detection
-    private static final long SUDDEN_MOVEMENT_COOLDOWN_MS = 5000; // Cooldown for sudden movement snackbar
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 100;
+    private static final float GYRO_THRESHOLD = 2.0f;
+    private static final int STEP_DELAY_MS = 500;
+    private static final double SUDDEN_MOVEMENT_THRESHOLD = 25.0;
+    private static final long SUDDEN_MOVEMENT_COOLDOWN_MS = 5000;
     private long lastSuddenMovementTime = 0;
     private boolean suddenMovementAlertsEnabled = true;
     private boolean weeklyReportEnabled = true;
@@ -91,21 +88,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     // UI Elements
     private MapView map;
-    private TextView dystans;
-    private TextView kroki;
-    private TextView kalorie;
     private TextView date;
-    private Marker userMarker; // The marker on the map for the user's location.
+    private Marker userMarker;
     private final List<Marker> incidentMarkers = new ArrayList<>();
-    private Button trackingButton;
     private ConstraintLayout mainLayout;
+    private ViewSwitcher statsSwitcher;
 
     // Sensor-related variables
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private Sensor gyroscope;
-    private final float[] gravity = new float[3]; // Stores the gravity components for filtering.
-    double dist = 0; // Accumulated distance based on movement.
+    private final float[] gravity = new float[3];
+    double dist = 0;
     double kal = 0;
     double waga = 0;
     private int kro = 0;
@@ -125,16 +119,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private int dayOffset = 0;
 
 
-    /**
-     * Called when the activity is first created. Initializes the UI, map, sensors,
-     * and location services.
-     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // --- Toolbar Setup ---
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -145,7 +134,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             userId = savedInstanceState.getInt("userId", -1);
             waga = savedInstanceState.getDouble("waga", 0);
         } else {
-            // Get userId and waga from Intent
             Intent intent = getIntent();
             userId = intent.getIntExtra("userId", -1);
             String wagaString = intent.getStringExtra("waga");
@@ -154,10 +142,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
 
-        // --- Location Services Setup ---
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // --- osmdroid Map Configuration ---
         Configuration.getInstance().load(getApplicationContext(),
                 PreferenceManager.getDefaultSharedPreferences(this));
         map = findViewById(R.id.map);
@@ -165,10 +151,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         map.setMultiTouchControls(true);
         map.getController().setZoom(12.0);
 
-        // --- Map Marker Setup ---
         userMarker = new Marker(map);
         userMarker.setTitle(getString(R.string.user_location_marker));
-        userMarker.setEnabled(false); // Initially invisible until a location is found.
+        userMarker.setEnabled(false);
         map.getOverlays().add(userMarker);
         loadMarkersFromDatabase();
 
@@ -177,10 +162,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         map.getOverlays().add(userPath);
         loadPathFromDatabase();
 
-        // --- Permissions and Location Initiation ---
         checkAndRequestLocationPermission();
 
-        // --- Sensor Setup ---
         sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -193,29 +176,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             Toast.makeText(this, getString(R.string.no_gyroscope), Toast.LENGTH_LONG).show();
         }
 
-        // --- UI Initialization ---
         date = findViewById(R.id.date);
-        kroki = findViewById(R.id.kroki);
-        dystans = findViewById(R.id.dystans);
-        kalorie = findViewById(R.id.kalorie);
         updateDateUI();
-        trackingButton = findViewById(R.id.button);
         mainLayout = findViewById(R.id.main);
+        statsSwitcher = findViewById(R.id.stats_switcher);
 
-        loadTrainingData(dayOffset);
-
-        trackingButton.setOnClickListener(v -> {
-            isTracking = !isTracking;
-            if (isTracking) {
-                trackingButton.setText(R.string.zakoncz);
-                mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background_dark));
-            } else {
-                trackingButton.setText(R.string.rozpocznij);
-                mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background));
-            }
+        statsSwitcher.setFactory(() -> {
+            LayoutInflater inflater = getLayoutInflater();
+            return inflater.inflate(R.layout.stats_view, statsSwitcher, false);
         });
 
-        // --- Swipe Gesture Setup ---
+        loadAndDisplayTrainingData(dayOffset);
+
         gestureDetector = new GestureDetector(this, new MyGestureListener());
         mainLayout.setOnTouchListener((v, event) -> {
             gestureDetector.onTouchEvent(event);
@@ -227,7 +199,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
-            // ============ WSPÓLNY CUSTOM TOAST =============
             LayoutInflater inflater = getLayoutInflater();
             View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
             TextView text = layout.findViewById(R.id.text_toast);
@@ -264,66 +235,55 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
-    /**
-     * A gesture listener for detecting swipes on the main layout.
-     */
     private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
         private static final int SWIPE_THRESHOLD = 100;
         private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
-        /**
-         * Called when a fling gesture is detected.
-         *
-         * @param e1        The first down motion event that started the fling.
-         * @param e2        The move motion event that triggered the current onFling.
-         * @param velocityX The velocity of this fling measured in pixels per second along the x-axis.
-         * @param velocityY The velocity of this fling measured in pixels per second along the y-axis.
-         * @return True if the event is consumed, false otherwise.
-         */
         @Override
         public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
-            if (isTracking) return false; // Disable swipe while tracking
+            if (isTracking) return false;
 
             float diffX = e2.getX() - e1.getX();
-            float diffY = e2.getY() - e1.getY();
-            if (Math.abs(diffX) > Math.abs(diffY)) {
-                if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
-                    if (diffX > 0) {
-                        // Swipe Right
-                        if (dayOffset > 0) {
-                            dayOffset--;
-                            loadTrainingData(dayOffset);
-                            updateDateUI();
-                        }
-                    } else {
-                        // Swipe Left
-                        if (dayOffset < 13) {
-                            dayOffset++;
-                            loadTrainingData(dayOffset);
-                            updateDateUI();
-                        }
+            if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                if (diffX > 0) {
+                    // Swipe Right
+                    if (dayOffset > 0) {
+                        dayOffset--;
+                        statsSwitcher.setInAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_in_left));
+                        statsSwitcher.setOutAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_out_right));
+                        loadAndDisplayTrainingData(dayOffset, statsSwitcher.getNextView());
+                        statsSwitcher.showPrevious();
+                        updateDateUI();
                     }
-                    return true;
+                } else {
+                    // Swipe Left
+                    if (dayOffset < 13) {
+                        dayOffset++;
+                        statsSwitcher.setInAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_in_right));
+                        statsSwitcher.setOutAnimation(AnimationUtils.loadAnimation(MainActivity.this, R.anim.slide_out_left));
+                        loadAndDisplayTrainingData(dayOffset, statsSwitcher.getNextView());
+                        statsSwitcher.showNext();
+                        updateDateUI();
+                    }
                 }
+                return true;
             }
             return false;
         }
     }
 
-    /**
-     * Saves the current state of the activity.
-     * @param outState The bundle to save the state to.
-     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putInt("userId", userId);
         outState.putDouble("waga", waga);
     }
-    /**
-     * Loads training data from the database.
-     */
-    private void loadTrainingData(int dayIndex) {
+
+    private void loadAndDisplayTrainingData(int dayIndex) {
+        loadAndDisplayTrainingData(dayIndex, statsSwitcher.getCurrentView());
+    }
+
+    private void loadAndDisplayTrainingData(int dayIndex, View viewToUpdate) {
         if (userId != -1) {
             Cursor cursor = dbHelper.getTrainingDataForDay(dayIndex, userId);
             if (cursor != null && cursor.moveToFirst()) {
@@ -336,14 +296,33 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 kro = 0;
                 kal = 0;
             }
-            updateTrainingUI();
-            trackingButton.setEnabled(dayIndex == 0);
+            updateStatsView(viewToUpdate, dayIndex);
         }
     }
 
-    /**
-     * Updates the date UI with the current or selected date.
-     */
+    private void updateStatsView(View view, int dayIndex) {
+        TextView dystans = view.findViewById(R.id.dystans);
+        TextView kroki = view.findViewById(R.id.kroki);
+        TextView kalorie = view.findViewById(R.id.kalorie);
+        Button trackingButton = view.findViewById(R.id.button);
+
+        dystans.setText(getString(R.string.dystans_formatted, Math.floor(dist) / 50, getString(R.string.meters_unit)));
+        kroki.setText(getString(R.string.kroki_formatted, kro));
+        kalorie.setText(getString(R.string.kalorie_formatted, (int) kal, getString(R.string.kcal_unit)));
+
+        trackingButton.setEnabled(dayIndex == 0);
+        trackingButton.setOnClickListener(v -> {
+            isTracking = !isTracking;
+            if (isTracking) {
+                trackingButton.setText(R.string.zakoncz);
+                mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background_dark));
+            } else {
+                trackingButton.setText(R.string.rozpocznij);
+                mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background));
+            }
+        });
+    }
+
     private void updateDateUI() {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -dayOffset);
@@ -352,19 +331,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         date.setText(getString(R.string.dzien_formatted, dateString));
     }
 
-    /**
-     * Updates the training UI with the latest data.
-     */
-    private void updateTrainingUI() {
-        dystans.setText(getString(R.string.dystans_formatted, Math.floor(dist) / 50, getString(R.string.meters_unit)));
-        kroki.setText(getString(R.string.kroki_formatted, kro));
-        kalorie.setText(getString(R.string.kalorie_formatted, (int) kal, getString(R.string.kcal_unit)));
-    }
-
-    /**
-     * Checks if location permission has been granted. If not, requests it.
-     * If it is granted, it proceeds to start the location tracking process.
-     */
     private void checkAndRequestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED | ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -377,56 +343,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    /**
-     * Callback for the result from requesting permissions. This method
-     * is invoked for every call on requestPermissions().
-     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission was granted, start the location process.
                 startLocationProcess();
             } else {
-                // Permission denied, show a toast.
                 Toast.makeText(this, getString(R.string.nolok), Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    /**
-     * Initiates the process of getting the device's location. It first tries to get the
-     * last known location and then requests continuous updates.
-     */
     private void startLocationProcess() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            return; // Safeguard check.
+            return;
         }
 
-        // Attempt to get the last known location for a quick initial fix.
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, location -> {
                     if (location != null && !userMarker.isEnabled()) {
                         updateMapWithLocation(location);
                     }
                 });
-        // Start requesting continuous location updates.
         startLocationUpdates();
     }
 
 
-    /**
-     * Defines the parameters for location updates (priority and interval).
-     */
     LocationRequest locationRequest = new LocationRequest.Builder(
-            Priority.PRIORITY_HIGH_ACCURACY, 10000) // High accuracy, 10-second interval.
+            Priority.PRIORITY_HIGH_ACCURACY, 10000)
             .build();
 
-    /**
-     * Callback object for receiving location updates.
-     */
     LocationCallback locationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(@NonNull LocationResult locationResult) {
@@ -437,16 +385,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     };
 
-    /**
-     * Updates the map with a new location. It places the marker and centers the map.
-     * Ignores invalid (0,0) coordinates.
-     * @param location The new location to display.
-     */
     private void updateMapWithLocation(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
 
-        // Ignore invalid (0,0) locations which can be returned on initial fix.
         if (lat == 0.0 && lon == 0.0) {
             Log.d("GPS", "Ignoring invalid (0,0) location update.");
             return;
@@ -462,22 +404,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             dbHelper.addPathPoint(lat, lon, userId);
         }
 
-        // If this is the first fix, enable the marker and jump to the location.
         if (!userMarker.isEnabled()) {
             userMarker.setEnabled(true);
             map.getController().setZoom(18.0);
             map.getController().setCenter(newPoint);
         } else {
-            // For subsequent updates, smoothly animate to the new location.
             map.getController().animateTo(newPoint);
         }
-        map.invalidate(); // Redraw the map.
+        map.invalidate();
     }
 
-    /**
-     * Called when the activity will start interacting with the user.
-     * Resumes map rendering, sensor listening, and location updates.
-     */
     @Override
     public void onResume() {
         super.onResume();
@@ -489,13 +425,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
         }
         startLocationUpdates();
-        loadTrainingData(dayOffset);
+        loadAndDisplayTrainingData(dayOffset);
     }
 
-    /**
-     * Starts requesting location updates from the FusedLocationProviderClient.
-     * This is only done if permission has been granted.
-     */
     private void startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -505,10 +437,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    /**
-     * Called when the activity is no longer in the foreground.
-     * Pauses map rendering, sensor listening, and location updates to save battery.
-     */
     @Override
     public void onPause() {
         super.onPause();
@@ -517,130 +445,108 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
-    /**
-     * Called when the activity is no longer visible to the user.
-     * Ensures location updates are stopped.
-     */
     @Override
     public void onStop() {
         super.onStop();
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
-    /**
-     * Initialize the contents of the Activity's standard options menu.
-     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.home_menu,menu);
 
-        // Znajdź element menu "Wyloguj"
         MenuItem logoutItem = menu.findItem(R.id.wyloguj);
         if (logoutItem != null) {
-            // Tworzymy SpannableString aby pogrubić tekst
             SpannableString spanString = new SpannableString(logoutItem.getTitle());
             spanString.setSpan(new StyleSpan(Typeface.BOLD), 0, spanString.length(), 0);
             logoutItem.setTitle(spanString);
         }
 
 
-        //Ikona obok "Eksport danych"
-        MenuItem item = menu.findItem(R.id.edane); // "Eksport danych"
+        MenuItem item = menu.findItem(R.id.edane);
         SpannableString s = new SpannableString("Eksport danych   ");
         Drawable d = ContextCompat.getDrawable(this, R.drawable.archive);
         if (d != null) {
-            d.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            d.setTint(Color.parseColor("#4CAF50"));
             d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
             ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_BOTTOM);
             s.setSpan(span, s.length() - 1, s.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             item.setTitle(s);
         }
 
-        // Ikona obok "Usuń dane"
         MenuItem deleteItem = menu.findItem(R.id.udane);
-        SpannableString ss = new SpannableString("Usuń dane   "); // dodany odstęp
+        SpannableString ss = new SpannableString("Usuń dane   ");
         Drawable dd = ContextCompat.getDrawable(this, R.drawable.delete);
         if (dd != null) {
-            dd.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            dd.setTint(Color.parseColor("#4CAF50"));
             dd.setBounds(0, 0, dd.getIntrinsicWidth(), dd.getIntrinsicHeight());
             ImageSpan spann = new ImageSpan(dd, ImageSpan.ALIGN_BOTTOM);
             ss.setSpan(spann, ss.length() - 1, ss.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             deleteItem.setTitle(ss);
         }
-        //============== //================
 
-        // Ikona obok "Alerty o niestabilnym chodzie"
         MenuItem alertItem = menu.findItem(R.id.alerty);
-        SpannableString alertText = new SpannableString("Alerty o niestabilnym chodzie   "); // dodany odstęp
+        SpannableString alertText = new SpannableString("Alerty o niestabilnym chodzie   ");
         Drawable alertIcon = ContextCompat.getDrawable(this, R.drawable.niest);
         if (alertIcon != null) {
-            alertIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            alertIcon.setTint(Color.parseColor("#4CAF50"));
             alertIcon.setBounds(0, 0, alertIcon.getIntrinsicWidth(), alertIcon.getIntrinsicHeight());
             ImageSpan alertSpan = new ImageSpan(alertIcon, ImageSpan.ALIGN_BOTTOM);
             alertText.setSpan(alertSpan, alertText.length() - 1, alertText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             alertItem.setTitle(alertText);
         }
 
-        // Ikona obok "Cotygodniowe raporty"
         MenuItem raportItem = menu.findItem(R.id.raporty);
-        SpannableString raportText = new SpannableString("Cotygodniowe raporty   "); // dodany odstęp
+        SpannableString raportText = new SpannableString("Cotygodniowe raporty   ");
         Drawable raportIcon = ContextCompat.getDrawable(this, R.drawable.raporty);
         if (raportIcon != null) {
-            raportIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            raportIcon.setTint(Color.parseColor("#4CAF50"));
             raportIcon.setBounds(0, 0, raportIcon.getIntrinsicWidth(), raportIcon.getIntrinsicHeight());
             ImageSpan raportSpan = new ImageSpan(raportIcon, ImageSpan.ALIGN_BOTTOM);
             raportText.setSpan(raportSpan, raportText.length() - 1, raportText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             raportItem.setTitle(raportText);
         }
-        //============== //================
 
-        // Ikona obok "Pokazuj znaczniki na mapie"
         MenuItem znacznikiItem = menu.findItem(R.id.pznaczniki);
-        SpannableString znacznikiText = new SpannableString("Pokazuj znaczniki na mapie   "); // dodany odstęp
+        SpannableString znacznikiText = new SpannableString("Pokazuj znaczniki na mapie   ");
         Drawable znacznikiIcon = ContextCompat.getDrawable(this, R.drawable.znaczniki);
         if (znacznikiIcon != null) {
-            znacznikiIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            znacznikiIcon.setTint(Color.parseColor("#4CAF50"));
             znacznikiIcon.setBounds(0, 0, znacznikiIcon.getIntrinsicWidth(), znacznikiIcon.getIntrinsicHeight());
             ImageSpan znacznikiSpan = new ImageSpan(znacznikiIcon, ImageSpan.ALIGN_BOTTOM);
             znacznikiText.setSpan(znacznikiSpan, znacznikiText.length() - 1, znacznikiText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             znacznikiItem.setTitle(znacznikiText);
         }
-        //============== //================
 
-        // Ikona obok "Usuń znacznik"
         MenuItem usunZnacznikItem = menu.findItem(R.id.uznacznik);
-        SpannableString usunZnacznikText = new SpannableString("Usuń znacznik   "); // dodany odstęp
+        SpannableString usunZnacznikText = new SpannableString("Usuń znacznik   ");
         Drawable usunZnacznikIcon = ContextCompat.getDrawable(this, R.drawable.delete);
         if (usunZnacznikIcon != null) {
-            usunZnacznikIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            usunZnacznikIcon.setTint(Color.parseColor("#4CAF50"));
             usunZnacznikIcon.setBounds(0, 0, usunZnacznikIcon.getIntrinsicWidth(), usunZnacznikIcon.getIntrinsicHeight());
             ImageSpan usunZnacznikSpan = new ImageSpan(usunZnacznikIcon, ImageSpan.ALIGN_BOTTOM);
             usunZnacznikText.setSpan(usunZnacznikSpan, usunZnacznikText.length() - 1, usunZnacznikText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             usunZnacznikItem.setTitle(usunZnacznikText);
         }
-        //============== //================
 
-        // Ikona obok "Porównaj ten dzień"
         MenuItem compareItem = menu.findItem(R.id.pdzien);
-        SpannableString compareText = new SpannableString("Porównaj ten dzień   "); // dodany odstęp
+        SpannableString compareText = new SpannableString("Porównaj ten dzień   ");
         Drawable compareIcon = ContextCompat.getDrawable(this, R.drawable.compare);
         if (compareIcon != null) {
-            compareIcon.setTint(Color.parseColor("#4CAF50")); // <-- kolor ikony
+            compareIcon.setTint(Color.parseColor("#4CAF50"));
             compareIcon.setBounds(0, 0, compareIcon.getIntrinsicWidth(), compareIcon.getIntrinsicHeight());
             ImageSpan compareSpan = new ImageSpan(compareIcon, ImageSpan.ALIGN_BOTTOM);
             compareText.setSpan(compareSpan, compareText.length() - 1, compareText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             compareItem.setTitle(compareText);
         }
-        //============== //================
 
-        MenuItem alertItemm = menu.findItem(R.id.alerty); // np. "Alerty o niestabilnym chodzie"
+        MenuItem alertItemm = menu.findItem(R.id.alerty);
         if (alertItemm != null) {
             SpannableString sss = new SpannableString(alertItemm.getTitle());
             sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
             alertItemm.setTitle(sss);
         }
 
-        // COTYGODNIOWE RAPORTY
         MenuItem raportItemm = menu.findItem(R.id.raporty);
         if (raportItemm != null) {
             SpannableString sss = new SpannableString(raportItemm.getTitle());
@@ -648,7 +554,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             raportItemm.setTitle(sss);
         }
 
-        // POKAZUJ ZNACZNIKI NA MAPIE
         MenuItem znacznikiItemm = menu.findItem(R.id.pznaczniki);
         if (znacznikiItemm != null) {
             SpannableString sss = new SpannableString(znacznikiItemm.getTitle());
@@ -656,7 +561,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             znacznikiItemm.setTitle(sss);
         }
 
-        // USUŃ ZNACZNIK
         MenuItem usunZnacznikItemm = menu.findItem(R.id.uznacznik);
         if (usunZnacznikItemm != null) {
             SpannableString sss = new SpannableString(usunZnacznikItemm.getTitle());
@@ -664,7 +568,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             usunZnacznikItemm.setTitle(sss);
         }
 
-        // PORÓWNAJ TEN DZIEŃ
         MenuItem pdzienItemm = menu.findItem(R.id.pdzien);
         if (pdzienItemm != null) {
             SpannableString sss = new SpannableString(pdzienItemm.getTitle());
@@ -672,7 +575,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             pdzienItemm.setTitle(sss);
         }
 
-        // EKSPORT DANYCH
         MenuItem edaneItemm = menu.findItem(R.id.edane);
         if (edaneItemm != null) {
             SpannableString sss = new SpannableString(edaneItemm.getTitle());
@@ -680,7 +582,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             edaneItemm.setTitle(sss);
         }
 
-        // USUŃ DANE
         MenuItem udaneItemm = menu.findItem(R.id.udane);
         if (udaneItemm != null) {
             SpannableString sss = new SpannableString(udaneItemm.getTitle());
@@ -688,7 +589,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             udaneItemm.setTitle(sss);
         }
 
-        // WYLOGUJ
         MenuItem wylogujItemm = menu.findItem(R.id.wyloguj);
         if (wylogujItemm != null) {
             SpannableString sss = new SpannableString(wylogujItemm.getTitle());
@@ -698,12 +598,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return true;
     }
 
-    /**
-     * This hook is called whenever an item in your options menu is selected.
-     * @param item The menu item that was selected.
-     * @return boolean Return false to allow normal menu processing to
-     *         proceed, true to consume it here.
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -765,7 +659,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if (id == R.id.edane) {
-            // Export user data and show a confirmation toast.
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setMessage(getString(R.string.export_data_prompt_csv));
             builder.setTitle(getString(R.string.export_data_title));
@@ -778,7 +671,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if (id == R.id.udane) {
-            // Clear user data and show a confirmation toast.
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setMessage(getString(R.string.clear_all_data_prompt));
             builder.setTitle(getString(R.string.alert));
@@ -808,7 +700,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
 
         if (id == R.id.wyloguj) {
-            // Log out the user and and return to the LoginActivity.
             LayoutInflater inflater = getLayoutInflater();
             View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
 
@@ -838,22 +729,18 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         return super.onOptionsItemSelected(item);
     }
-    /**
-     * Fills the database with dummy data for testing purposes.
-     */
+
     private void fillWithDummyData() {
         Random random = new Random();
         for (int i = 0; i < 14; i++) {
-            double dummyDist = 1000 + random.nextDouble() * 9000; // Random distance between 1000 and 10000
-            int dummyKro = 500 + random.nextInt(9500); // Random steps between 500 and 10000
-            double dummyKal = 50 + random.nextDouble() * 450; // Random calories between 50 and 500
+            double dummyDist = 1000 + random.nextDouble() * 9000;
+            int dummyKro = 500 + random.nextInt(9500);
+            double dummyKal = 50 + random.nextDouble() * 450;
             dbHelper.saveTrainingData(i, dummyDist, dummyKro, dummyKal, userId);
         }
         Toast.makeText(this, "Filled database with dummy data", Toast.LENGTH_SHORT).show();
     }
-    /**
-     * Exports training data to a CSV file.
-     */
+
     private void exportTrainingData() {
         File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         if (!exportDir.exists()) {
@@ -898,36 +785,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
-    /**
-     * Called when there is a new sensor event.
-     * This method filters gravity from the accelerometer and calculates movement.
-     * @param event The sensor event.
-     */
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (isTracking) {
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-                // High-pass filter to isolate linear acceleration from gravity.
                 final float alpha = 0.8f;
 
-                // Isolate gravity contribution with a low-pass filter.
                 gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
                 gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
                 gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
 
-                // Remove gravity contribution to get linear acceleration.
                 float x = event.values[0] - gravity[0];
                 float y = event.values[1] - gravity[1];
                 float z = event.values[2] - gravity[2];
 
-                // Calculate the magnitude of the acceleration vector.
                 double magnitude = Math.sqrt(x * x + y * y + z * z);
 
-                // A threshold to filter out sensor noise when the device is mostly stationary.
                 final double MOVEMENT_THRESHOLD = 0.2;
 
                 if (magnitude > MOVEMENT_THRESHOLD) {
-                    // Accumulate distance based on movement magnitude.
                     dist = dist + Math.floor(magnitude);
                 }
 
@@ -963,28 +839,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             }
 
-            if (waga > 0) { // Check if waga is greater than 0 to avoid division by zero
+            if (waga > 0) { 
                 kal = Math.floor(dist) / 50 * (3.5 / waga);
             } else {
-                kal = 0; // Set calories to 0 if waga is not set
+                kal = 0;
             }
 
-            updateTrainingUI();
+            updateStatsView(statsSwitcher.getCurrentView(), dayOffset);
         }
     }
 
-    /**
-     * Called when the accuracy of the registered sensor has changed.
-     * @param sensor The sensor being monitored.
-     * @param accuracy The new accuracy of this sensor.
-     */
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Not used in this application, but required to be implemented.
     }
-    /**
-     * Checks if the day has changed and shifts the training data accordingly.
-     */
+
     private void checkDay() {
         Calendar c = Calendar.getInstance();
         int currentDay = c.get(Calendar.DAY_OF_YEAR);
@@ -996,9 +864,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         lastDay = currentDay;
     }
-    /**
-     * Shows a dialog comparing the current day's training data with the previous day's data.
-     */
+
     private void showComparisonDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.day_comparison_title));
@@ -1041,9 +907,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
         builder.create().show();
     }
-    /**
-     * Shows a weekly report comparing the current week's training data with the previous week's data.
-     */
+
     private void showWeeklyReport() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.weekly_report_title));
@@ -1089,9 +953,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
         builder.create().show();
     }
-    /**
-     * Loads markers from the database and adds them to the map.
-     */
+
     private void loadMarkersFromDatabase() {
         if (userId != -1) {
             Cursor cursor = dbHelper.getAllMarkers(userId);
@@ -1112,9 +974,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             }
         }
     }
-    /**
-     * Loads the user's path from the database and displays it on the map.
-     */
+
     private void loadPathFromDatabase() {
         if (userId != -1) {
             Cursor cursor = dbHelper.getAllPathPoints(userId);
@@ -1133,9 +993,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
 
-    /**
-     * Called when the activity is being destroyed.
-     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
