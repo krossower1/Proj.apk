@@ -72,6 +72,10 @@ import java.util.Locale;
 import java.util.Random;
 
 
+/**
+ * The main activity of the application.
+ * Handles user interaction, map display, sensor data, and training data management.
+ */
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
     // --- Constants and Class Variables ---
@@ -119,6 +123,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private int dayOffset = 0;
 
 
+    /**
+     * Called when the activity is first created.
+     * Initializes UI elements, sensors, location services, and database helper.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after
+     *                           previously being shut down then this Bundle contains the data it most
+     *                           recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -235,10 +247,24 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
+    /**
+     * A gesture listener to detect swipes for navigating between days.
+     */
     private class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
         private static final int SWIPE_THRESHOLD = 100;
         private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
+        /**
+         * Called when a fling gesture is detected.
+         *
+         * @param e1        The first down motion event that started the fling.
+         * @param e2        The move motion event that triggered the current onFling.
+         * @param velocityX The velocity of this fling measured in pixels per second
+         *                  along the x axis.
+         * @param velocityY The velocity of this fling measured in pixels per second
+         *                  along the y axis.
+         * @return true if the event is consumed, else false.
+         */
         @Override
         public boolean onFling(@NonNull MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
             if (isTracking) return false;
@@ -272,6 +298,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Saves the instance state of the activity.
+     *
+     * @param outState Bundle in which to place your saved state.
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -279,10 +310,21 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         outState.putDouble("waga", waga);
     }
 
+    /**
+     * Loads and displays training data for a specific day index.
+     *
+     * @param dayIndex The index of the day to load data for.
+     */
     private void loadAndDisplayTrainingData(int dayIndex) {
         loadAndDisplayTrainingData(dayIndex, statsSwitcher.getCurrentView());
     }
 
+    /**
+     * Loads and displays training data for a specific day index into a specific view.
+     *
+     * @param dayIndex      The index of the day to load data for.
+     * @param viewToUpdate  The view to update with the loaded data.
+     */
     private void loadAndDisplayTrainingData(int dayIndex, View viewToUpdate) {
         if (userId != -1) {
             Cursor cursor = dbHelper.getTrainingDataForDay(dayIndex, userId);
@@ -300,6 +342,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Updates the stats view with the current training data.
+     *
+     * @param view      The view to update.
+     * @param dayIndex  The index of the day being displayed.
+     */
     private void updateStatsView(View view, int dayIndex) {
         TextView dystans = view.findViewById(R.id.dystans);
         TextView kroki = view.findViewById(R.id.kroki);
@@ -323,6 +371,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
     }
 
+    /**
+     * Updates the date UI element with the currently displayed date.
+     */
     private void updateDateUI() {
         Calendar cal = Calendar.getInstance();
         cal.add(Calendar.DAY_OF_YEAR, -dayOffset);
@@ -331,6 +382,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         date.setText(getString(R.string.dzien_formatted, dateString));
     }
 
+    /**
+     * Checks for location permissions and requests them if not granted.
+     */
     private void checkAndRequestLocationPermission() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED | ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -343,6 +397,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Callback for the result from requesting permissions.
+     *
+     * @param requestCode  The request code passed in {@link #requestPermissions(String[], int)}.
+     * @param permissions  The requested permissions. Never null.
+     * @param grantResults The grant results for the corresponding permissions
+     *                     which is either {@link PackageManager#PERMISSION_GRANTED}
+     *                     or {@link PackageManager#PERMISSION_DENIED}. Never null.
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -355,6 +418,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Starts the location tracking process.
+     */
     private void startLocationProcess() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -385,6 +451,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     };
 
+    /**
+     * Updates the map with the user's current location.
+     *
+     * @param location The user's current location.
+     */
     private void updateMapWithLocation(Location location) {
         double lat = location.getLatitude();
         double lon = location.getLongitude();
@@ -414,6 +485,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         map.invalidate();
     }
 
+    /**
+     * Called when the activity will start interacting with the user.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -428,6 +502,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         loadAndDisplayTrainingData(dayOffset);
     }
 
+    /**
+     * Starts requesting location updates.
+     */
     private void startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -437,6 +514,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Called when the activity is no longer interacting with the user.
+     */
     @Override
     public void onPause() {
         super.onPause();
@@ -445,12 +525,22 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
+    /**
+     * Called when the activity is no longer visible to the user.
+     */
     @Override
     public void onStop() {
         super.onStop();
         fusedLocationClient.removeLocationUpdates(locationCallback);
     }
 
+    /**
+     * Initialize the contents of the Activity's standard options menu.
+     *
+     * @param menu The options menu in which you place your items.
+     * @return You must return true for the menu to be displayed;
+     * if you return false it will not be shown.
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.home_menu,menu);
@@ -598,6 +688,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return true;
     }
 
+    /**
+     * This hook is called whenever an item in your options menu is selected.
+     *
+     * @param item The menu item that was selected.
+     * @return boolean Return false to allow normal menu processing to
+     * proceed, true to consume it here.
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -730,6 +827,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Fills the database with dummy data for testing purposes.
+     */
     private void fillWithDummyData() {
         Random random = new Random();
         for (int i = 0; i < 14; i++) {
@@ -741,6 +841,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Toast.makeText(this, "Filled database with dummy data", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Exports the training data to a CSV file in the Downloads directory.
+     */
     private void exportTrainingData() {
         File exportDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         if (!exportDir.exists()) {
@@ -785,6 +888,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Called when sensor values have changed.
+     *
+     * @param event the {@link android.hardware.SensorEvent SensorEvent}.
+     */
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (isTracking) {
@@ -839,7 +947,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             }
 
-            if (waga > 0) { 
+            if (waga > 0) {
                 kal = Math.floor(dist) / 50 * (3.5 / waga);
             } else {
                 kal = 0;
@@ -849,10 +957,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Called when the accuracy of the registered sensor has changed.
+     *
+     * @param sensor   The sensor being monitored.
+     * @param accuracy The new accuracy of this sensor.
+     */
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
+    /**
+     * Checks if the day has changed and performs necessary actions.
+     */
     private void checkDay() {
         Calendar c = Calendar.getInstance();
         int currentDay = c.get(Calendar.DAY_OF_YEAR);
@@ -865,6 +982,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         lastDay = currentDay;
     }
 
+    /**
+     * Shows a dialog comparing the current day's data with the previous day's data.
+     */
     private void showComparisonDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.day_comparison_title));
@@ -908,6 +1028,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         builder.create().show();
     }
 
+    /**
+     * Shows a weekly report comparing the current week's data with the previous week's data.
+     */
     private void showWeeklyReport() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.weekly_report_title));
@@ -954,6 +1077,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         builder.create().show();
     }
 
+    /**
+     * Loads markers from the database and displays them on the map.
+     */
     private void loadMarkersFromDatabase() {
         if (userId != -1) {
             Cursor cursor = dbHelper.getAllMarkers(userId);
@@ -975,6 +1101,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
     }
 
+    /**
+     * Loads the user's path from the database and displays it on the map.
+     */
     private void loadPathFromDatabase() {
         if (userId != -1) {
             Cursor cursor = dbHelper.getAllPathPoints(userId);
@@ -993,6 +1122,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     }
 
 
+    /**
+     * Called when the activity is about to be destroyed.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();
