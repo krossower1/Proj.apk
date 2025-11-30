@@ -13,6 +13,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.os.Handler;
 import android.os.Looper;
+import android.widget.Switch;
+
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -23,6 +25,8 @@ public class SettingsActivity extends AppCompatActivity {
     private Spinner spinnerTheme;
     private SharedPreferences prefs;
     private String theme; // aktualny motyw
+    private Switch switchNotifications;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +56,26 @@ public class SettingsActivity extends AppCompatActivity {
                 break;
         }
 
-// ======== Bottom Menu Navigation ========
+        // ======== SWITCH POWIADOMIEN ========
+        switchNotifications = findViewById(R.id.switchNotifications);
+
+        // Wczytaj stan z SharedPreferences (domyślnie true)
+        boolean notificationsEnabled = prefs.getBoolean("notificationsEnabled", true);
+        switchNotifications.setChecked(notificationsEnabled);
+
+        // Listener zmiany stanu switcha
+        switchNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("notificationsEnabled", isChecked).apply();
+            String message = isChecked ? "Powiadomienia włączone" : "Powiadomienia wyłączone";
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        });
+
+
+
+
+
+
+        // ======== Bottom Menu Navigation ========
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -75,9 +98,10 @@ public class SettingsActivity extends AppCompatActivity {
                 text.setText(R.string.main_screen);
                 toast.show();
 
-                // === opóźnienie 100 ms ===
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    startActivity(new Intent(SettingsActivity.this, MainActivity.class));
+                    Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    startActivity(intent);
                 }, 100);
 
                 return true;
@@ -172,10 +196,16 @@ public class SettingsActivity extends AppCompatActivity {
                         break;
                 }
 
-                prefs.edit().putString("theme", selectedTheme).apply();
-
                 if (!selectedTheme.equals(theme)) {
-                    recreate();
+                    prefs.edit().putString("theme", selectedTheme).apply();
+
+                    // Restart aktywności po zmianie motywu
+                    new Handler(Looper.getMainLooper()).post(() -> {
+                        Intent intent = new Intent(SettingsActivity.this, SettingsActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                    });
                 }
             }
 

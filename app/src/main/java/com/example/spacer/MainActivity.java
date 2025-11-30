@@ -35,6 +35,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
 import android.content.SharedPreferences;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+
+
+
+import androidx.core.content.ContextCompat;
 
 
 import androidx.annotation.NonNull;
@@ -164,8 +170,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         }
         // ======== KONIEC NOWEGO ========
 
-
-
+        // ------------------------------------------------------------------------------------------------------------
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -253,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             return true;
         });
 
-
+// Menu Dolne
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -262,36 +267,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
             TextView text = layout.findViewById(R.id.text_toast);
 
+            Toast toast = new Toast(getApplicationContext());
+            toast.setDuration(Toast.LENGTH_SHORT);
+            toast.setView(layout);
+
             if (id == R.id.nav_settings) {
                 text.setText(getString(R.string.settings));
-                Toast toast = new Toast(getApplicationContext());
-                toast.setDuration(Toast.LENGTH_SHORT);
-                toast.setView(layout);
                 toast.show();
-                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
                 return true;
 
             } else if (id == R.id.nav_home) {
                 text.setText(getString(R.string.main_screen));
-                Toast toast = new Toast(getApplicationContext());
-                toast.setDuration(Toast.LENGTH_SHORT);
-                toast.setView(layout);
                 toast.show();
+                // Nie uruchamiamy MainActivity ponownie
                 return true;
 
             } else if (id == R.id.nav_account) {
                 text.setText(getString(R.string.account));
-                Toast toast = new Toast(getApplicationContext());
-                toast.setDuration(Toast.LENGTH_SHORT);
-                toast.setView(layout);
                 toast.show();
 
-                startActivity(new Intent(MainActivity.this, AccountActivity.class));
+                Intent intent = new Intent(MainActivity.this, AccountActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
                 return true;
             }
 
             return false;
         });
+
     }
 
     /**
@@ -405,18 +412,58 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         kroki.setText(getString(R.string.kroki_formatted, kro));
         kalorie.setText(getString(R.string.kalorie_formatted, (int) kal, getString(R.string.kcal_unit)));
 
+
+        // 30.11 ----------------------------------------------------------------------------------------------------
         trackingButton.setEnabled(dayIndex == 0);
         trackingButton.setOnClickListener(v -> {
             isTracking = !isTracking;
             if (isTracking) {
                 trackingButton.setText(R.string.zakoncz);
                 mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background_dark));
+
+                // ======== POWIADOMIENIE ========
+                sendTrackingNotification("Wędrówka rozpoczęta!", "Powodzenia w trasie!");
             } else {
                 trackingButton.setText(R.string.rozpocznij);
                 mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background));
             }
         });
+
+        // 30.11 ----------------------------------------------------------------------------------------------------
+
+
     }
+
+    // 30.11 ----------------------------------------------------------------------------------------------------
+
+
+    private void sendTrackingNotification(String title, String message) {
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        boolean notificationsEnabled = prefs.getBoolean("notificationsEnabled", true); // ta sama nazwa klucza!
+
+        if (!notificationsEnabled) return; // jeśli wyłączone, nic nie robimy
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "tracking_channel")
+                .setSmallIcon(R.drawable.ic_walk)
+                .setContentTitle(title)
+                .setContentText(message)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true);
+
+        NotificationManagerCompat manager = NotificationManagerCompat.from(this);
+        manager.notify(1, builder.build());
+    }
+
+
+    // 30.11 ----------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
 
     /**
      * Updates the date UI element with the currently displayed date.
@@ -1179,4 +1226,5 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             dbHelper.saveTrainingData(0, dist, kro, kal, userId);
         }
     }
+
 }

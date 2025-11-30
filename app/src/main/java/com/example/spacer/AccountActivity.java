@@ -62,7 +62,31 @@ public class AccountActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        // ======================= Bottom menu initialization =======================
+        // ======== NOWE: SharedPreferences dla motywu ========
+        prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        Object stored = prefs.getAll().get("theme");
+        if (stored instanceof String) {
+            theme = (String) stored;
+        } else {
+            theme = "default";
+        }
+
+        // Wczytaj layout zależnie od motywu
+        switch (theme) {
+            case "light":
+                setContentView(R.layout.activity_account_light);
+                break;
+            case "dark":
+                setContentView(R.layout.activity_account_dark);
+                break;
+            default:
+                setContentView(R.layout.activity_account);
+                break;
+        }
+        // ======== KONIEC NOWEGO ========
+
+
+// ======================= Bottom menu initialization =======================
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -79,27 +103,31 @@ public class AccountActivity extends AppCompatActivity {
                 text.setText(getString(R.string.settings));
                 toast.show();
 
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    startActivity(new Intent(AccountActivity.this, SettingsActivity.class));
-                }, 100);
-
+                Intent intent = new Intent(AccountActivity.this, SettingsActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
                 return true;
 
 
             } else if (id == R.id.nav_home) {
                 text.setText(getString(R.string.main_screen));
                 toast.show();
-                startActivity(new Intent(AccountActivity.this, MainActivity.class));
+
+                Intent intent = new Intent(AccountActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                startActivity(intent);
                 return true;
 
             } else if (id == R.id.nav_account) {
                 text.setText(getString(R.string.account));
                 toast.show();
+                // Jesteśmy już w AccountActivity, nic nie robimy
                 return true;
             }
 
             return false;
         });
+
         // ======================= END of bottom menu =======================
 
         // ======================= Field initialization =======================
