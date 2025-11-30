@@ -8,5 +8,16 @@
     <color name="green_background_dark">#4cc977</color>
     <color name="green_text">#076600</color>
     <color name="toast_error_red">#FF0000</color>
+    <color name="light_green">#79EF89</color>
+    <color name="gray">#5C615D</color>
+    <color name="white_gray">#BAD8BE</color>
+
+    <!-- motyw dark -->
+    <color name="b_dark">#FF000000</color>
+    <color name="t_dark">#FFFFFFFF</color>
+
+    <!-- motyw light -->
+    <color name="b_light">#FFFFFFFF</color>
+    <color name="t_light">#FF000000</color>
 
 </resources>

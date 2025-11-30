@@ -7,13 +7,13 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     android:orientation="vertical"
-    android:background="@color/green_background">
+    android:background="@color/b_dark">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:background="@color/green_background"
+        android:background="@color/b_dark"
         app:title=" "
         app:titleTextColor="@android:color/black"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -28,7 +28,7 @@
             android:layout_width="313dp"
             android:layout_height="40dp"
             android:text="@string/dzien"
-            android:textColor="@color/green_text"
+            android:textColor="@color/t_dark"
             android:textSize="32sp"/>
 
     </androidx.appcompat.widget.Toolbar>

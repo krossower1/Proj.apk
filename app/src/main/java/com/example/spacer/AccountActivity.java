@@ -18,28 +18,55 @@ import android.view.LayoutInflater;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import android.os.Handler;
+import android.os.Looper;
 
 public class AccountActivity extends AppCompatActivity {
 
     // UI elements
     private EditText etUsername, etPassword, etPhone, etAge, etWaga;
-    // Name for shared preferences
     private static final String PREFS_NAME = "UserPrefs";
-    // Flag for password visibility
     private boolean passwordVisible = false;
+
+    // ======== NOWE: obsługa motywu ========
+    private SharedPreferences prefs;
+    private String theme; // aktualny motyw
+    // ======== KONIEC NOWEGO ========
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        // ======== NOWE: SharedPreferences dla motywu ========
+        prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        Object stored = prefs.getAll().get("theme");
+        if (stored instanceof String) {
+            theme = (String) stored;
+        } else {
+            theme = "default";
+        }
+
+        // Wczytaj layout zależnie od motywu
+        switch (theme) {
+            case "light":
+                setContentView(R.layout.activity_account_light);
+                break;
+            case "dark":
+                setContentView(R.layout.activity_account_dark);
+                break;
+            default:
+                setContentView(R.layout.activity_account);
+                break;
+        }
+        // ======== KONIEC NOWEGO ========
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_account);
 
         // ======================= Bottom menu initialization =======================
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
-            // ============ COMMON CUSTOM TOAST =============
             LayoutInflater inflater = getLayoutInflater();
             View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
             TextView text = layout.findViewById(R.id.text_toast);
@@ -52,21 +79,22 @@ public class AccountActivity extends AppCompatActivity {
                 text.setText(getString(R.string.settings));
                 toast.show();
 
-                startActivity(new Intent(AccountActivity.this, SettingsActivity.class));
+                new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    startActivity(new Intent(AccountActivity.this, SettingsActivity.class));
+                }, 100);
+
                 return true;
+
 
             } else if (id == R.id.nav_home) {
                 text.setText(getString(R.string.main_screen));
                 toast.show();
-
                 startActivity(new Intent(AccountActivity.this, MainActivity.class));
                 return true;
 
             } else if (id == R.id.nav_account) {
                 text.setText(getString(R.string.account));
                 toast.show();
-
-                // stay in AccountActivity, so we don't open a new one
                 return true;
             }
 
@@ -82,23 +110,40 @@ public class AccountActivity extends AppCompatActivity {
         etWaga = findViewById(R.id.etWaga);
         Button btnSave = findViewById(R.id.btnSave);
 
+        // ================================================================
+        // WYBÓR IKON NA PODSTAWIE MOTYWU
+        // ================================================================
+        int eyeOffIcon, eyeOnIcon, clearIcon;
+
+        if (theme.equals("dark")) {
+            eyeOffIcon = R.drawable.ic_eye_off_white;
+            eyeOnIcon  = R.drawable.ic_eye_white;
+            clearIcon  = R.drawable.ic_clear_white;
+        } else {
+            eyeOffIcon = R.drawable.ic_eye_off;
+            eyeOnIcon  = R.drawable.ic_eye;
+            clearIcon  = R.drawable.ic_clear;
+        }
+        // ================================================================
+
         // ======================= Password visibility toggle =======================
-        etPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_off, 0);
+        etPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, eyeOffIcon, 0);
+
+        final int finalEyeOffIcon = eyeOffIcon;
+        final int finalEyeOnIcon = eyeOnIcon;
+
         etPassword.setOnTouchListener((v, event) -> {
             final int DRAWABLE_RIGHT = 2;
             if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (event.getRawX() >= (etPassword.getRight()
-                        - etPassword.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                if (event.getRawX() >= (etPassword.getRight() - etPassword.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
 
                     if (passwordVisible) {
-                        // Hide password
                         etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-                        etPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye_off, 0);
+                        etPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, finalEyeOffIcon, 0);
                         passwordVisible = false;
                     } else {
-                        // Show password
                         etPassword.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
-                        etPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_eye, 0);
+                        etPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, finalEyeOnIcon, 0);
                         passwordVisible = true;
                     }
                     etPassword.setSelection(etPassword.getText().length());
@@ -110,10 +155,10 @@ public class AccountActivity extends AppCompatActivity {
         });
 
         // ======================= "X" icons for other fields =======================
-        setupClearIcon(etUsername);
-        setupClearIcon(etPhone);
-        setupClearIcon(etAge);
-        setupClearIcon(etWaga);
+        setupClearIcon(etUsername, clearIcon);
+        setupClearIcon(etPhone, clearIcon);
+        setupClearIcon(etAge, clearIcon);
+        setupClearIcon(etWaga, clearIcon);
 
         // Load saved data
         loadUserData();
@@ -122,16 +167,11 @@ public class AccountActivity extends AppCompatActivity {
         btnSave.setOnClickListener(v -> saveUserData());
     }
 
-    /**
-     * Sets up a clear icon for an EditText that clears the text on click.
-     * @param editText The EditText to set up the clear icon for.
-     */
+    // ======== ZMIENIONA WERSJA — przyjmuje ikonę zależną od motywu ========
     @SuppressLint("ClickableViewAccessibility")
-    private void setupClearIcon(EditText editText) {
-        // Set the clear icon
-        editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_clear, 0);
+    private void setupClearIcon(EditText editText, int clearIcon) {
+        editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, clearIcon, 0);
 
-        // Set a touch listener to clear the text
         editText.setOnTouchListener((v, event) -> {
             final int DRAWABLE_END = 2;
             if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -144,10 +184,8 @@ public class AccountActivity extends AppCompatActivity {
             return false;
         });
     }
+    // ========================================================================
 
-    /**
-     * Loads user data from SharedPreferences and populates the EditText fields.
-     */
     private void loadUserData() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         etUsername.setText(prefs.getString("username", ""));
@@ -157,9 +195,6 @@ public class AccountActivity extends AppCompatActivity {
         etWaga.setText(prefs.getString("waga", ""));
     }
 
-    /**
-     * Saves user data to SharedPreferences from the EditText fields.
-     */
     private void saveUserData() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
