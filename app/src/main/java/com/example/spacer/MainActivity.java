@@ -34,6 +34,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewSwitcher;
+import android.content.SharedPreferences;
+
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -121,6 +123,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     // Swipe-related variables
     private GestureDetector gestureDetector;
     private int dayOffset = 0;
+    private SharedPreferences prefs;
+    private String theme; // <- deklaracja zmiennej przed onCreate
 
 
     /**
@@ -134,7 +138,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+
+
+        // ======== NOWE: motyw ========
+        prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        Object stored = prefs.getAll().get("theme");
+
+        if (stored instanceof String) {
+            theme = (String) stored;
+        } else {
+            theme = "default";
+        }
+
+        // Wczytaj layout zależnie od motywu
+        switch (theme) {
+            case "light":
+                setContentView(R.layout.activity_main_light);
+                break;
+            case "dark":
+                setContentView(R.layout.activity_main_dark);
+                break;
+            default:
+                setContentView(R.layout.activity_main);
+                break;
+        }
+        // ======== KONIEC NOWEGO ========
+
+
+
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -195,7 +226,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         statsSwitcher.setFactory(() -> {
             LayoutInflater inflater = getLayoutInflater();
-            return inflater.inflate(R.layout.stats_view, statsSwitcher, false);
+
+            // ======== NOWE: wybór layoutu zależnie od motywu ========
+            int statsLayoutRes;
+            switch (theme) {
+                case "light":
+                    statsLayoutRes = R.layout.stats_view_light;
+                    break;
+                case "dark":
+                    statsLayoutRes = R.layout.stats_view_dark;
+                    break;
+                default:
+                    statsLayoutRes = R.layout.stats_view;
+                    break;
+            }
+            // ======== KONIEC NOWEGO ========
+
+            return inflater.inflate(statsLayoutRes, statsSwitcher, false);
         });
 
         loadAndDisplayTrainingData(dayOffset);
