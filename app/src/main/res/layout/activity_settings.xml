@@ -12,7 +12,7 @@
         android:id="@+id/tvSettingsTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Ustawienia"
+        android:text="@string/settings"
         android:textColor="@color/green_text"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -48,7 +48,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Przełącz motyw"
+                android:text="@string/change_theme"
                 android:textSize="20sp"
                 android:textColor="@color/green_text"/>
 
@@ -74,7 +74,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Włącz powiadomienia"
+                android:text="@string/turn_notifications"
                 android:textColor="@color/green_text"
                 android:textSize="20sp"/>
 
@@ -84,20 +84,34 @@
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvOption4"
+        <!-- Opcja: zmień język w jednym wierszu ze Spinnerem -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Zmień język"
-            android:textColor="@color/green_text"
-            android:textSize="20sp"
-            android:padding="12dp"/>
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/change_language"
+                android:textSize="20sp"
+                android:textColor="@color/green_text"/>
+
+            <Spinner
+                android:id="@+id/spinnerLanguage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"/>
+        </LinearLayout>
 
         <TextView
             android:id="@+id/tvOption5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Tryb bezpieczny"
+            android:text="@string/safe_mode"
             android:textColor="@color/green_text"
             android:textSize="20sp"
             android:padding="12dp"/>
@@ -106,7 +120,7 @@
             android:id="@+id/tvOption6"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Jednostki: Kilometry"
+            android:text="@string/units"
             android:textColor="@color/green_text"
             android:textSize="20sp"
             android:padding="12dp"/>
