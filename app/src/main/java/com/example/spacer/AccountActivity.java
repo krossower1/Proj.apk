@@ -18,8 +18,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import android.os.Handler;
-import android.os.Looper;
 
 public class AccountActivity extends AppCompatActivity {
 

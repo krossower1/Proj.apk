@@ -1,4 +1,5 @@
 <resources>
+    <!-- POLSKIE -->
     <string name="app_name">StepTracker</string>
     <string name="title_activity_spacer">Spacer</string>
 
@@ -64,6 +65,11 @@
     <!-- LoginActivity -->
     <string name="login_successful">Zalogowano pomyślnie!</string>
     <string name="login_failed">Błędny login lub hasło!</string>
+    <string name="log_in">Zaloguj</string>
+    <string name="gotoregister">Przejdź do rejestracji</string>
+    <string name="remember_me">Zapamiętaj mnie</string>
+    <string name="enteryourlogin">Wpisz swój login:</string>
+    <string name="enteryourpassword">Wpisz swoje hasło:</string>
 
     <!-- RegisterActivity -->
     <string name="passwords_not_matching">Hasła nie są takie same!</string>
@@ -85,4 +91,24 @@
     <string name="register_button">Zarejestruj się</string>
     <string name="go_to_login_button">Przejdź do logowania</string>
     <string name="close_button_content_description">Zamknij</string>
+
+    <!-- SettingsActivity -->
+    <string name="notifications_on">Powiadomienia włączone</string>
+    <string name="notifications_off">Powiadomienia wyłączone</string>
+    <string name="turn_notifications">Włącz powiadomienia:</string>
+    <string name="change_theme">Przełącz motyw</string>
+    <string name="change_language">Zmień język</string>
+    <string name="safe_mode">Tryb bezpieczny</string>
+    <string name="units">Jednostki:</string>
+
+    <!-- AccountActivity -->
+    <string name="my_account">Moje konto</string>
+    <string name="users_info">Dane użytkownika</string>
+    <string name="login">Login:</string>
+    <string name="password">Hasło:</string>
+    <string name="phone">Numer telefonu:</string>
+    <string name="age">Wiek:</string>
+    <string name="weight">Waga:</string>
+    <string name="enter">Naciśnij aby wprowadzić</string>
+    <string name="save_changes">Zapisz zmiany</string>
 </resources>
