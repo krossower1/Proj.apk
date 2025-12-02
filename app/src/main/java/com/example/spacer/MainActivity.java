@@ -451,6 +451,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 .setAutoCancel(true);
 
         NotificationManagerCompat manager = NotificationManagerCompat.from(this);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
         manager.notify(1, builder.build());
     }
 
@@ -1007,6 +1010,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 if (magnitude > MOVEMENT_THRESHOLD) {
                     dist = dist + Math.floor(magnitude);
+
+                    if (waga > 0) {
+                        kal = kal + (Math.floor(magnitude) / 50 * (3.5 / waga));
+                    } else {
+                        kal = 0;
+                    }
                 }
 
                 long currentTime = System.currentTimeMillis();
@@ -1039,12 +1048,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         kro++;
                     }
                 }
-            }
-
-            if (waga > 0) {
-                kal = Math.floor(dist) / 50 * (3.5 / waga);
-            } else {
-                kal = 0;
             }
 
             updateStatsView(statsSwitcher.getCurrentView(), dayOffset);
