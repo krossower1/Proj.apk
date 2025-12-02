@@ -421,10 +421,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 trackingButton.setText(R.string.zakoncz);
                 switch (theme) {
                     case "light":
-                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_light));
+                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_light_passive));
                         break;
                     case "dark":
-                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_dark));
+                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_dark_passive));
                         break;
                     default:
                         mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background_dark));
@@ -437,10 +437,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 trackingButton.setText(R.string.rozpocznij);
                 switch (theme) {
                     case "light":
-                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_light_passive));
+                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_light));
                         break;
                     case "dark":
-                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_dark_passive));
+                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_dark));
                         break;
                     default:
                         mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background));

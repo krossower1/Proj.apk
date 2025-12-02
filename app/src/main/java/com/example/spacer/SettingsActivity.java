@@ -71,7 +71,36 @@ public class SettingsActivity extends AppCompatActivity {
         // ======== SPINNER JĘZYKA ========
         spinnerLanguage = findViewById(R.id.spinnerLanguage);
         String[] languages = {"Polski", "English"};
-        ArrayAdapter<String> adapterLang = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, languages);
+        ArrayAdapter<String> adapterLang = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, languages) {
+            @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                TextView tv = (TextView) super.getView(position, convertView, parent);
+                if (theme.equals("dark")) {
+                    tv.setTextColor(getResources().getColor(R.color.white));
+                } else if (theme.equals("default")) {
+                    tv.setTextColor(getResources().getColor(R.color.green_text));
+                } else {
+                    tv.setTextColor(getResources().getColor(R.color.black));
+                }
+                return tv;
+            }
+
+            @Override
+            public View getDropDownView(int position, View convertView, ViewGroup parent) {
+                TextView tv = (TextView) super.getDropDownView(position, convertView, parent);
+                if (theme.equals("dark")) {
+                    tv.setTextColor(getResources().getColor(R.color.white));
+                    tv.setBackgroundColor(getResources().getColor(R.color.black));
+                } else if (theme.equals("default")) {
+                    tv.setTextColor(getResources().getColor(R.color.green_text));
+                    tv.setBackgroundColor(getResources().getColor(R.color.green_background));
+                } else {
+                    tv.setTextColor(getResources().getColor(R.color.black));
+                }
+                return tv;
+            }
+        };
+        adapterLang.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerLanguage.setAdapter(adapterLang);
         spinnerLanguage.setSelection(savedLang.equals("pl") ? 0 : 1);
 
