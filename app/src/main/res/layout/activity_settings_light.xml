@@ -78,7 +78,7 @@
                 android:textColor="@color/t_light"
                 android:textSize="20sp"/>
 
-            <Switch
+            <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/switchNotifications"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>

@@ -14,10 +14,12 @@
 
     <!-- motyw dark -->
     <color name="b_dark">#FF000000</color>
+    <color name="b_dark_passive">#F333</color>
     <color name="t_dark">#FFFFFFFF</color>
 
     <!-- motyw light -->
     <color name="b_light">#FFFFFFFF</color>
+    <color name="b_light_passive">#Fbbb</color>
     <color name="t_light">#FF000000</color>
 
 </resources>

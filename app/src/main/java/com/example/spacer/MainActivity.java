@@ -419,13 +419,33 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             isTracking = !isTracking;
             if (isTracking) {
                 trackingButton.setText(R.string.zakoncz);
-                mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background_dark));
+                switch (theme) {
+                    case "light":
+                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_light_passive));
+                        break;
+                    case "dark":
+                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_dark_passive));
+                        break;
+                    default:
+                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background_dark));
+                        break;
+                }
 
                 // ======== POWIADOMIENIE ========
                 sendTrackingNotification("Wędrówka rozpoczęta!", "Powodzenia w trasie!");
             } else {
                 trackingButton.setText(R.string.rozpocznij);
-                mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background));
+                switch (theme) {
+                    case "light":
+                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_light));
+                        break;
+                    case "dark":
+                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.b_dark));
+                        break;
+                    default:
+                        mainLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.green_background));
+                        break;
+                }
             }
         });
 
