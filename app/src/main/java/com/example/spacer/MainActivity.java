@@ -949,7 +949,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      */
     private void fillWithDummyData() {
         Random random = new Random();
-        for (int i = 0; i < 14; i++) {
+        for (int i = 1; i < 14; i++) {
             double dummyDist = 1000 + random.nextDouble() * 9000;
             int dummyKro = 500 + random.nextInt(9500);
             double dummyKal = 50 + random.nextDouble() * 450;
