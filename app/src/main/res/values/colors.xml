@@ -22,4 +22,9 @@
     <color name="b_light_passive">#Fbbb</color>
     <color name="t_light">#FF000000</color>
 
+
+    <!-- unikalne motyw główny -->
+    <color name="unique_default_background_first">#9abca6</color>
+    <color name="unique_default_background_second">#64aa81</color>
+
 </resources>

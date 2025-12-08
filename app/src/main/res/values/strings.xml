@@ -59,8 +59,10 @@
     <string name="incident_marker_removed_toast">Usunięto ostatni znacznik incydentu</string>
     <string name="cannot_delete_first_marker">Nie można usunąć pierwszego znacznika</string>
     <string name="no_incident_markers_to_remove_toast">Brak znaczników incydentów do usunięcia</string>
-
     <string name="no_field">Wypełnij wszystkie pola!</string>
+    <string name="start">Wędrówka rozpoczęta!</string>
+    <string name="good_luck">Powodzenia w trasie!</string>
+
 
     <!-- LoginActivity -->
     <string name="login_successful">Zalogowano pomyślnie!</string>
@@ -122,4 +124,10 @@
     <string name="data_export">Eksport danych</string>
     <string name="delete_data">Usuń dane</string>
     <string name="log_out">Wyloguj</string>
+    <string name="filled_database">Wypełniono bazę fikcyjnymi danymi</string>
+
+    <!-- bottom menu -->
+    <string name="b_settings">Ustawienia</string>
+    <string name="b_home_screen">Ekran Główny</string>
+    <string name="b_my_account">Moje Konto</string>
 </resources>

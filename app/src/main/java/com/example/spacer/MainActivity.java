@@ -132,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SharedPreferences prefs;
     private String theme; // <- deklaracja zmiennej przed onCreate
 
+    //-----------------------------------------------------------------------------------------------
 
     /**
      * Called when the activity is first created.
@@ -145,11 +146,14 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
-        // ======== NOWE: motyw ========
         prefs = getSharedPreferences("settings", MODE_PRIVATE);
-        Object stored = prefs.getAll().get("theme");
 
+        // ======== JĘZYK ========
+        String savedLang = prefs.getString("appLanguage", "pl");
+        setLocale(savedLang);
+
+        // ======== MOTYW ========
+        Object stored = prefs.getAll().get("theme");
         if (stored instanceof String) {
             theme = (String) stored;
         } else {
@@ -168,7 +172,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 setContentView(R.layout.activity_main);
                 break;
         }
-        // ======== KONIEC NOWEGO ========
 
         // ------------------------------------------------------------------------------------------------------------
 
@@ -272,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             toast.setView(layout);
 
             if (id == R.id.nav_settings) {
-                text.setText(getString(R.string.settings));
+                text.setText(getString(R.string.b_settings));
                 toast.show();
 
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
@@ -281,13 +284,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 return true;
 
             } else if (id == R.id.nav_home) {
-                text.setText(getString(R.string.main_screen));
+                text.setText(getString(R.string.b_home_screen));
                 toast.show();
                 // Nie uruchamiamy MainActivity ponownie
                 return true;
 
             } else if (id == R.id.nav_account) {
-                text.setText(getString(R.string.account));
+                text.setText(getString(R.string.b_my_account));
                 toast.show();
 
                 Intent intent = new Intent(MainActivity.this, AccountActivity.class);
@@ -432,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
 
                 // ======== POWIADOMIENIE ========
-                sendTrackingNotification("Wędrówka rozpoczęta!", "Powodzenia w trasie!");
+                sendTrackingNotification(getString(R.string.start), getString(R.string.good_luck));
             } else {
                 trackingButton.setText(R.string.rozpocznij);
                 switch (theme) {
@@ -608,6 +611,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onResume() {
         super.onResume();
+        checkThemeChange();
         map.onResume();
         if (accelerometer != null) {
             sensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
@@ -671,79 +675,79 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
 
         MenuItem item = menu.findItem(R.id.edane);
-        SpannableString s = new SpannableString("Eksport danych   ");
+        SpannableString s = new SpannableString(getString(R.string.data_export) + "  "); // dwie spacje
         Drawable d = ContextCompat.getDrawable(this, R.drawable.archive);
         if (d != null) {
             d.setTint(Color.parseColor("#4CAF50"));
             d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
             ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_BOTTOM);
-            s.setSpan(span, s.length() - 1, s.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            s.setSpan(span, s.length() - 2, s.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             item.setTitle(s);
         }
 
         MenuItem deleteItem = menu.findItem(R.id.udane);
-        SpannableString ss = new SpannableString("Usuń dane   ");
+        SpannableString ss = new SpannableString(getString(R.string.delete_data) + "  ");
         Drawable dd = ContextCompat.getDrawable(this, R.drawable.delete);
         if (dd != null) {
             dd.setTint(Color.parseColor("#4CAF50"));
             dd.setBounds(0, 0, dd.getIntrinsicWidth(), dd.getIntrinsicHeight());
             ImageSpan spann = new ImageSpan(dd, ImageSpan.ALIGN_BOTTOM);
-            ss.setSpan(spann, ss.length() - 1, ss.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            ss.setSpan(spann, ss.length() - 2, ss.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             deleteItem.setTitle(ss);
         }
 
         MenuItem alertItem = menu.findItem(R.id.alerty);
-        SpannableString alertText = new SpannableString("Alerty o niestabilnym chodzie   ");
+        SpannableString alertText = new SpannableString(getString(R.string.alerts) + "  ");
         Drawable alertIcon = ContextCompat.getDrawable(this, R.drawable.niest);
         if (alertIcon != null) {
             alertIcon.setTint(Color.parseColor("#4CAF50"));
             alertIcon.setBounds(0, 0, alertIcon.getIntrinsicWidth(), alertIcon.getIntrinsicHeight());
             ImageSpan alertSpan = new ImageSpan(alertIcon, ImageSpan.ALIGN_BOTTOM);
-            alertText.setSpan(alertSpan, alertText.length() - 1, alertText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            alertText.setSpan(alertSpan, alertText.length() - 2, alertText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             alertItem.setTitle(alertText);
         }
 
         MenuItem raportItem = menu.findItem(R.id.raporty);
-        SpannableString raportText = new SpannableString("Cotygodniowe raporty   ");
+        SpannableString raportText = new SpannableString(getString(R.string.weekly_reports) + "  ");
         Drawable raportIcon = ContextCompat.getDrawable(this, R.drawable.raporty);
         if (raportIcon != null) {
             raportIcon.setTint(Color.parseColor("#4CAF50"));
             raportIcon.setBounds(0, 0, raportIcon.getIntrinsicWidth(), raportIcon.getIntrinsicHeight());
             ImageSpan raportSpan = new ImageSpan(raportIcon, ImageSpan.ALIGN_BOTTOM);
-            raportText.setSpan(raportSpan, raportText.length() - 1, raportText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            raportText.setSpan(raportSpan, raportText.length() - 2, raportText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             raportItem.setTitle(raportText);
         }
 
         MenuItem znacznikiItem = menu.findItem(R.id.pznaczniki);
-        SpannableString znacznikiText = new SpannableString("Pokazuj znaczniki na mapie   ");
+        SpannableString znacznikiText = new SpannableString(getString(R.string.show_markers) + "  ");
         Drawable znacznikiIcon = ContextCompat.getDrawable(this, R.drawable.znaczniki);
         if (znacznikiIcon != null) {
             znacznikiIcon.setTint(Color.parseColor("#4CAF50"));
             znacznikiIcon.setBounds(0, 0, znacznikiIcon.getIntrinsicWidth(), znacznikiIcon.getIntrinsicHeight());
             ImageSpan znacznikiSpan = new ImageSpan(znacznikiIcon, ImageSpan.ALIGN_BOTTOM);
-            znacznikiText.setSpan(znacznikiSpan, znacznikiText.length() - 1, znacznikiText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            znacznikiText.setSpan(znacznikiSpan, znacznikiText.length() - 2, znacznikiText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             znacznikiItem.setTitle(znacznikiText);
         }
 
         MenuItem usunZnacznikItem = menu.findItem(R.id.uznacznik);
-        SpannableString usunZnacznikText = new SpannableString("Usuń znacznik   ");
+        SpannableString usunZnacznikText = new SpannableString(getString(R.string.delete_marker) + "  ");
         Drawable usunZnacznikIcon = ContextCompat.getDrawable(this, R.drawable.delete);
         if (usunZnacznikIcon != null) {
             usunZnacznikIcon.setTint(Color.parseColor("#4CAF50"));
             usunZnacznikIcon.setBounds(0, 0, usunZnacznikIcon.getIntrinsicWidth(), usunZnacznikIcon.getIntrinsicHeight());
             ImageSpan usunZnacznikSpan = new ImageSpan(usunZnacznikIcon, ImageSpan.ALIGN_BOTTOM);
-            usunZnacznikText.setSpan(usunZnacznikSpan, usunZnacznikText.length() - 1, usunZnacznikText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            usunZnacznikText.setSpan(usunZnacznikSpan, usunZnacznikText.length() - 2, usunZnacznikText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             usunZnacznikItem.setTitle(usunZnacznikText);
         }
 
         MenuItem compareItem = menu.findItem(R.id.pdzien);
-        SpannableString compareText = new SpannableString("Porównaj ten dzień   ");
+        SpannableString compareText = new SpannableString(getString(R.string.compare_day) + "  ");
         Drawable compareIcon = ContextCompat.getDrawable(this, R.drawable.compare);
         if (compareIcon != null) {
             compareIcon.setTint(Color.parseColor("#4CAF50"));
             compareIcon.setBounds(0, 0, compareIcon.getIntrinsicWidth(), compareIcon.getIntrinsicHeight());
             ImageSpan compareSpan = new ImageSpan(compareIcon, ImageSpan.ALIGN_BOTTOM);
-            compareText.setSpan(compareSpan, compareText.length() - 1, compareText.length(), Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            compareText.setSpan(compareSpan, compareText.length() - 2, compareText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             compareItem.setTitle(compareText);
         }
 
@@ -1247,6 +1251,34 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         super.onDestroy();
         if (userId != -1) {
             dbHelper.saveTrainingData(0, dist, kro, kal, userId);
+        }
+    }
+    // ======== METODA DO USTAWIENIA AKTUALNEGO JĘZYKA
+    private void setLocale(String langCode) {
+        Locale locale = new Locale(langCode);
+        Locale.setDefault(locale);
+        android.content.res.Configuration config = getResources().getConfiguration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+    }
+
+    // ======== NOWA METODA DO SPRAWDZANIA ZMIANY MOTYWU ========
+    private void checkThemeChange() {
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        Object stored = prefs.getAll().get("theme");
+
+        String savedTheme;
+        if (stored instanceof String) {
+            savedTheme = (String) stored;
+        } else {
+            savedTheme = "default";
+        }
+
+        if (!savedTheme.equals(theme)) {
+            // Zmieniony motyw – odśwież aktywność
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
         }
     }
 

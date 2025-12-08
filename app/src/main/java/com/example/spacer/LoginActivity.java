@@ -13,6 +13,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.SharedPreferences;
 
+import java.util.Locale;
+
 /**
  * LoginActivity handles user authentication.
  * It provides a user interface for logging in, with options to remember credentials and navigate to the registration screen.
@@ -24,6 +26,7 @@ public class LoginActivity extends AppCompatActivity {
     private CheckBox cbRememberMe;
     // Database helper for user authentication
     private DatabaseHelper dbHelper;
+    private SharedPreferences prefs;
 
     /**
      * Called when the activity is first created.
@@ -32,6 +35,11 @@ public class LoginActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        String savedLang = prefs.getString("appLanguage", "pl");
+        setLocale(savedLang);
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
@@ -142,5 +150,13 @@ public class LoginActivity extends AppCompatActivity {
         toast.setDuration(Toast.LENGTH_SHORT);
         toast.setView(layout);
         toast.show();
+    }
+
+    private void setLocale(String langCode) {
+        Locale locale = new Locale(langCode);
+        Locale.setDefault(locale);
+        android.content.res.Configuration config = getResources().getConfiguration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 }

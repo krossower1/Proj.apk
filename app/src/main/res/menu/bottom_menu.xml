@@ -3,16 +3,16 @@
 
     <item
         android:id="@+id/nav_settings"
-        android:title="Ustawienia"
+        android:title="@string/b_settings"
         android:icon="@drawable/settings" />
 
     <item
         android:id="@+id/nav_home"
-        android:title="Ekran Główny"
+        android:title="@string/b_home_screen"
         android:icon="@drawable/home" />
 
     <item
         android:id="@+id/nav_account"
-        android:title="Moje Konto"
+        android:title="@string/b_my_account"
         android:icon="@drawable/account" />
 </menu>

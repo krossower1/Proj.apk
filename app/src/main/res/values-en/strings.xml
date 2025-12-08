@@ -55,6 +55,7 @@
     <string name="cannot_delete_first_marker">Cannot delete the first marker</string>
     <string name="no_incident_markers_to_remove_toast">No incident markers to remove</string>
     <string name="no_field">Fill in all fields!</string>
+    <string name="good_luck">Good luck on the road!</string>
     <string name="login_successful">Logged in successfully!</string>
     <string name="login_failed">Incorrect login or password!</string>
     <string name="remember_me">Remember me</string>
@@ -95,11 +96,16 @@
     <string name="gotoregister">Go to register</string>
     <string name="enteryourlogin">Enter your login:</string>
     <string name="alerts">Unstable gait alerts</string>
-    <string name="raports">Weekly reports</string>
+    <string name="weekly_reports">Weekly reports</string>
     <string name="show_markers">Show markers on the map</string>
     <string name="delete_marker">Delete marker</string>
     <string name="compare_day">Compare day</string>
     <string name="data_export">Data export</string>
     <string name="delete_data">Delete data</string>
     <string name="log_out">Log out</string>
+    <string name="filled_database">Fill database with dummy data</string>
+    <string name="start">The journey has begun!</string>
+    <string name="b_settings">Settings</string>
+    <string name="b_home_screen">Home Screen</string>
+    <string name="b_my_account">My Account</string>
 </resources>
