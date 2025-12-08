@@ -129,12 +129,7 @@ public class SettingsActivity extends AppCompatActivity {
                 if (!langCode.equals(currentLang)) {
                     prefs.edit().putString("appLanguage", langCode).apply();
                     // Restart the activity to apply the new language
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        Intent intent = new Intent(SettingsActivity.this, SettingsActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                        finish();
-                    });
+                    finishAffinity(); // powoduje zamknięcie całej aplikacji
                 }
             }
             @Override
@@ -229,14 +224,14 @@ public class SettingsActivity extends AppCompatActivity {
 
             if (id == R.id.nav_settings) {
                 // Show a toast for the settings screen
-                text.setText(getString(R.string.settings));
+                text.setText(getString(R.string.b_settings));
                 toast.show();
                 return true;
             }
 
             if (id == R.id.nav_home) {
                 // Show a toast and navigate to the main screen
-                text.setText(R.string.main_screen);
+                text.setText(R.string.b_home_screen);
                 toast.show();
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
@@ -248,7 +243,7 @@ public class SettingsActivity extends AppCompatActivity {
 
             if (id == R.id.nav_account) {
                 // Show a toast and navigate to the account screen
-                text.setText(R.string.account);
+                text.setText(R.string.b_my_account);
                 toast.show();
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     startActivity(new Intent(SettingsActivity.this, AccountActivity.class));

@@ -43,7 +43,7 @@
         android:id="@+id/wyloguj"/>
 
     <item
-        android:title="Fill with dummy data"
+        android:title="@string/filled_database"
         android:id="@+id/debug_fill_data"/>
 
 

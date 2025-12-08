@@ -19,6 +19,8 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.util.Locale;
+
 public class AccountActivity extends AppCompatActivity {
 
     // UI elements
@@ -74,7 +76,7 @@ public class AccountActivity extends AppCompatActivity {
             toast.setView(layout);
 
             if (id == R.id.nav_settings) {
-                text.setText(getString(R.string.settings));
+                text.setText(getString(R.string.b_settings));
                 toast.show();
 
                 Intent intent = new Intent(AccountActivity.this, SettingsActivity.class);
@@ -84,7 +86,7 @@ public class AccountActivity extends AppCompatActivity {
 
 
             } else if (id == R.id.nav_home) {
-                text.setText(getString(R.string.main_screen));
+                text.setText(getString(R.string.b_home_screen));
                 toast.show();
 
                 Intent intent = new Intent(AccountActivity.this, MainActivity.class);
@@ -93,7 +95,7 @@ public class AccountActivity extends AppCompatActivity {
                 return true;
 
             } else if (id == R.id.nav_account) {
-                text.setText(getString(R.string.account));
+                text.setText(getString(R.string.b_my_account));
                 toast.show();
                 // Jesteśmy już w AccountActivity, nic nie robimy
                 return true;
@@ -208,4 +210,38 @@ public class AccountActivity extends AppCompatActivity {
         editor.apply();
         Toast.makeText(this, "Zmiany zapisane!", Toast.LENGTH_SHORT).show();
     }
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkThemeChange();
+    }
+    // ======== METODA DO ZMIANY JĘZYKA ============
+    private void setLocale(String langCode) {
+        Locale locale = new Locale(langCode);
+        Locale.setDefault(locale);
+        android.content.res.Configuration config = getResources().getConfiguration();
+        config.setLocale(locale);
+        getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+    }
+
+    private void checkThemeChange() {
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        Object stored = prefs.getAll().get("theme");
+
+        String savedTheme;
+        if (stored instanceof String) {
+            savedTheme = (String) stored;
+        } else {
+            savedTheme = "default";
+        }
+
+        if (!savedTheme.equals(theme)) {
+            // Zmieniony motyw – odśwież aktywność
+            Intent intent = getIntent();
+            finish();
+            startActivity(intent);
+        }
+    }
+
+
 }
