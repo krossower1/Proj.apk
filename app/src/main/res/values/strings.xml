@@ -4,7 +4,7 @@
     <string name="title_activity_spacer">Spacer</string>
 
     <!-- Layout -->
-    <string name="dzien">Wędrówka dnia </string>
+    <string name="dzien">Wędrówka dnia: </string>
     <string name="kalorie">Spalone kalorie:</string>
     <string name="kroki">Ilość kroków:</string>
     <string name="dystans">Dystans przebyty:</string>
@@ -70,6 +70,7 @@
     <string name="remember_me">Zapamiętaj mnie</string>
     <string name="enteryourlogin">Wpisz swój login:</string>
     <string name="enteryourpassword">Wpisz swoje hasło:</string>
+    <string name="logg">Logowanie</string>
 
     <!-- RegisterActivity -->
     <string name="passwords_not_matching">Hasła nie są takie same!</string>
@@ -111,4 +112,14 @@
     <string name="weight">Waga:</string>
     <string name="enter">Naciśnij aby wprowadzić</string>
     <string name="save_changes">Zapisz zmiany</string>
+
+    <!-- home menu -->
+    <string name="alerts">Alerty o niestabilnym chodzie</string>
+    <string name="weekly_reports">Cotygodniowe raporty</string>
+    <string name="show_markers">Pokazuj znaczniki na mapie</string>
+    <string name="delete_marker">Usuń znacznik</string>
+    <string name="compare_day">Porównaj dzień</string>
+    <string name="data_export">Eksport danych</string>
+    <string name="delete_data">Usuń dane</string>
+    <string name="log_out">Wyloguj</string>
 </resources>

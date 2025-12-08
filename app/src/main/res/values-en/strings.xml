@@ -59,6 +59,7 @@
     <string name="login_failed">Incorrect login or password!</string>
     <string name="remember_me">Remember me</string>
     <string name="enteryourpassword">Enter your password:</string>
+    <string name="logg">Login</string>
     <string name="passwords_not_matching">Passwords do not match!</string>
     <string name="registration_successful">Registration successful!</string>
     <string name="user_already_exists">Error: user already exists!</string>
@@ -93,4 +94,12 @@
     <string name="log_in">Log in</string>
     <string name="gotoregister">Go to register</string>
     <string name="enteryourlogin">Enter your login:</string>
+    <string name="alerts">Unstable gait alerts</string>
+    <string name="raports">Weekly reports</string>
+    <string name="show_markers">Show markers on the map</string>
+    <string name="delete_marker">Delete marker</string>
+    <string name="compare_day">Compare day</string>
+    <string name="data_export">Data export</string>
+    <string name="delete_data">Delete data</string>
+    <string name="log_out">Log out</string>
 </resources>
