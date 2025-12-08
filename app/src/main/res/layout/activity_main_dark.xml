@@ -29,7 +29,7 @@
             android:layout_height="40dp"
             android:text="@string/dzien"
             android:textColor="@color/t_dark"
-            android:textSize="32sp"/>
+            android:textSize="29sp"/>
 
     </androidx.appcompat.widget.Toolbar>
 

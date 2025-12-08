@@ -4,48 +4,42 @@
 
 
     <item
-        android:title="Alerty o niestabilnym chodzie"
+        android:title="@string/alerts"
         android:id="@+id/alerty"
         />
 
     <item
-        android:title="Cotygodniowe raporty"
+        android:title="@string/weekly_reports"
         android:id="@+id/raporty"
         />
 
     <item
-        android:title="Pokazuj znaczniki na mapie"
+        android:title="@string/show_markers"
         android:id="@+id/pznaczniki"
         />
 
     <item
-        android:title="Usuń znacznik"
+        android:title="@string/delete_marker"
         android:id="@+id/uznacznik"
         />
 
     <item
-        android:title="Porównaj ten dzień"
+        android:title="@string/compare_day"
         android:id="@+id/pdzien"
         />
 
     <item
-        android:title="Eksport danych"
+        android:title="@string/data_export"
         android:id="@+id/edane"
         />
 
     <item
-        android:title="Usuń dane"
+        android:title="@string/delete_data"
         android:id="@+id/udane"
         />
-<!-- przeniesc do ustawien
-    <item
-        android:title="Nazwa użytkownika"
-        android:id="@+id/nazwau"
-        />
-        -->
 
     <item
-        android:title="Wyloguj"
+        android:title="@string/log_out"
         android:id="@+id/wyloguj"/>
 
     <item

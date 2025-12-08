@@ -12,7 +12,7 @@
         android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/login"
+        android:text="@string/logg"
         android:layout_marginTop="4dp"
         android:textColor="#4CAF50"
         android:textSize="28sp"
