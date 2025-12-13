@@ -81,8 +81,7 @@ import java.util.Random;
 
 
 /**
- * The main activity of the application.
- * Handles user interaction, map display, sensor data, and training data management.
+ * @brief The main activity of the application. Handles user interaction, map display, sensor data, and training data management.
  */
 public class MainActivity extends AppCompatActivity implements SensorEventListener {
 
@@ -1153,12 +1152,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      * Shows a weekly report comparing the current week's data with the previous week's data.
      */
     private void showWeeklyReport() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.weekly_report_title));
-
         double prevWeekDist = 0, prevWeekKro = 0, prevWeekKal = 0;
         double currentWeekDist = 0, currentWeekKro = 0, currentWeekKal = 0;
         boolean dataFound = false;
+        String mess = "";
+
+        // AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        // builder.setTitle(getString(R.string.weekly_report_title));
 
         for (int i = 0; i < 14; i++) {
             Cursor cursor = dbHelper.getTrainingDataForDay(i, userId);
@@ -1189,13 +1189,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     getString(R.string.distance_label) + " " + String.format(Locale.getDefault(), "%.2f", currentWeekDist / 50) + getString(R.string.meters_unit) + "\n" +
                     getString(R.string.steps_label) + " " + (int)currentWeekKro + "\n" +
                     getString(R.string.calories_label) + " " + String.format(Locale.getDefault(), "%.2f", currentWeekKal) + getString(R.string.kcal_unit);
-            builder.setMessage(message);
+            // builder.setMessage(message);
+            mess = message;
         } else {
-            builder.setMessage(getString(R.string.not_enough_data_for_report));
+            sendTrackingNotification(getString(R.string.alert), getString(R.string.not_enough_data_for_report));
+            // builder.setMessage(getString(R.string.not_enough_data_for_report));
         }
+        sendTrackingNotification(getString(R.string.weekly_report_title), mess);
 
-        builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
-        builder.create().show();
+        // builder.setPositiveButton(getString(R.string.ok), (dialog, which) -> dialog.dismiss());
+        // builder.create().show();
     }
 
     /**
