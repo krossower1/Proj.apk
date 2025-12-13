@@ -21,6 +21,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Locale;
 
+/**
+ * @brief Activity for user account management. Allows users to view and update their profile information, as well as handle theme changes.
+ *
+ */
 public class AccountActivity extends AppCompatActivity {
 
     // UI elements
@@ -28,17 +32,20 @@ public class AccountActivity extends AppCompatActivity {
     private static final String PREFS_NAME = "UserPrefs";
     private boolean passwordVisible = false;
 
-    // ======== NOWE: obsługa motywu ========
     private SharedPreferences prefs;
-    private String theme; // aktualny motyw
-    // ======== KONIEC NOWEGO ========
+    private String theme;
 
+    /**
+     * @brief Initializes the activity, sets the content view based on the current theme, and sets up UI elements and listeners.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.
+     */
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        // ======== NOWE: SharedPreferences dla motywu ========
+
         prefs = getSharedPreferences("settings", MODE_PRIVATE);
         Object stored = prefs.getAll().get("theme");
         if (stored instanceof String) {
@@ -47,7 +54,6 @@ public class AccountActivity extends AppCompatActivity {
             theme = "default";
         }
 
-        // Wczytaj layout zależnie od motywu
         switch (theme) {
             case "light":
                 setContentView(R.layout.activity_account_light);
@@ -59,10 +65,9 @@ public class AccountActivity extends AppCompatActivity {
                 setContentView(R.layout.activity_account);
                 break;
         }
-        // ======== KONIEC NOWEGO ========
 
 
-// ======================= Bottom menu initialization =======================
+        // Bottom menu initialization
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -97,16 +102,13 @@ public class AccountActivity extends AppCompatActivity {
             } else if (id == R.id.nav_account) {
                 text.setText(getString(R.string.b_my_account));
                 toast.show();
-                // Jesteśmy już w AccountActivity, nic nie robimy
                 return true;
             }
 
             return false;
         });
 
-        // ======================= END of bottom menu =======================
-
-        // ======================= Field initialization =======================
+        // Field initialization
         etUsername = findViewById(R.id.etUsername);
         etPassword = findViewById(R.id.etPassword);
         etPhone = findViewById(R.id.etPhone);
@@ -114,9 +116,6 @@ public class AccountActivity extends AppCompatActivity {
         etWaga = findViewById(R.id.etWaga);
         Button btnSave = findViewById(R.id.btnSave);
 
-        // ================================================================
-        // WYBÓR IKON NA PODSTAWIE MOTYWU
-        // ================================================================
         int eyeOffIcon, eyeOnIcon, clearIcon;
 
         if (theme.equals("dark")) {
@@ -128,9 +127,6 @@ public class AccountActivity extends AppCompatActivity {
             eyeOnIcon  = R.drawable.ic_eye;
             clearIcon  = R.drawable.ic_clear;
         }
-        // ================================================================
-
-        // ======================= Password visibility toggle =======================
         etPassword.setCompoundDrawablesWithIntrinsicBounds(0, 0, eyeOffIcon, 0);
 
         final int finalEyeOffIcon = eyeOffIcon;
@@ -158,7 +154,7 @@ public class AccountActivity extends AppCompatActivity {
             return false;
         });
 
-        // ======================= "X" icons for other fields =======================
+        // "X" icons for other fields
         setupClearIcon(etUsername, clearIcon);
         setupClearIcon(etPhone, clearIcon);
         setupClearIcon(etAge, clearIcon);
@@ -171,7 +167,12 @@ public class AccountActivity extends AppCompatActivity {
         btnSave.setOnClickListener(v -> saveUserData());
     }
 
-    // ======== ZMIENIONA WERSJA — przyjmuje ikonę zależną od motywu ========
+    /**
+     * @brief Sets up a clear icon for an EditText that clears the text when clicked. The icon is theme-dependent.
+     * @param editText The EditText to set up the clear icon for.
+     * @param clearIcon The drawable resource ID for the clear icon.
+     *
+     */
     @SuppressLint("ClickableViewAccessibility")
     private void setupClearIcon(EditText editText, int clearIcon) {
         editText.setCompoundDrawablesWithIntrinsicBounds(0, 0, clearIcon, 0);
@@ -188,8 +189,11 @@ public class AccountActivity extends AppCompatActivity {
             return false;
         });
     }
-    // ========================================================================
 
+    /**
+     * @brief Loads user data from SharedPreferences and populates the EditText fields.
+     *
+     */
     private void loadUserData() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         etUsername.setText(prefs.getString("username", ""));
@@ -199,6 +203,10 @@ public class AccountActivity extends AppCompatActivity {
         etWaga.setText(prefs.getString("waga", ""));
     }
 
+    /**
+     * @brief Saves user data from the EditText fields to SharedPreferences.
+     *
+     */
     private void saveUserData() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
@@ -210,12 +218,20 @@ public class AccountActivity extends AppCompatActivity {
         editor.apply();
         Toast.makeText(this, "Zmiany zapisane!", Toast.LENGTH_SHORT).show();
     }
+    /**
+     * @brief Called when the activity will start interacting with the user. Checks if the theme has changed and restarts the activity if it has.
+     *
+     */
     @Override
     protected void onResume() {
         super.onResume();
         checkThemeChange();
     }
-    // ======== METODA DO ZMIANY JĘZYKA ============
+    /**
+     * @brief Sets the application's locale.
+     * @param langCode The language code to set (e.g., "en", "pl").
+     *
+     */
     private void setLocale(String langCode) {
         Locale locale = new Locale(langCode);
         Locale.setDefault(locale);
@@ -224,6 +240,10 @@ public class AccountActivity extends AppCompatActivity {
         getResources().updateConfiguration(config, getResources().getDisplayMetrics());
     }
 
+    /**
+     * @brief Checks if the theme has changed since the activity was last created. If the theme has changed, the activity is restarted to apply the new theme.
+     *
+     */
     private void checkThemeChange() {
         SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
         Object stored = prefs.getAll().get("theme");
@@ -236,12 +256,9 @@ public class AccountActivity extends AppCompatActivity {
         }
 
         if (!savedTheme.equals(theme)) {
-            // Zmieniony motyw – odśwież aktywność
             Intent intent = getIntent();
             finish();
             startActivity(intent);
         }
     }
-
-
 }

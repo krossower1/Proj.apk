@@ -7,7 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 /**
- * A helper class to manage database creation and version management for the Spacer application.
+ * @brief A helper class to manage database creation and version management for the Spacer application.
  *
  * <p>This class provides functionalities for creating, upgrading, and interacting with the
  * application's database, which stores user information, training data, markers, and path points.</p>
@@ -20,6 +20,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  *     <li><b>{@value #TABLE_PATH_POINTS}</b>: Stores points that form a user's path during a session.</li>
  * </ul>
  * </p>
+ *
  */
 public class DatabaseHelper extends SQLiteOpenHelper {
 
@@ -89,10 +90,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Called when the database is created for the first time. This is where the
-     * creation of tables and the initial population of the tables should happen.
-     *
+     * @brief Called when the database is created for the first time. This is where the creation of tables and the initial population of the tables should happen.
      * @param db The database.
+     *
      */
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -136,13 +136,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Called when the database needs to be upgraded. The implementation
-     * should use this method to drop tables, add tables, or do anything else it
-     * needs to upgrade to the new schema version.
-     *
+     * @brief Called when the database needs to be upgraded. The implementation should use this method to drop tables, add tables, or do anything else it needs to upgrade to the new schema version.
      * @param db         The database.
      * @param oldVersion The old database version.
      * @param newVersion The new database version.
+     *
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -159,9 +157,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Shifts all training data forward by one day.
-     * Data from day `i` is moved to day `i+1`, and the data from the last day is discarded.
-     * The data for the current day (day 0) is cleared.
+     * @brief Shifts all training data forward by one day. Data from day `i` is moved to day `i+1`, and the data from the last day is discarded. The data for the current day (day 0) is cleared.
+     *
      */
     public void shiftTrainingData() {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -179,8 +176,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Deletes all data from all user-related tables in the database.
-     * This is a destructive operation and should be used with caution.
+     * @brief Deletes all data from all user-related tables in the database. This is a destructive operation and should be used with caution.
+     *
      */
     public void clearUsers() {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -196,12 +193,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Adds a new user to the users table.
-     *
+     * @brief Adds a new user to the users table.
      * @param login    The user's desired login name (should be unique).
      * @param password The user's password.
      * @param waga     The user's weight as a string.
-     * @return {@code true} if the user was successfully added, {@code false} otherwise.
+     * @return True if the user was successfully added, false otherwise.
+     *
      */
     public boolean addUser(String login, String password, String waga) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -217,14 +214,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Saves or updates training data for a specific user and day.
-     * If data for the given user and day already exists, it is updated. Otherwise, a new entry is inserted.
-     *
+     * @brief Saves or updates training data for a specific user and day. If data for the given user and day already exists, it is updated. Otherwise, a new entry is inserted.
      * @param dayIndex The index of the day to save data for (0-13, where 0 is today).
      * @param dist     The distance covered.
      * @param kro      The number of steps taken.
      * @param kal      The calories burned.
      * @param userId   The ID of the user.
+     *
      */
     public void saveTrainingData(int dayIndex, double dist, int kro, double kal, int userId) {
         if (dayIndex < 0 || dayIndex >= 14) {
@@ -259,11 +255,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Adds a new geographical marker to the database for a specific user.
-     *
+     * @brief Adds a new geographical marker to the database for a specific user.
      * @param latitude  The latitude of the marker.
      * @param longitude The longitude of the marker.
      * @param userId    The ID of the user who owns the marker.
+     *
      */
     public void addMarker(double latitude, double longitude, int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -276,11 +272,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Adds a new point to the user's path history.
-     *
+     * @brief Adds a new point to the user's path history.
      * @param latitude  The latitude of the path point.
      * @param longitude The longitude of the path point.
      * @param userId    The ID of the user this path point belongs to.
+     *
      */
     public void addPathPoint(double latitude, double longitude, int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -293,10 +289,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Retrieves all path points for a specific user, ordered by their insertion time.
-     *
+     * @brief Retrieves all path points for a specific user, ordered by their insertion time.
      * @param userId The ID of the user.
      * @return A {@link Cursor} containing all path points for the user.
+     *
      */
     public Cursor getAllPathPoints(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -305,9 +301,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Deletes the most recently added marker for a specific user.
-     *
+     * @brief Deletes the most recently added marker for a specific user.
      * @param userId The ID of the user whose last marker should be deleted.
+     *
      */
     public void deleteLastMarker(int userId) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -318,10 +314,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Retrieves all markers for a specific user.
-     *
+     * @brief Retrieves all markers for a specific user.
      * @param userId The ID of the user.
      * @return A {@link Cursor} containing all markers for the user.
+     *
      */
     public Cursor getAllMarkers(int userId) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -330,11 +326,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Retrieves the training data for a specific day and user.
-     *
+     * @brief Retrieves the training data for a specific day and user.
      * @param dayIndex The index of the day (0-13).
      * @param userId   The ID of the user.
      * @return A {@link Cursor} containing the training data, or {@code null} if the day index is invalid.
+     *
      */
     public Cursor getTrainingDataForDay(int dayIndex, int userId) {
         if (dayIndex < 0 || dayIndex >= 14) {
@@ -346,11 +342,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Checks if a user exists with the given login and password.
-     *
+     * @brief Checks if a user exists with the given login and password.
      * @param login    The user's login name.
      * @param password The user's password.
      * @return {@code true} if a matching user is found, {@code false} otherwise.
+     *
      */
     public boolean checkUser(String login, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -365,11 +361,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Retrieves the weight of a user with the given credentials.
-     *
+     * @brief Retrieves the weight of a user with the given credentials.
      * @param login    The user's login name.
      * @param password The user's password.
-     * @return The user's weight as a string, or {@code null} if the user is not found.
+     * @return The user's weight as a string, or null if the user is not found.
+     *
      */
     public String getWaga(String login, String password) {
         SQLiteDatabase db = this.getReadableDatabase();
@@ -388,11 +384,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Retrieves the unique ID of a user with the given credentials.
-     *
+     * @brief Retrieves the unique ID of a user with the given credentials.
      * @param login    The user's login name.
      * @param password The user's password.
      * @return The user's ID, or -1 if the user is not found.
+     *
      */
     public int getUserId(String login, String password) {
         SQLiteDatabase db = this.getReadableDatabase();

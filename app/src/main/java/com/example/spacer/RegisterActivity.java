@@ -16,16 +16,35 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.Locale;
 
+/**
+ * @brief Activity for user registration. Allows new users to create an account.
+ *
+ */
 public class RegisterActivity extends AppCompatActivity {
 
     // UI elements
-    private EditText etLogin, etPassword, etRepeatPassword, etWaga;
+    /** UI element for entering login. */
+    private EditText etLogin;
+    /** UI element for entering password. */
+    private EditText etPassword;
+    /** UI element for repeating password. */
+    private EditText etRepeatPassword;
+    /** UI element for entering weight. */
+    private EditText etWaga;
+    /** For storing application settings. */
     private SharedPreferences prefs;
 
 
-    // Database helper
+    /** Database helper for database operations. */
     private DatabaseHelper dbHelper;
 
+    /**
+     * @brief Called when the activity is first created. Initializes the UI, database helper and sets up event listeners.
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         prefs = getSharedPreferences("settings", MODE_PRIVATE);
@@ -140,6 +159,11 @@ public class RegisterActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * @brief Sets the locale of the application.
+     * @param langCode The language code to set.
+     *
+     */
     private void setLocale(String langCode) {
         Locale locale = new Locale(langCode);
         Locale.setDefault(locale);

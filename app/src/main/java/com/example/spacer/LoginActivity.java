@@ -16,8 +16,8 @@ import android.content.SharedPreferences;
 import java.util.Locale;
 
 /**
- * LoginActivity handles user authentication.
- * It provides a user interface for logging in, with options to remember credentials and navigate to the registration screen.
+ * @brief LoginActivity handles user authentication. It provides a user interface for logging in, with options to remember credentials and navigate to the registration screen.
+ *
  */
 public class LoginActivity extends AppCompatActivity {
 
@@ -29,9 +29,9 @@ public class LoginActivity extends AppCompatActivity {
     private SharedPreferences prefs;
 
     /**
-     * Called when the activity is first created.
-     * This is where you should do all of your normal static set up: create views, bind data to lists, etc.
+     * @brief Called when the activity is first created. This is where you should do all of your normal static set up: create views, bind data to lists, etc.
      * @param savedInstanceState If the activity is being re-initialized after previously being shut down then this Bundle contains the data it most recently supplied in onSaveInstanceState(Bundle).
+     *
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,9 +127,10 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * Displays a custom toast message.
+     * @brief Displays a custom toast message.
      * @param message The message to be displayed.
      * @param isError True if the toast should have an error background, false otherwise.
+     *
      */
     private void showToast(String message, boolean isError) {
         LayoutInflater inflater = getLayoutInflater();
@@ -152,6 +153,11 @@ public class LoginActivity extends AppCompatActivity {
         toast.show();
     }
 
+    /**
+     * @brief Sets the locale.
+     * @param langCode The language code to set.
+     *
+     */
     private void setLocale(String langCode) {
         Locale locale = new Locale(langCode);
         Locale.setDefault(locale);
