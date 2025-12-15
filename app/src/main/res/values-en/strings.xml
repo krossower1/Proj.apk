@@ -32,6 +32,7 @@
     <string name="data_exported_to_downloads">Data exported to Downloads folder</string>
     <string name="data_export_error">Error while exporting data</string>
     <string name="meters_unit">m</string>
+    <string name="kilometers">km</string>
     <string name="kcal_unit">kcal</string>
     <string name="day_comparison_title">Day comparison</string>
     <string name="no_previous_data">No data from the previous day.</string>
@@ -80,6 +81,7 @@
     <string name="notifications_off">Notifications Off</string>
     <string name="units">Units:</string>
     <string name="alerts_info">Enabling this option will send alerts when an unstable gait is detected in the user.</string>
+    <string name="distance_units">Units:</string>
     <string name="my_account">My account</string>
     <string name="users_info">User information</string>
     <string name="login">Login:</string>

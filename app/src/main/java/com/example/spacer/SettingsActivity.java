@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ImageView;
 
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -43,7 +44,6 @@ public class SettingsActivity extends AppCompatActivity {
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-
         // ======== SharedPreferences ========
         // Initialize SharedPreferences for storing settings.
         prefs = getSharedPreferences("settings", MODE_PRIVATE);
@@ -73,6 +73,17 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState);
+        SwitchCompat switchDistanceUnits = findViewById(R.id.switchDistanceUnits);
+
+        // Domyślnie metry (false)
+        boolean useKm = prefs.getBoolean("use_km", false);
+        switchDistanceUnits.setChecked(useKm);
+
+        switchDistanceUnits.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            prefs.edit().putBoolean("use_km", isChecked).apply();
+            String message = isChecked ? "Jednostki ustawione na km" : "Jednostki ustawione na m";
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        });
 
         // ToastMessage do opcji: Alerty o niestabilnym ruchu
         ImageView infoUnstableWalk = findViewById(R.id.infoUnstableWalk);
