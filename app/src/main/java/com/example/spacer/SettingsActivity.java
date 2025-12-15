@@ -14,6 +14,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +31,7 @@ import java.util.Locale;
 public class SettingsActivity extends AppCompatActivity {
 
     private SharedPreferences prefs;
+    private SwitchCompat switchUnstableWalkAlerts;
     private String theme;
 
     /**
@@ -71,6 +73,33 @@ public class SettingsActivity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState);
+
+        // ToastMessage do opcji: Alerty o niestabilnym ruchu
+        ImageView infoUnstableWalk = findViewById(R.id.infoUnstableWalk);
+        if (infoUnstableWalk != null) {
+            infoUnstableWalk.setOnClickListener(v -> {
+                Toast.makeText(this,
+                        getString(R.string.alerts_info),
+                        Toast.LENGTH_LONG).show();
+            });
+        }
+
+
+        // ======== Sudden Movement Alerts Switch ========
+        // Upewnij się, że Switch istnieje w każdym z layoutów
+        switchUnstableWalkAlerts = findViewById(R.id.switchUnstableWalkAlerts);
+        if (switchUnstableWalkAlerts != null) {
+            boolean unstableWalkEnabled = prefs.getBoolean("suddenMovementAlertsEnabled", true);
+            switchUnstableWalkAlerts.setChecked(unstableWalkEnabled);
+
+            switchUnstableWalkAlerts.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                prefs.edit().putBoolean("suddenMovementAlertsEnabled", isChecked).apply();
+                String message = isChecked ?
+                        getString(R.string.sudden_movement_alerts_on_toast) :
+                        getString(R.string.sudden_movement_alerts_off_toast);
+                Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+            });
+        }
 
         // ======== Notification Settings ========
         // Initialize the notification switch.

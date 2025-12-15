@@ -3,5 +3,5 @@
     android:shape="rectangle">
     <solid android:color="#648a3a"/> <!-- kolor tła -->
     <corners android:radius="12dp"/> <!-- lekkie zaokrąglenie -->
-    <stroke android:width="3dp" android:color="@color/black"/> <!-- obramowanie -->
+    <stroke android:width="2dp" android:color="@color/black"/> <!-- obramowanie -->
 </shape>

@@ -579,6 +579,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onResume() {
         super.onResume();
+        suddenMovementAlertsEnabled = getSharedPreferences("settings", MODE_PRIVATE)
+                .getBoolean("suddenMovementAlertsEnabled", true);
         checkThemeChange();
         map.onResume();
         if (accelerometer != null) {
@@ -666,16 +668,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             deleteItem.setTitle(ss);
         }
 
-        MenuItem alertItem = menu.findItem(R.id.alerty);
-        SpannableString alertText = new SpannableString(getString(R.string.alerts) + "  ");
-        Drawable alertIcon = ContextCompat.getDrawable(this, R.drawable.niest);
-        if (alertIcon != null) {
-            alertIcon.setTint(Color.parseColor("#4CAF50"));
-            alertIcon.setBounds(0, 0, alertIcon.getIntrinsicWidth(), alertIcon.getIntrinsicHeight());
-            ImageSpan alertSpan = new ImageSpan(alertIcon, ImageSpan.ALIGN_BOTTOM);
-            alertText.setSpan(alertSpan, alertText.length() - 2, alertText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-            alertItem.setTitle(alertText);
-        }
 
         MenuItem raportItem = menu.findItem(R.id.raporty);
         SpannableString raportText = new SpannableString(getString(R.string.weekly_reports) + "  ");
@@ -719,13 +711,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             ImageSpan compareSpan = new ImageSpan(compareIcon, ImageSpan.ALIGN_BOTTOM);
             compareText.setSpan(compareSpan, compareText.length() - 2, compareText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
             compareItem.setTitle(compareText);
-        }
-
-        MenuItem alertItemm = menu.findItem(R.id.alerty);
-        if (alertItemm != null) {
-            SpannableString sss = new SpannableString(alertItemm.getTitle());
-            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
-            alertItemm.setTitle(sss);
         }
 
         MenuItem raportItemm = menu.findItem(R.id.raporty);
@@ -788,26 +773,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
-        if (id == R.id.alerty) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setTitle(getString(R.string.alert));
-            if (suddenMovementAlertsEnabled) {
-                builder.setMessage(getString(R.string.disable_sudden_movement_alerts_prompt));
-            } else {
-                builder.setMessage(getString(R.string.enable_sudden_movement_alerts_prompt));
-            }
-            builder.setCancelable(false);
-            builder.setPositiveButton(getString(R.string.t), (dialog, which) -> {
-                suddenMovementAlertsEnabled = !suddenMovementAlertsEnabled;
-                String toastMessage = suddenMovementAlertsEnabled ? getString(R.string.sudden_movement_alerts_on_toast) : getString(R.string.sudden_movement_alerts_off_toast);
-                Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
-                dialog.cancel();
-            });
-            builder.setNegativeButton(getString(R.string.n), (dialog, which) -> dialog.cancel());
-            AlertDialog alertDialog = builder.create();
-            alertDialog.show();
-            return true;
-        } else if (id == R.id.raporty) {
+        if (id == R.id.raporty) {
             AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
             builder.setTitle(getString(R.string.weekly_report_title));
             if (weeklyReportEnabled) {
