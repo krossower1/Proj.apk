@@ -12,6 +12,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 
 import java.util.Locale;
 
@@ -76,7 +77,7 @@ public class LoginActivity extends AppCompatActivity {
             // Check if login or password fields are empty
             if (login.isEmpty() || pass.isEmpty()) {
                 // Show a custom error toast if fields are empty
-                showToast(getString(R.string.no_field), true);
+                showToast2(getString(R.string.no_field), true);
                 return;
             }
 
@@ -112,7 +113,7 @@ public class LoginActivity extends AppCompatActivity {
                 finish(); // Finish LoginActivity so the user can't navigate back to it
             } else {
                 // Show a custom error toast for invalid credentials
-                showToast(getString(R.string.login_failed), true);
+                showToast2(getString(R.string.login_failed), true);
                 return;
             }
         });
@@ -151,7 +152,39 @@ public class LoginActivity extends AppCompatActivity {
         toast.setDuration(Toast.LENGTH_SHORT);
         toast.setView(layout);
         toast.show();
+
+        // ====== Play a short sound ======
+        MediaPlayer mp = MediaPlayer.create(this, R.raw.alert); // plik w res/raw/alert.mp3
+        mp.setOnCompletionListener(MediaPlayer::release);      // zwolnij zasoby po odtworzeniu
+        mp.start();
     }
+
+    private void showToast2(String message, boolean isError) {
+        LayoutInflater inflater = getLayoutInflater();
+        // Inflate the custom toast layout.
+        View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
+
+        // Set a background resource for the toast based on whether it is an error or not.
+        if (isError) {
+            layout.setBackgroundResource(R.drawable.toast_error_background);
+        }
+
+        // Set the text of the toast message.
+        TextView text = layout.findViewById(R.id.text_toast);
+        text.setText(message);
+
+        // Create and show the toast.
+        Toast toast = new Toast(getApplicationContext());
+        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setView(layout);
+        toast.show();
+
+        // ====== Play a different short sound ======
+        MediaPlayer mp = MediaPlayer.create(this, R.raw.alert2); // plik w res/raw/alert2.mp3
+        mp.setOnCompletionListener(MediaPlayer::release);         // zwolnij zasoby po odtworzeniu
+        mp.start();
+    }
+
 
     /**
      * @brief Sets the locale.

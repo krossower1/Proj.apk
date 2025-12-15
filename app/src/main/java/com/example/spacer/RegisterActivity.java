@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.ImageButton;
+import android.media.MediaPlayer;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -93,6 +94,10 @@ public class RegisterActivity extends AppCompatActivity {
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
+                // ====== Play a short sound ======
+                MediaPlayer mp = MediaPlayer.create(this, R.raw.alert2); // plik w res/raw/alert.mp3
+                mp.setOnCompletionListener(MediaPlayer::release);      // zwalnia zasoby po odtworzeniu
+                mp.start();
                 return;
             }
 
@@ -110,6 +115,11 @@ public class RegisterActivity extends AppCompatActivity {
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
+
+                // ====== Play a short sound ======
+                MediaPlayer mp = MediaPlayer.create(this, R.raw.alert2); // plik w res/raw/alert.mp3
+                mp.setOnCompletionListener(MediaPlayer::release);      // zwalnia zasoby po odtworzeniu
+                mp.start();
                 return;
             }
 
@@ -128,6 +138,11 @@ public class RegisterActivity extends AppCompatActivity {
                 toast.setView(layout);
                 toast.show();
 
+                // ====== Play a short sound ======
+                MediaPlayer mp = MediaPlayer.create(this, R.raw.alert); // plik w res/raw/alert.mp3
+                mp.setOnCompletionListener(MediaPlayer::release);      // zwalnia zasoby po odtworzeniu
+                mp.start();
+
                 // Go to the login screen
                 Intent intent = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(intent);
@@ -145,6 +160,10 @@ public class RegisterActivity extends AppCompatActivity {
                 toast.setDuration(Toast.LENGTH_SHORT);
                 toast.setView(layout);
                 toast.show();
+                // ====== Play a short sound ======
+                MediaPlayer mp = MediaPlayer.create(this, R.raw.alert2); // plik w res/raw/alert.mp3
+                mp.setOnCompletionListener(MediaPlayer::release);      // zwalnia zasoby po odtworzeniu
+                mp.start();
             }
 
         });
