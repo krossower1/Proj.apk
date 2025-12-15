@@ -50,6 +50,7 @@
                 android:layout_weight="1"
                 android:text="@string/change_theme"
                 android:textSize="20sp"
+
                 android:textColor="@color/green_text"/>
 
             <Spinner
@@ -84,6 +85,40 @@
                 android:layout_height="wrap_content"/>
         </LinearLayout>
 
+        <!-- Opcja: Alerty o niestabilnym chodzie -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:layout_width="232dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/alerts"
+                android:textColor="@color/green_text"
+                android:textSize="20sp" />
+
+            <!-- Ikona informacji -->
+
+            <ImageView
+                android:id="@+id/infoUnstableWalk"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:clickable="true"
+                android:contentDescription="@string/alerts_info"
+                android:focusable="true"
+                android:padding="4dp"
+                android:src="@drawable/mark_green" />
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:id="@+id/switchUnstableWalkAlerts"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </LinearLayout>
+
         <!-- Opcja: zmień język w jednym wierszu ze Spinnerem -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -106,15 +141,6 @@
                 android:layout_height="wrap_content"
                 android:spinnerMode="dropdown"/>
         </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvOption5"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/safe_mode"
-            android:textColor="@color/green_text"
-            android:textSize="20sp"
-            android:padding="12dp"/>
 
         <TextView
             android:id="@+id/tvOption6"

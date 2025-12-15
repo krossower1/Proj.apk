@@ -103,6 +103,7 @@
     <string name="change_language">Zmień język</string>
     <string name="safe_mode">Tryb bezpieczny</string>
     <string name="units">Jednostki:</string>
+    <string name="alerts_info">Włączenie tej opcji skutkuje wysyłaniem alertów w momencie wykrycia niestabilnego chodu u użytkownika.</string>
 
     <!-- AccountActivity -->
     <string name="my_account">Moje konto</string>
@@ -130,4 +131,6 @@
     <string name="b_settings">Ustawienia</string>
     <string name="b_home_screen">Ekran Główny</string>
     <string name="b_my_account">Moje Konto</string>
+
+
 </resources>
