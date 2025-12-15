@@ -37,6 +37,7 @@
     <string name="data_exported_to_downloads">Dane wyeksportowane do folderu Pobrane</string>
     <string name="data_export_error">Błąd podczas eksportu danych</string>
     <string name="meters_unit"> m</string>
+    <string name="kilometers">km</string>
     <string name="kcal_unit"> kcal</string>
     <string name="day_comparison_title">Porównanie dni</string>
     <string name="no_previous_data">Brak danych z poprzedniego dnia.</string>
@@ -104,6 +105,7 @@
     <string name="safe_mode">Tryb bezpieczny</string>
     <string name="units">Jednostki:</string>
     <string name="alerts_info">Włączenie tej opcji skutkuje wysyłaniem alertów w momencie wykrycia niestabilnego chodu u użytkownika.</string>
+    <string name="distance_units">Jednostki:</string>
 
     <!-- AccountActivity -->
     <string name="my_account">Moje konto</string>

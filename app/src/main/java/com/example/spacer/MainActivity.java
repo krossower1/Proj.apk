@@ -395,7 +395,23 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         TextView kalorie = view.findViewById(R.id.kalorie);
         Button trackingButton = view.findViewById(R.id.button);
 
-        dystans.setText(getString(R.string.dystans_formatted, Math.floor(dist) / 50, getString(R.string.meters_unit)));
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        boolean useKm = prefs.getBoolean("use_km", false); // domyślnie metry
+
+        double displayDist;
+        String unit;
+
+        if (useKm) {
+            displayDist = Math.floor(dist) / 1000.0; // przeliczamy metry na km
+            unit = "km";
+        } else {
+            displayDist = Math.floor(dist); // w metrach
+            unit = getString(R.string.meters_unit);
+        }
+
+        // Zachowujemy oryginalny sposób użycia getString z R.string.dystans_formatted
+        dystans.setText(getString(R.string.dystans_formatted, displayDist, unit));
+
         kroki.setText(getString(R.string.kroki_formatted, kro));
         kalorie.setText(getString(R.string.kalorie_formatted, (int) kal, getString(R.string.kcal_unit)));
 
