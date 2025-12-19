@@ -21,6 +21,7 @@
     <string name="logout">Wylogowano się pomyślnie!</string>
     <string name="user_location_marker">Jesteś tutaj</string>
     <string name="no_gyroscope">Brak czujnika żyroskopu</string>
+    <string name="no_barometer">Brak czujnika barometru</string>
     <string name="settings">Ustawienia</string>
     <string name="main_screen">Ekran główny</string>
     <string name="account">Konto</string>
