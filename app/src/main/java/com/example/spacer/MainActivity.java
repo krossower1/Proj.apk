@@ -1,5 +1,7 @@
 package com.example.spacer;
 
+import static android.hardware.SensorManager.getAltitude;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -110,10 +112,13 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private SensorManager sensorManager;
     private Sensor accelerometer;
     private Sensor gyroscope;
+    private Sensor pressureSensor;
     private final float[] gravity = new float[3];
     double dist = 0;
     double kal = 0;
     double waga = 0;
+    double wysokosc = 0;
+    double wys = 0;
     private int kro = 0;
     private long lastStepTime = 0;
     private boolean isTracking = false;
@@ -210,12 +215,16 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (sensorManager != null) {
             accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             gyroscope = sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+            pressureSensor = sensorManager.getDefaultSensor(Sensor.TYPE_PRESSURE);
         }
         if (accelerometer == null) {
             Toast.makeText(this, getString(R.string.noaccel), Toast.LENGTH_LONG).show();
         }
         if (gyroscope == null) {
             Toast.makeText(this, getString(R.string.no_gyroscope), Toast.LENGTH_LONG).show();
+        }
+        if (pressureSensor == null) {
+            Toast.makeText(this, getString(R.string.no_barometer), Toast.LENGTH_LONG).show();
         }
 
         date = findViewById(R.id.date);
@@ -605,6 +614,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         if (gyroscope != null) {
             sensorManager.registerListener(this, gyroscope, SensorManager.SENSOR_DELAY_NORMAL);
         }
+        if (pressureSensor != null) {
+            sensorManager.registerListener(this, pressureSensor, SensorManager.SENSOR_DELAY_UI);
+        }
         startLocationUpdates();
         loadAndDisplayTrainingData(dayOffset);
     }
@@ -970,6 +982,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (isTracking) {
+            float pressure = event.values[0];
+            if (wysokosc == 0) {
+                wysokosc = SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure) - 0.01;
+            }
+            wys = SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure) - wysokosc;
+
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 final float alpha = 0.8f;
 
@@ -989,7 +1007,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                     dist = dist + Math.floor(magnitude);
 
                     if (waga > 0) {
-                        kal = kal + (Math.floor(magnitude) / 50 * (3.5 / waga));
+                        kal = kal + (Math.floor(magnitude) / 50 * (3.5 / waga) + 0.01 * wys);
                     } else {
                         kal = 0;
                     }
