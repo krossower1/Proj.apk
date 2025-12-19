@@ -127,7 +127,7 @@
     <string name="data_export">Eksport danych</string>
     <string name="delete_data">Usuń dane</string>
     <string name="log_out">Wyloguj</string>
-    <string name="filled_database">Wypełniono bazę fikcyjnymi danymi</string>
+    <string name="filled_database">Wypełnij bazę fikcyjnymi danymi</string>
 
     <!-- bottom menu -->
     <string name="b_settings">Ustawienia</string>
