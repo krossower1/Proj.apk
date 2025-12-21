@@ -16,6 +16,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Environment;
 import android.os.Looper;
 import androidx.preference.PreferenceManager;
@@ -107,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private final List<Marker> incidentMarkers = new ArrayList<>();
     private ConstraintLayout mainLayout;
     private ViewSwitcher statsSwitcher;
+    private CountDownTimer chronometer;
 
     // Sensor-related variables
     private SensorManager sensorManager;
@@ -119,9 +121,12 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     double waga = 0;
     double wysokosc = 0;
     double wys = 0;
+    private long czas = 0;
     private int kro = 0;
     private long lastStepTime = 0;
     private boolean isTracking = false;
+    private long elapsedTime = 0L;
+    private boolean isTimerRunning = false;
 
     // Location-related variables
     private FusedLocationProviderClient fusedLocationClient;
@@ -427,6 +432,11 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         trackingButton.setEnabled(dayIndex == 0);
         trackingButton.setOnClickListener(v -> {
             isTracking = !isTracking;
+            if (isTimerRunning) {
+                stopTimer();
+            } else {
+                startTimer();
+            }
             if (isTracking) {
                 trackingButton.setText(R.string.zakoncz);
                 switch (theme) {
@@ -1004,10 +1014,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 final double MOVEMENT_THRESHOLD = 0.2;
 
                 if (magnitude > MOVEMENT_THRESHOLD) {
-                    dist = dist + Math.floor(magnitude);
-
+                    dist = dist + Math.floor(magnitude) / 50;
                     if (waga > 0) {
-                        kal = kal + (Math.floor(magnitude) / 50 * (3.5 / waga) + 0.01 * wys);
+                        kal = kal + (((0.1 * (Math.floor(magnitude) / 50 / czas) + 1.8 * (Math.floor(magnitude) / czas) * (0.01 * wys) + 3.5) * waga * czas) / 200);
+                        // kal = kal + (Math.floor(magnitude) / 50 * (3.5 / waga) + 0.01 * wys);
                     } else {
                         kal = 0;
                     }
@@ -1258,5 +1268,40 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             finish();
             startActivity(intent);
         }
+    }
+
+    /**
+     * @brief Starts the timer to count elapsed seconds.
+     *
+     */
+    private void startTimer() {
+        isTimerRunning = true;
+        final long startTime = System.currentTimeMillis() - elapsedTime;
+
+        chronometer = new CountDownTimer(Long.MAX_VALUE, 1000) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                long millisPassed = System.currentTimeMillis() - startTime;
+                elapsedTime = millisPassed / 1000;
+                czas = elapsedTime / 1000 / 60;
+            }
+
+            @Override
+            public void onFinish() {
+            }
+        }.start();
+    }
+
+    /**
+     * @brief Stops the timer and captures the final elapsed time.
+     *
+     */
+    private void stopTimer() {
+        isTimerRunning = false;
+        if (chronometer != null) {
+            chronometer.cancel();
+        }
+
+        czas = elapsedTime / 1000 / 60;
     }
 }
