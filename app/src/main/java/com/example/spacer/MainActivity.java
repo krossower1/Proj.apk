@@ -829,10 +829,25 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             builder.setCancelable(false);
             builder.setPositiveButton(getString(R.string.t), (dialog, which) -> {
                 weeklyReportEnabled = !weeklyReportEnabled;
-                String toastMessage = weeklyReportEnabled ? getString(R.string.weekly_report_alerts_on_toast) : getString(R.string.weekly_report_alerts_off_toast);
-                Toast.makeText(getApplicationContext(), toastMessage, Toast.LENGTH_SHORT).show();
+                String toastMessage = weeklyReportEnabled
+                        ? getString(R.string.weekly_report_alerts_on_toast)
+                        : getString(R.string.weekly_report_alerts_off_toast);
+
+                // Custom toast zamiast zwykłego
+                LayoutInflater inflater = getLayoutInflater();
+                View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
+
+                TextView text = layout.findViewById(R.id.text_toast);
+                text.setText(toastMessage);
+
+                Toast toast = new Toast(getApplicationContext());
+                toast.setDuration(Toast.LENGTH_SHORT);
+                toast.setView(layout);
+                toast.show();
+
                 dialog.cancel();
             });
+
             builder.setNegativeButton(getString(R.string.n), (dialog, which) -> dialog.cancel());
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
@@ -851,7 +866,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 map.getOverlays().remove(lastMarker);
                 map.invalidate();
             } else {
-                Toast.makeText(this, getString(R.string.cannot_delete_first_marker), Toast.LENGTH_SHORT).show();
+                // Custom toast zamiast zwykłego
+                LayoutInflater inflater = getLayoutInflater();
+                View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
+
+                TextView text = layout.findViewById(R.id.text_toast);
+                text.setText(R.string.cannot_delete_first_marker); // komunikat: "Nie można usunąć pierwszego markera"
+
+                Toast toast = new Toast(getApplicationContext());
+                toast.setDuration(Toast.LENGTH_SHORT);
+                toast.setView(layout);
+                toast.show();
             }
             return true;
         }
@@ -983,7 +1008,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
             osw.flush();
             osw.close();
 
-            Toast.makeText(this, getString(R.string.data_exported_to_downloads), Toast.LENGTH_LONG).show();
+            // ===== Custom Toast zamiast Toast.makeText =====
+            LayoutInflater inflater = getLayoutInflater();
+            View layout = inflater.inflate(R.layout.custom_toast, findViewById(R.id.custom_toast_container));
+
+            TextView text = layout.findViewById(R.id.text_toast);
+            text.setText(R.string.data_exported_to_downloads); // komunikat: Dane wyeksportowane do folderu pobrane
+
+            Toast toast = new Toast(getApplicationContext());
+            toast.setDuration(Toast.LENGTH_LONG);
+            toast.setView(layout);
+            toast.show();
 
         } catch (IOException e) {
             Log.e("exportTrainingData", "Error writing to file", e);
