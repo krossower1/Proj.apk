@@ -265,6 +265,17 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         });
 
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        switch (theme) {
+            case "light":
+                bottomNav.setBackgroundColor(ContextCompat.getColor(this, R.color.white_bottom_menu));
+                break;
+            case "dark":
+                bottomNav.setBackgroundColor(ContextCompat.getColor(this, R.color.black_bottom_menu));
+                break;
+            default:
+                bottomNav.setBackgroundColor(ContextCompat.getColor(this, R.color.green_bottom_menu));
+                break;
+        }
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
@@ -674,133 +685,129 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.home_menu,menu);
+        // Inflatuj menu
+        getMenuInflater().inflate(R.menu.home_menu, menu);
 
+        // Pobierz wybrany motyw z SharedPreferences
+        SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
+        String theme = prefs.getString("theme", "default");
+        int menuColor;
+
+        // Ustaw kolor w zależności od motywu
+        switch (theme) {
+            case "black":
+                menuColor = ContextCompat.getColor(this, R.color.black_home_menu);
+                break;
+            case "white":
+                menuColor = ContextCompat.getColor(this, R.color.white_home_menu);
+                break;
+            default:
+                menuColor = ContextCompat.getColor(this, R.color.green_home_menu);
+                break;
+        }
+
+        // WYLOGUJ - pogrubiony i kolor
         MenuItem logoutItem = menu.findItem(R.id.wyloguj);
         if (logoutItem != null) {
-            SpannableString spanString = new SpannableString(logoutItem.getTitle());
-            spanString.setSpan(new StyleSpan(Typeface.BOLD), 0, spanString.length(), 0);
-            logoutItem.setTitle(spanString);
+            SpannableString logoutText = new SpannableString(logoutItem.getTitle());
+            logoutText.setSpan(new StyleSpan(Typeface.BOLD), 0, logoutText.length(), 0);
+            logoutText.setSpan(new ForegroundColorSpan(menuColor), 0, logoutText.length(), 0);
+            logoutItem.setTitle(logoutText);
         }
 
-
-        MenuItem item = menu.findItem(R.id.edane);
-        SpannableString s = new SpannableString(getString(R.string.data_export) + "  "); // dwie spacje
-        Drawable d = ContextCompat.getDrawable(this, R.drawable.archive);
-        if (d != null) {
-            d.setTint(Color.parseColor("#4CAF50"));
-            d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
-            ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_BOTTOM);
-            s.setSpan(span, s.length() - 2, s.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-            item.setTitle(s);
+        // EDANE
+        MenuItem edaneItem = menu.findItem(R.id.edane);
+        if (edaneItem != null) {
+            SpannableString s = new SpannableString(getString(R.string.data_export) + "  ");
+            Drawable d = ContextCompat.getDrawable(this, R.drawable.archive);
+            if (d != null) {
+                d.setTint(menuColor);
+                d.setBounds(0, 0, d.getIntrinsicWidth(), d.getIntrinsicHeight());
+                ImageSpan span = new ImageSpan(d, ImageSpan.ALIGN_BOTTOM);
+                s.setSpan(span, s.length() - 2, s.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            }
+            s.setSpan(new ForegroundColorSpan(menuColor), 0, s.length(), 0);
+            edaneItem.setTitle(s);
         }
 
-        MenuItem deleteItem = menu.findItem(R.id.udane);
-        SpannableString ss = new SpannableString(getString(R.string.delete_data) + "  ");
-        Drawable dd = ContextCompat.getDrawable(this, R.drawable.delete);
-        if (dd != null) {
-            dd.setTint(Color.parseColor("#4CAF50"));
-            dd.setBounds(0, 0, dd.getIntrinsicWidth(), dd.getIntrinsicHeight());
-            ImageSpan spann = new ImageSpan(dd, ImageSpan.ALIGN_BOTTOM);
-            ss.setSpan(spann, ss.length() - 2, ss.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-            deleteItem.setTitle(ss);
+        // UDANE
+        MenuItem udaneItem = menu.findItem(R.id.udane);
+        if (udaneItem != null) {
+            SpannableString ss = new SpannableString(getString(R.string.delete_data) + "  ");
+            Drawable dd = ContextCompat.getDrawable(this, R.drawable.delete);
+            if (dd != null) {
+                dd.setTint(menuColor);
+                dd.setBounds(0, 0, dd.getIntrinsicWidth(), dd.getIntrinsicHeight());
+                ImageSpan span = new ImageSpan(dd, ImageSpan.ALIGN_BOTTOM);
+                ss.setSpan(span, ss.length() - 2, ss.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            }
+            ss.setSpan(new ForegroundColorSpan(menuColor), 0, ss.length(), 0);
+            udaneItem.setTitle(ss);
         }
 
-
+        // RAPORTY
         MenuItem raportItem = menu.findItem(R.id.raporty);
-        SpannableString raportText = new SpannableString(getString(R.string.weekly_reports) + "  ");
-        Drawable raportIcon = ContextCompat.getDrawable(this, R.drawable.raporty);
-        if (raportIcon != null) {
-            raportIcon.setTint(Color.parseColor("#4CAF50"));
-            raportIcon.setBounds(0, 0, raportIcon.getIntrinsicWidth(), raportIcon.getIntrinsicHeight());
-            ImageSpan raportSpan = new ImageSpan(raportIcon, ImageSpan.ALIGN_BOTTOM);
-            raportText.setSpan(raportSpan, raportText.length() - 2, raportText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        if (raportItem != null) {
+            SpannableString raportText = new SpannableString(getString(R.string.weekly_reports) + "  ");
+            Drawable raportIcon = ContextCompat.getDrawable(this, R.drawable.raporty);
+            if (raportIcon != null) {
+                raportIcon.setTint(menuColor);
+                raportIcon.setBounds(0, 0, raportIcon.getIntrinsicWidth(), raportIcon.getIntrinsicHeight());
+                ImageSpan span = new ImageSpan(raportIcon, ImageSpan.ALIGN_BOTTOM);
+                raportText.setSpan(span, raportText.length() - 2, raportText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            }
+            raportText.setSpan(new ForegroundColorSpan(menuColor), 0, raportText.length(), 0);
             raportItem.setTitle(raportText);
         }
 
+        // POKAŻ ZNACZNIKI
         MenuItem znacznikiItem = menu.findItem(R.id.pznaczniki);
-        SpannableString znacznikiText = new SpannableString(getString(R.string.show_markers) + "  ");
-        Drawable znacznikiIcon = ContextCompat.getDrawable(this, R.drawable.znaczniki);
-        if (znacznikiIcon != null) {
-            znacznikiIcon.setTint(Color.parseColor("#4CAF50"));
-            znacznikiIcon.setBounds(0, 0, znacznikiIcon.getIntrinsicWidth(), znacznikiIcon.getIntrinsicHeight());
-            ImageSpan znacznikiSpan = new ImageSpan(znacznikiIcon, ImageSpan.ALIGN_BOTTOM);
-            znacznikiText.setSpan(znacznikiSpan, znacznikiText.length() - 2, znacznikiText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        if (znacznikiItem != null) {
+            SpannableString znacznikiText = new SpannableString(getString(R.string.show_markers) + "  ");
+            Drawable znacznikiIcon = ContextCompat.getDrawable(this, R.drawable.znaczniki);
+            if (znacznikiIcon != null) {
+                znacznikiIcon.setTint(menuColor);
+                znacznikiIcon.setBounds(0, 0, znacznikiIcon.getIntrinsicWidth(), znacznikiIcon.getIntrinsicHeight());
+                ImageSpan span = new ImageSpan(znacznikiIcon, ImageSpan.ALIGN_BOTTOM);
+                znacznikiText.setSpan(span, znacznikiText.length() - 2, znacznikiText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            }
+            znacznikiText.setSpan(new ForegroundColorSpan(menuColor), 0, znacznikiText.length(), 0);
             znacznikiItem.setTitle(znacznikiText);
         }
 
+        // USUŃ ZNACZNIK
         MenuItem usunZnacznikItem = menu.findItem(R.id.uznacznik);
-        SpannableString usunZnacznikText = new SpannableString(getString(R.string.delete_marker) + "  ");
-        Drawable usunZnacznikIcon = ContextCompat.getDrawable(this, R.drawable.delete);
-        if (usunZnacznikIcon != null) {
-            usunZnacznikIcon.setTint(Color.parseColor("#4CAF50"));
-            usunZnacznikIcon.setBounds(0, 0, usunZnacznikIcon.getIntrinsicWidth(), usunZnacznikIcon.getIntrinsicHeight());
-            ImageSpan usunZnacznikSpan = new ImageSpan(usunZnacznikIcon, ImageSpan.ALIGN_BOTTOM);
-            usunZnacznikText.setSpan(usunZnacznikSpan, usunZnacznikText.length() - 2, usunZnacznikText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        if (usunZnacznikItem != null) {
+            SpannableString usunZnacznikText = new SpannableString(getString(R.string.delete_marker) + "  ");
+            Drawable usunZnacznikIcon = ContextCompat.getDrawable(this, R.drawable.delete);
+            if (usunZnacznikIcon != null) {
+                usunZnacznikIcon.setTint(menuColor);
+                usunZnacznikIcon.setBounds(0, 0, usunZnacznikIcon.getIntrinsicWidth(), usunZnacznikIcon.getIntrinsicHeight());
+                ImageSpan span = new ImageSpan(usunZnacznikIcon, ImageSpan.ALIGN_BOTTOM);
+                usunZnacznikText.setSpan(span, usunZnacznikText.length() - 2, usunZnacznikText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            }
+            usunZnacznikText.setSpan(new ForegroundColorSpan(menuColor), 0, usunZnacznikText.length(), 0);
             usunZnacznikItem.setTitle(usunZnacznikText);
         }
 
+        // PORÓWNAJ DZIEŃ
         MenuItem compareItem = menu.findItem(R.id.pdzien);
-        SpannableString compareText = new SpannableString(getString(R.string.compare_day) + "  ");
-        Drawable compareIcon = ContextCompat.getDrawable(this, R.drawable.compare);
-        if (compareIcon != null) {
-            compareIcon.setTint(Color.parseColor("#4CAF50"));
-            compareIcon.setBounds(0, 0, compareIcon.getIntrinsicWidth(), compareIcon.getIntrinsicHeight());
-            ImageSpan compareSpan = new ImageSpan(compareIcon, ImageSpan.ALIGN_BOTTOM);
-            compareText.setSpan(compareSpan, compareText.length() - 2, compareText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+        if (compareItem != null) {
+            SpannableString compareText = new SpannableString(getString(R.string.compare_day) + "  ");
+            Drawable compareIcon = ContextCompat.getDrawable(this, R.drawable.compare);
+            if (compareIcon != null) {
+                compareIcon.setTint(menuColor);
+                compareIcon.setBounds(0, 0, compareIcon.getIntrinsicWidth(), compareIcon.getIntrinsicHeight());
+                ImageSpan span = new ImageSpan(compareIcon, ImageSpan.ALIGN_BOTTOM);
+                compareText.setSpan(span, compareText.length() - 2, compareText.length() - 1, Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+            }
+            compareText.setSpan(new ForegroundColorSpan(menuColor), 0, compareText.length(), 0);
             compareItem.setTitle(compareText);
         }
 
-        MenuItem raportItemm = menu.findItem(R.id.raporty);
-        if (raportItemm != null) {
-            SpannableString sss = new SpannableString(raportItemm.getTitle());
-            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
-            raportItemm.setTitle(sss);
-        }
-
-        MenuItem znacznikiItemm = menu.findItem(R.id.pznaczniki);
-        if (znacznikiItemm != null) {
-            SpannableString sss = new SpannableString(znacznikiItemm.getTitle());
-            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
-            znacznikiItemm.setTitle(sss);
-        }
-
-        MenuItem usunZnacznikItemm = menu.findItem(R.id.uznacznik);
-        if (usunZnacznikItemm != null) {
-            SpannableString sss = new SpannableString(usunZnacznikItemm.getTitle());
-            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
-            usunZnacznikItemm.setTitle(sss);
-        }
-
-        MenuItem pdzienItemm = menu.findItem(R.id.pdzien);
-        if (pdzienItemm != null) {
-            SpannableString sss = new SpannableString(pdzienItemm.getTitle());
-            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
-            pdzienItemm.setTitle(sss);
-        }
-
-        MenuItem edaneItemm = menu.findItem(R.id.edane);
-        if (edaneItemm != null) {
-            SpannableString sss = new SpannableString(edaneItemm.getTitle());
-            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
-            edaneItemm.setTitle(sss);
-        }
-
-        MenuItem udaneItemm = menu.findItem(R.id.udane);
-        if (udaneItemm != null) {
-            SpannableString sss = new SpannableString(udaneItemm.getTitle());
-            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
-            udaneItemm.setTitle(sss);
-        }
-
-        MenuItem wylogujItemm = menu.findItem(R.id.wyloguj);
-        if (wylogujItemm != null) {
-            SpannableString sss = new SpannableString(wylogujItemm.getTitle());
-            sss.setSpan(new ForegroundColorSpan(Color.parseColor("#4CAF50")), 0, sss.length(), 0);
-            wylogujItemm.setTitle(sss);
-        }
         return true;
     }
+
 
     /**
      * @brief This hook is called whenever an item in your options menu is selected.

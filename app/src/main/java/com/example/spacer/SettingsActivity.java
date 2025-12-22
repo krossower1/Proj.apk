@@ -259,6 +259,20 @@ public class SettingsActivity extends AppCompatActivity {
         // ======== Bottom Navigation Menu ========
         // Initialize the bottom navigation view.
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+
+        // Set background color based on theme
+        switch (theme) {
+            case "light":
+                bottomNav.setBackgroundColor(ContextCompat.getColor(this, R.color.white_bottom_menu));
+                break;
+            case "dark":
+                bottomNav.setBackgroundColor(ContextCompat.getColor(this, R.color.black_bottom_menu));
+                break;
+            default:
+                bottomNav.setBackgroundColor(ContextCompat.getColor(this, R.color.green_bottom_menu));
+                break;
+        }
+
         // Set a listener for bottom navigation item selections.
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();

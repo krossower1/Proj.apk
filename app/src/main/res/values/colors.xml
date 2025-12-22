@@ -27,4 +27,14 @@
     <color name="unique_default_background_first">#9abca6</color>
     <color name="unique_default_background_second">#64aa81</color>
 
+    <!-- kolory bottom menu -->
+    <color name="green_bottom_menu">#9abca6</color>
+    <color name="black_bottom_menu">#000000</color>
+    <color name="white_bottom_menu">#ffffff</color>
+
+    <!-- kolory home menu -->
+    <color name="green_home_menu">#076600</color>
+    <color name="black_home_menu">#000000</color>
+    <color name="white_home_menu">#ffffff</color>
+
 </resources>
