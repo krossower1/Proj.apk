@@ -116,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor gyroscope;
     private Sensor pressureSensor;
     private final float[] gravity = new float[3];
+    double droga = 0;
     double dist = 0;
     double kal = 0;
     double waga = 0;
@@ -410,20 +411,19 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         Button trackingButton = view.findViewById(R.id.button);
 
         SharedPreferences prefs = getSharedPreferences("settings", MODE_PRIVATE);
-        boolean useKm = prefs.getBoolean("use_km", false); // domyślnie metry
+        boolean useKm = prefs.getBoolean("use_km", false);
 
         double displayDist;
         String unit;
 
         if (useKm) {
-            displayDist = Math.floor(dist) / 1000.0; // przeliczamy metry na km
+            displayDist = Math.floor(dist) / 1000.0;
             unit = "km";
         } else {
-            displayDist = Math.floor(dist); // w metrach
+            displayDist = dist;
             unit = getString(R.string.meters_unit);
         }
 
-        // Zachowujemy oryginalny sposób użycia getString z R.string.dystans_formatted
         dystans.setText(getString(R.string.dystans_formatted, displayDist, unit));
 
         kroki.setText(getString(R.string.kroki_formatted, kro));
@@ -993,10 +993,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onSensorChanged(SensorEvent event) {
         if (isTracking) {
             float pressure = event.values[0];
-            if (wysokosc == 0) {
-                wysokosc = SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure) - 0.01;
+            if (wysokosc == 0 || czas % 10 == 0) {
+                wysokosc = SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure) - 0.001;
             }
-            wys = SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure) - wysokosc;
+            wys = Math.abs((SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure) - wysokosc) / (dist - droga));
 
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 final float alpha = 0.8f;
@@ -1053,6 +1053,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                         kro++;
                     }
                 }
+            }
+
+            if(czas % 10 == 0) {
+                droga = dist;
             }
 
             updateStatsView(statsSwitcher.getCurrentView(), dayOffset);
