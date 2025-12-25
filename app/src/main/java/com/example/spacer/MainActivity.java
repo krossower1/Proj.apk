@@ -1035,7 +1035,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     public void onSensorChanged(SensorEvent event) {
         if (isTracking) {
             float pressure = event.values[0];
-            if (wysokosc == 0 || czas % 10 == 0) {
+            if (wysokosc == 0 || czas % 5 == 0) {
                 wysokosc = SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure) - 0.001;
             }
             wys = Math.abs((SensorManager.getAltitude(SensorManager.PRESSURE_STANDARD_ATMOSPHERE, pressure) - wysokosc) / (dist - droga));
@@ -1097,8 +1097,9 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
                 }
             }
 
-            if(czas % 10 == 0) {
+            if(czas % 5 == 0) {
                 droga = dist;
+                dbHelper.saveTrainingData(0, dist, kro, kal, userId);
             }
 
             updateStatsView(statsSwitcher.getCurrentView(), dayOffset);
