@@ -17,6 +17,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Locale;
@@ -69,6 +70,18 @@ public class AccountActivity extends AppCompatActivity {
 
         // Bottom menu initialization
         BottomNavigationView bottomNav = findViewById(R.id.bottomNav);
+        switch (theme) {
+            case "light":
+                bottomNav.setBackgroundColor(ContextCompat.getColor(this, R.color.white_bottom_menu));
+                break;
+            case "dark":
+                bottomNav.setBackgroundColor(ContextCompat.getColor(this, R.color.black_bottom_menu));
+                break;
+            default:
+                bottomNav.setBackgroundColor(ContextCompat.getColor(this, R.color.green_bottom_menu));
+                break;
+        }
+
         bottomNav.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
 
